@@ -7,11 +7,11 @@ import { User } from '../interfaces/User';
 export const store = createStore(
     combineReducers({
         user: userReducer,
-        poems: poemReducer
-    }),
+        poems: poemReducer,
+    })
 );
 
 export interface RootState {
-    user: User,
-    poems: Poem[]
+    user: User;
+    poems: Poem[];
 }

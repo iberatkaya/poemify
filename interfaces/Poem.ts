@@ -1,12 +1,12 @@
-import { User } from './User';
+import { SubUser } from './User';
 import { Language } from './Language';
 
 export interface Poem {
-    author: User,
-    title: string,
-    poemId: number,
-    body: string,
-    date: Date,
-    likes: User[],
-    language: Language
+    author: SubUser;
+    title: string;
+    poemId: number;
+    body: string;
+    date: Date;
+    likes: SubUser[];
+    language: Language;
 }
