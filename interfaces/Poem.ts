@@ -1,4 +1,4 @@
-import { SubUser } from './User';
+import { SubUser, User } from './User';
 import { Language } from './Language';
 
 export interface Poem {
@@ -6,7 +6,7 @@ export interface Poem {
     title: string;
     poemId: number;
     body: string;
-    date: Date;
+    date: number;
     likes: SubUser[];
     language: Language;
 }

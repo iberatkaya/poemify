@@ -10,6 +10,7 @@ import { addPoem } from '../redux/actions/Poem';
 import { addUserPoem } from '../redux/actions/User';
 import { HomeStackParamList } from '../AppNav';
 import { Poem } from '../interfaces/Poem';
+import firestore from '@react-native-firebase/firestore';
 
 type ProfileScreenNavigationProp = StackNavigationProp<
     HomeStackParamList,
@@ -67,7 +68,7 @@ function WritePoem(props: Props) {
                 <Divider style={styles.divider} />
             </ScrollView>
             <FAB
-                onPress={() => {
+                onPress={async () => {
                     if (title === '') {
                         Toast.show('Title cannot be empty!');
                     }
@@ -81,11 +82,23 @@ function WritePoem(props: Props) {
                         Toast.show('The poem must be longer than 3 characters!');
                     }
                     else {
-                        let poemid = props.user.poems[props.user.poems.length - 1].poemId + 1;
-                        let mypoem: Poem = { author: { username: props.user.username }, body: poem, date: new Date(), language: lang, likes: [], poemId: poemid, title: title };
+                        let poemid = (props.user.poems.length !== 0) ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
+                        let mypoem: Poem = { author: {id: props.user.id, username: props.user.username}, body: poem, date: new Date().getTime(), language: lang, likes: [], poemId: poemid, title: title };
+                        let mypoems = [...props.user.poems];
+                        mypoems.push(mypoem);
+
+                        /**
+                         * Redux Operations
+                         */
                         props.addPoem(mypoem);
                         props.addUserPoem(mypoem);
                         props.navigation.pop();
+
+                        /**
+                         * Firebase Operations
+                         */
+                        await firestore().collection('users').doc(props.user.id).update({ poems: mypoems });
+
                     }
                 }}
                 style={styles.fab}

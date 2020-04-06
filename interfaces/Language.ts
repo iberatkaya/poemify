@@ -1,1 +1,1 @@
-export type Language = 'English' | 'Spanish' | 'Russian' | 'French' | 'Turkish' | 'German' | 'Italian' | 'Portuguese';
+export type Language = 'English' | 'Spanish' | 'Russian' | 'French' | 'Turkish' | 'German' | 'Italian' | 'Portuguese' | 'Japanese' | 'Korean';

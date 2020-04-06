@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { DefaultTheme, Provider as PaperProvider, Theme } from 'react-native-paper';
 import AppNav from './AppNav';
+import firebase from '@react-native-firebase/app';
 import { store } from './redux/store';
 
 const theme: Theme = {

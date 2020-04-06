@@ -6,31 +6,56 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomePage from './screens/Home';
 import ProfilePage from './screens/Profile';
-import WritePoem from './screens/WritePoem';
+import WritePoemPage from './screens/WritePoem';
+import LoginPage from './screens/Login';
 import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Enterance from './screens/Entrance';
+import SignupPage from './screens/Signup';
+import DrawerPage from './screens/Drawer';
+import { Poem } from './interfaces/Poem';
+import { User, SubUser } from './interfaces/User';
+import PoemDetailPage from './screens/PoemDetail';
+import UserDetailPage from './screens/UserDetail';
+import SettingsPage from './screens/Settings';
+import ChangeLangPage from './screens/settings/ChangeLang';
 
-const StackHome = createStackNavigator();
+const StackHome = createStackNavigator<HomeStackParamList>();
 
 export type HomeStackParamList = {
     Home: undefined;
     WritePoem: undefined;
+    PoemDetail: {poem: Poem} | undefined;
+    UserDetail: {profileUser: SubUser} | undefined;
 };
 
 function HomeStack() {
     return (
         <StackHome.Navigator>
             <StackHome.Screen name="Home" component={HomePage} options={{ headerTitle: 'Poemify', headerStyle: { elevation: 1 } }} />
-            <StackHome.Screen name="WritePoem" component={WritePoem} options={{ headerTitle: 'Write A Poem', headerStyle: { elevation: 1 } }} />
+            <StackHome.Screen name="WritePoem" component={WritePoemPage} options={{ headerTitle: 'Write A Poem', headerStyle: { elevation: 1 } }} />
+            <StackHome.Screen name="PoemDetail" component={PoemDetailPage} options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }} />
+            <StackHome.Screen name="UserDetail" component={UserDetailPage} options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }} />
         </StackHome.Navigator>
     );
 }
 
-const StackProfile = createStackNavigator();
+const StackProfile = createStackNavigator<ProfileStackParamList>();
+
+export type ProfileStackParamList = {
+    Profile: undefined;
+    PoemDetail: {poem: Poem} | undefined;
+    Settings: undefined;
+    ChangeLang: undefined;
+};
+
 
 function ProfileStack() {
     return (
         <StackProfile.Navigator>
             <StackProfile.Screen name="Profile" component={ProfilePage} options={{ headerStyle: { elevation: 1 } }} />
+            <StackProfile.Screen name="PoemDetail" component={PoemDetailPage} options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }} />
+            <StackProfile.Screen name="Settings" component={SettingsPage} options={{ headerTitle: 'Settings', headerStyle: { elevation: 1 } }} />
+            <StackProfile.Screen name="ChangeLang" component={ChangeLangPage} options={{ headerTitle: 'Change Languages', headerStyle: { elevation: 1 } }} />
         </StackProfile.Navigator>
     );
 }
@@ -66,52 +91,36 @@ function Tabs() {
     );
 }
 
+const StackEnterance = createStackNavigator();
+
+function EnteranceStack() {
+    return (
+        <StackEnterance.Navigator
+            headerMode="none"
+        >
+            <StackEnterance.Screen name="Enterance" component={Enterance} />
+            <StackEnterance.Screen name="Login" component={LoginPage} />
+            <StackEnterance.Screen name="Signup" component={SignupPage} />
+        </StackEnterance.Navigator>
+    );
+}
+
+
 const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
     return (
         <Drawer.Navigator
             drawerContent={(props) => (
-                <View style={{height: '100%'}}>
-                    <View style={{height: 150, backgroundColor: 'blue'}}></View>
-                    <TouchableOpacity style={styles.itemRow}>
-                        <IconButton icon="email" size={20} color="#777"/>
-                        <Text style={styles.text}>Feedback</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.logout}>
-                        <IconButton icon="logout" size={20} color="#777"/>
-                        <Text style={styles.text}>Logout</Text>
-                    </TouchableOpacity>
-                </View>
+                <DrawerPage nav={props.navigation}/>
             )}
         >
+            <Drawer.Screen name="Enterance" component={EnteranceStack} />
             <Drawer.Screen name="Home" component={Tabs} />
         </Drawer.Navigator>
     );
 }
 
-const styles = StyleSheet.create({
-    itemRow: {
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingLeft: 17, 
-        paddingVertical: 12
-    },
-    text: {
-        fontSize: 14, 
-        fontWeight: 'bold', 
-        paddingLeft: 12, 
-        color: '#000'
-    },
-    logout: {
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingLeft: 17, 
-        paddingVertical: 12,
-        position: 'absolute', 
-        bottom: 0
-    }
-})
 
 export default function AppNav() {
     return (

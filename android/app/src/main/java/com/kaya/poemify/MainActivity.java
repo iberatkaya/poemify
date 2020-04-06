@@ -1,4 +1,4 @@
-package com.poemify;
+package com.kaya.poemify;
 
 import com.facebook.react.ReactActivity;
 
