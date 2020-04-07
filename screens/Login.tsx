@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator } from 'react-native-paper';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
 import { setUser } from '../redux/actions/User';
@@ -9,8 +8,13 @@ import { RootState } from '../redux/store';
 import { User } from '../interfaces/User';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-community/async-storage';
+import { EnteranceStackParamList } from 'AppNav';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined, Login: undefined, Home: undefined }, 'Enterance'>;
+type EnteranceScreenNavigationProp = StackNavigationProp<
+    EnteranceStackParamList
+, 'Login'>;
 
 
 const mapState = (state: RootState) => ({
@@ -71,9 +75,9 @@ function Login(props: Props) {
                         <View />
                 }
             </View>
-            <HelperText style={styles.helperText}>Forgot your password?</HelperText>
+            <Text style={styles.helperText} onPress={() => props.navigation.navigate('ResetPassword')} >Forgot your password?</Text>
             {!loading ?
-                <Button mode="contained" dark={true} style={styles.button}
+                <Button mode="contained" dark={true} labelStyle={styles.buttonLabel}
                     onPress={async () => {
                         let myerrors = [...errors];
                         let hasError = false;
@@ -107,7 +111,7 @@ function Login(props: Props) {
                                 let res = await firestore().collection('users').where('email', '==', email).get();
                                 let user = { ...res.docs[0].data() , id: res.docs[0].data().id };
                                 props.setUser(user as User);
-                                props.navigation.navigate('Home');
+                                await AsyncStorage.setItem('user', JSON.stringify(user));
                                 /**
                                  * Reset State since logging out returns to last page in the drawer stack
                                  */
@@ -150,7 +154,7 @@ const styles = StyleSheet.create({
     textinput: {
         marginBottom: 20
     },
-    button: {
+    buttonLabel: {
         paddingVertical: 6
     },
     textinputLast: {
@@ -163,9 +167,10 @@ const styles = StyleSheet.create({
         marginBottom: 4
     },
     helperText: {
+        color: '#555',
         fontSize: 13,
         textAlign: 'right',
-        marginTop: 4,
+        marginTop: 6,
         marginBottom: 24
     },
     arrowBack: {

@@ -6,8 +6,8 @@ export interface User {
     id: string;
     preferredLanguages: Language[];
     poems: Poem[];
-    following: User[];
-    followers: User[];
+    following: SubUser[];
+    followers: SubUser[];
     email: string;
 }
 

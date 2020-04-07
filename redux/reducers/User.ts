@@ -4,8 +4,8 @@ import { setUserAction, updateUserPoemAction, addUserPoemAction, deleteUserPoemA
 const USER_INITIAL_STATE: User = {
     email: '',
     id: '',
-    username: 'Test',
-    preferredLanguages: ['English'],
+    username: '',
+    preferredLanguages: [],
     poems: [],
     following: [],
     followers: [],
@@ -35,7 +35,7 @@ export const userReducer = (state = USER_INITIAL_STATE, action: setUserAction | 
             let myindex = myusr.poems.findIndex((i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username)
             if(myindex === -1)
                 throw "USER REDUCER: An error occurred!";
-            myusr.poems.splice(myindex);
+            myusr.poems.splice(myindex, 1);
             return myusr;
         default:
             return state;

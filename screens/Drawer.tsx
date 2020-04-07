@@ -6,8 +6,9 @@ import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import { User } from '../interfaces/User';
+import { DrawerParamList } from 'AppNav';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined, Login: undefined, Home: undefined }, 'Enterance'>;
+type EnteranceScreenNavigationProp = DrawerNavigationProp<DrawerParamList, 'Tabs'>;
 
 
 const mapState = (state: RootState) => ({
@@ -37,9 +38,8 @@ function Drawer(props: Props) {
             </TouchableOpacity>
             <TouchableOpacity style={styles.logout}
                 onPress={() =>{
-                    let user: User = {username: '', poems: [], preferredLanguages: [], followers: [], following: []}
+                    let user: User = {id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: []}
                     props.setUser(user);
-                    props.nav.navigate('Enterance');
                 }}
             >
                 <IconButton icon="logout" size={20} color="#777" />

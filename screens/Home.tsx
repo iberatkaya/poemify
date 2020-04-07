@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { FAB, IconButton } from 'react-native-paper';
@@ -9,13 +9,14 @@ import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { HomeStackParamList } from '../AppNav';
+import { HomeStackParamList, DrawerParamList } from '../AppNav';
 import firestore from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
+import Toast from 'react-native-simple-toast';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
-    DrawerNavigationProp<{ Home: undefined }, 'Home'>,
+    DrawerNavigationProp<DrawerParamList, 'Tabs'>,
     StackNavigationProp<HomeStackParamList>
 >
 
@@ -49,46 +50,58 @@ function Home(props: Props) {
         },
     });
 
+    const [refresh, setRefresh] = useState(false);
+
 
     const fetchPoems = async () => {
-        let res = await firestore().collection('users').get();
-        let data = res.docs;
-        let poems: Poem[] = data.map((i) => {
-            let temp = i.data();
-            let arr: Poem[] = temp.poems.map((j) => ({
-                author: j.author,
-                body: j.body,
-                date: j.date,
-                language: j.language,
-                likes: j.likes,
-                poemId: j.poemId,
-                title: j.title
-            }));
-            return arr;
-        }).flat()
-        props.setPoem(poems);
-        console.log('setted');
+        try {
+            setRefresh(true);
+            let res = await firestore().collection('users').where('preferredLanguages', 'array-contains-any', props.user.preferredLanguages).get();
+            let data = res.docs;
+            let poems: Poem[] = data.map((i) => {
+                let temp = i.data();
+                let arr: Poem[] = temp.poems.filter((k: Poem) => (props.user.preferredLanguages.includes(k.language))).map((j: Poem) => ({
+                    author: j.author,
+                    body: j.body,
+                    date: j.date,
+                    language: j.language,
+                    likes: j.likes,
+                    poemId: j.poemId,
+                    title: j.title
+                }));
+                return arr;
+            }).flat();
+            props.setPoem(poems);
+            setRefresh(false);
+        } catch (e) {
+            console.log(e);
+            Toast.show("Please check your internet connection!")
+        }
     }
 
 
     let fetchSelf = async () => {
         let res = await firestore().collection('users').where('email', '==', props.user.email).get();
-        let user = { ...res.docs[0].data() , id: res.docs[0].data().id };
-        console.log(user);
+        let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
         props.setUser(user as User);
     }
 
 
     useEffect(() => {
-        console.log('use')
-        fetchPoems();/* 
-        fetchSelf(); */
+        fetchPoems();
+        fetchSelf(); 
     }, []);
 
 
     return (
         <View style={styles.container}>
             <FlatList
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refresh}
+                        onRefresh={fetchPoems}
+                    />
+                }
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.poems.sort((a, b) => b.date - a.date)}
                 renderItem={({ item }) => (

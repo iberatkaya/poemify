@@ -11,6 +11,7 @@ import { User, FirebaseUser } from '../interfaces/User';
 import { Language } from 'interfaces/Language';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-community/async-storage';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined, Login: undefined, Home: undefined }, 'Enterance'>;
 
@@ -50,6 +51,21 @@ function Signup(props: Props) {
                     textContentType="username"
                     label="Username"
                     error={errors[0].error}
+                    onEndEditing={async () => {
+                        let usernameIsTaken = await firestore().collection('users').where('username', '==', username).get();
+                        if (!usernameIsTaken.empty) {
+                            let newerrors = [...errors];
+                            newerrors[0] = { error: true, msg: 'Username is already taken' }; 
+                            setErrors(newerrors);
+                            return;
+                        }
+                        else{
+                            let newerrors = [...errors];
+                            newerrors[0] = { error: false, msg: '' }; 
+                            setErrors(newerrors);
+                            return;
+                        }
+                    }}
                     mode='outlined'
                     value={username}
                     onChangeText={(text) => setUsername(text)}
@@ -145,7 +161,7 @@ function Signup(props: Props) {
             </View>
             {!loading ?
 
-                <Button mode="contained" dark={true} style={styles.button}
+                <Button mode="contained" dark={true} labelStyle={styles.buttonLabel}
                     onPress={async () => {
                         setLoading(true);
                         let myerrors = [...errors];
@@ -185,15 +201,21 @@ function Signup(props: Props) {
                         }
                         setErrors(myerrors);
                         if (!hasError) {
+                            let usernameIsTaken = await firestore().collection('users').where('username', '==', username).get();
+                            if (!usernameIsTaken.empty) {
+                                setErrors([{ error: true, msg: 'Username is already taken' }, { error: false, msg: '' }, {error: false, msg: ''}]);
+                                setLoading(false);
+                                return;
+                            }
                             let filtered = langs.filter((i) => (i !== null)) as Array<Language>;
                             let res = await auth().createUserWithEmailAndPassword(email, password);
                             let fuser: FirebaseUser = { email: email, username: username, preferredLanguages: filtered, poems: [], followers: [], following: [] }
                             let res2 = await firestore().collection('users').add(fuser);
-                            let res3 = await firestore().collection('users').doc(res2.id).update({id: res2.id});
-                            let user: User = {...fuser, id: res2.id};
+                            let res3 = await firestore().collection('users').doc(res2.id).update({ id: res2.id });
+                            let user: User = { ...fuser, id: res2.id };
 
                             props.setUser(user);
-                            props.navigation.navigate('Home');
+                            await AsyncStorage.setItem('user', JSON.stringify(user));
                             /**
                              * Reset State since logging out returns to last page in the drawer stack
                              */
@@ -237,7 +259,7 @@ const styles = StyleSheet.create({
     textinputLast: {
         marginBottom: 20
     },
-    button: {
+    buttonLabel: {
         paddingVertical: 6
     },
     errorText: {

@@ -10,6 +10,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../../redux/actions/User';
 import { RootState } from '../../redux/store';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-community/async-storage';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined, Login: undefined, Home: undefined }, 'Enterance'>;
 
@@ -94,7 +95,7 @@ function ChangeLang(props: Props) {
                     />
                 </View>
             </View>
-            <Button mode="contained" dark={true} style={styles.button}
+            <Button mode="contained" dark={true} labelStyle={styles.buttonLabel}
                 onPress={async () => {
                     let filtered = langs.filter((i) => (i !== null)) as Array<Language>;
                     let user: User = { ...props.user };
@@ -102,6 +103,7 @@ function ChangeLang(props: Props) {
                     await firestore().collection('users').doc(props.user.id).update({ preferredLanguages: filtered });
 
                     props.setUser(user);
+                    await AsyncStorage.setItem('user', JSON.stringify(user));
                     props.navigation.goBack();
                 }}
             >Save</Button>
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     textinputLast: {
         marginBottom: 20
     },
-    button: {
+    buttonLabel: {
         paddingVertical: 6
     },
     errorText: {

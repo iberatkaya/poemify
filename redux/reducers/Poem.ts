@@ -29,7 +29,7 @@ export const poemReducer = (state = POEM_INITIAL_STATE, action: setPoemAction | 
             let myindex = all.findIndex((i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username)
             if (myindex === -1)
                 throw "POEMS REDUCER: An error occurred!";
-            all.splice(myindex);
+            all.splice(myindex, 1);
             return all;
         default:
             return state;

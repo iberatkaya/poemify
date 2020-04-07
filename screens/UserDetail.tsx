@@ -9,6 +9,7 @@ import UserCard from '../components/UserCard';
 import { User, SubUser } from '../interfaces/User';
 import firestore from '@react-native-firebase/firestore';
 import PoemCard from '../components/PoemCard';
+import { ActivityIndicator } from 'react-native-paper';
 
 type PoemDetailNavigationProp = StackNavigationProp<
     HomeStackParamList,
@@ -38,30 +39,31 @@ function UserDetail(props: Props) {
     const [theUser, setTheUser] = useState<User>(temp);
 
     useEffect(() => {
-        console.log('load')
         let func = async () => {
-            console.log(props.route.params!.profileUser);
             let tempUser = await firestore().collection('users').doc(props.route.params!.profileUser.id).get();
-            console.log(tempUser);
             let userData = tempUser.data() as User;
-            console.log(userData.poems[0].date);
             setTheUser(userData);
         }
-        func()
-    }, []);
+        func();
+    }, [props.user]);
     
     return (
         <View>
             <UserCard
                 theUserProp={theUser}
             />
-            <FlatList
-                keyExtractor={(_i, index) => index.toString()}
-                data={theUser.poems.sort((a, b) => b.poemId - a.poemId)}
-                renderItem={({ item }) => (
-                    <PoemCard item={item} navigation={props.navigation} full={false} />
-                )}
-            />
+            {
+                theUser.email !== '' ?
+                <FlatList
+                    keyExtractor={(_i, index) => index.toString()}
+                    data={theUser.poems.sort((a, b) => b.poemId - a.poemId)}
+                    renderItem={({ item }) => (
+                        <PoemCard item={item} navigation={props.navigation} full={false} />
+                    )}
+                />
+                :
+                <ActivityIndicator style={styles.loading} size={50} />
+            }
         </View>
     )
 }
@@ -69,5 +71,7 @@ function UserDetail(props: Props) {
 export default connector(UserDetail);
 
 const styles = StyleSheet.create({
-
+    loading: {
+        marginTop: 40
+    }
 });

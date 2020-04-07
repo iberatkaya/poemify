@@ -112,7 +112,7 @@ export default connector(WritePoem);
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#e6e6e6',
+        backgroundColor: '#ededed',
         height: '100%'
     },
     divider: {
