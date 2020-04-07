@@ -128,7 +128,7 @@ function Login(props: Props) {
                     Login
                 </Button>
             ) : (
-                <ActivityIndicator size={50} />
+                <ActivityIndicator style={{marginTop: 24}} size={50} />
             )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </View>

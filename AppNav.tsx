@@ -24,6 +24,8 @@ import ResetPasswordPage from './screens/ResetPassword';
 import FollowListPage from './screens/FollowList';
 import AsyncStorage from '@react-native-community/async-storage';
 import SearchPage from './screens/Search';
+import SelectTopicsPage from './screens/SelectTopics';
+import ChangeTopicPage from './screens/settings/ChangeTopics';
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -70,6 +72,7 @@ export type ProfileStackParamList = {
     PoemDetail: { poem: Poem } | undefined;
     Settings: undefined;
     ChangeLang: undefined;
+    ChangeTopics: undefined;
     FollowList: { type: 'follower' | 'following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
@@ -92,6 +95,11 @@ function ProfileStack() {
                 name="ChangeLang"
                 component={ChangeLangPage}
                 options={{ headerTitle: 'Change Languages', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="ChangeTopics"
+                component={ChangeTopicPage}
+                options={{ headerTitle: 'Change Topics', headerStyle: { elevation: 1 } }}
             />
             <StackProfile.Screen
                 name="FollowList"
@@ -193,6 +201,7 @@ export type EnteranceStackParamList = {
     Login: undefined;
     Signup: undefined;
     ResetPassword: undefined;
+    SelectTopics: undefined;
 };
 
 function EnteranceStack() {
@@ -202,6 +211,7 @@ function EnteranceStack() {
             <StackEnterance.Screen name="Login" component={LoginPage} />
             <StackEnterance.Screen name="Signup" component={SignupPage} />
             <StackEnterance.Screen name="ResetPassword" component={ResetPasswordPage} />
+            <StackEnterance.Screen name="SelectTopics" component={SelectTopicsPage} />
         </StackEnterance.Navigator>
     );
 }

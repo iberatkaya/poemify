@@ -1,5 +1,6 @@
 import { Language } from './Language';
 import { Poem } from './Poem';
+import { Topic } from './Topic';
 
 export interface User {
     username: string;
@@ -9,6 +10,7 @@ export interface User {
     following: SubUser[];
     followers: SubUser[];
     email: string;
+    topics: Topic[];
 }
 
 export interface FirebaseUser {
@@ -18,6 +20,7 @@ export interface FirebaseUser {
     followers: User[];
     poems: Poem[];
     email: string;
+    topics: Topic[];
 }
 
 export interface SubUser {

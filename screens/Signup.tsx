@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, ActivityIndicator } from 'react-native-paper';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, ActivityIndicator, Card } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -13,8 +13,9 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../constants/collection';
+import { EnteranceStackParamList } from 'AppNav';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined; Login: undefined; Home: undefined }, 'Enterance'>;
+type EnteranceScreenNavigationProp = DrawerNavigationProp<EnteranceStackParamList, 'Signup'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -46,6 +47,7 @@ function Signup(props: Props) {
         'Spanish',
         'Turkish',
     ];
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -53,6 +55,7 @@ function Signup(props: Props) {
         { error: false, msg: '' },
         { error: false, msg: '' },
         { error: false, msg: '' },
+        { error: false, msg: '' }
     ]);
     const [langs, setLangs] = useState<Array<Language | null>>(['English', null, null]);
     const [loading, setLoading] = useState(false);
@@ -134,7 +137,7 @@ function Signup(props: Props) {
                 <View style={styles.langContainer}>
                     <RNPickerSelect
                         items={allLangs.filter((i) => i !== langs[0] && i !== langs[2]).map((i) => ({ value: i, label: i }))}
-                        placeholder={{ label: 'Select your second language.' }}
+                        placeholder={{ label: 'Select your second language' }}
                         value={langs[1]}
                         placeholderTextColor="#555"
                         onValueChange={(val) => {
@@ -145,27 +148,41 @@ function Signup(props: Props) {
                     />
                 </View>
             </View>
-            <View>
-                <Text style={styles.langText}>Third Language (Optional)</Text>
-                <View style={styles.langContainer}>
-                    <RNPickerSelect
-                        items={allLangs.filter((i) => i !== langs[0] && i !== langs[1]).map((i) => ({ value: i, label: i }))}
-                        placeholder={{ label: 'Select your third language.' }}
-                        value={langs[2]}
-                        placeholderTextColor="#555"
-                        onValueChange={(val) => {
-                            let lang = [...langs];
-                            lang[2] = val;
-                            setLangs(lang);
-                        }}
-                    />
-                </View>
-            </View>
+            {
+                langs[1] != null ?
+                    <View>
+                        <Text style={styles.langText}>Third Language (Optional)</Text>
+                        <View style={styles.langContainer}>
+                            <RNPickerSelect
+                                items={allLangs.filter((i) => i !== langs[0] && i !== langs[1]).map((i) => ({ value: i, label: i }))}
+                                placeholder={{ label: 'Select your third language' }}
+                                value={langs[2]}
+                                placeholderTextColor="#555"
+                                onValueChange={(val) => {
+                                    let lang = [...langs];
+                                    lang[2] = val;
+                                    setLangs(lang);
+                                }}
+                            />
+                        </View>
+                    </View>
+                    :
+                    <View />
+            }
+            <Button
+                mode="outlined"
+                dark={true}
+                labelStyle={errors[3].error ? {...styles.buttonLabel, color: 'red'} : styles.buttonLabel}
+                onPress={() => props.navigation.navigate('SelectTopics')}>{props.user.topics.length < 1 ? "Select your topics" : "Selected " + props.user.topics.length.toString() + " topics"}</Button>
+
+            {errors[3].error ? <HelperText style={styles.errorText}>{errors[3].msg}</HelperText> : <View />}
+            
             {!loading ? (
                 <Button
                     mode="contained"
                     dark={true}
                     labelStyle={styles.buttonLabel}
+                    style={styles.signupButton}
                     onPress={async () => {
                         setLoading(true);
                         let myerrors = [...errors];
@@ -197,6 +214,11 @@ function Signup(props: Props) {
                         } else {
                             myerrors[2] = { error: false, msg: '' };
                         }
+                        if (props.user.topics.length < 2) {
+                            myerrors[3] = {error: true, msg: 'Select at least 2 topics!'};
+                        } else {
+                            myerrors[3] = { error: false, msg: '' };
+                        }
                         setErrors(myerrors);
                         if (!hasError) {
                             let usernameIsTaken = await firestore().collection(usersCollectionId).where('username', '==', username).get();
@@ -218,12 +240,13 @@ function Signup(props: Props) {
                                 poems: [],
                                 followers: [],
                                 following: [],
+                                topics: [...props.user.topics]
                             };
                             let res2 = await firestore().collection(usersCollectionId).add(fuser);
 
                             //Maybe delete later?
                             let res3 = await firestore().collection(usersCollectionId).doc(res2.id).update({ id: res2.id });
-                            let user: User = { ...fuser, id: res2.id };
+                            let user: User = { ...fuser, id: res2.id, topics: [] };
 
                             props.setUser(user);
                             await AsyncStorage.setItem('user', JSON.stringify(user));
@@ -243,8 +266,8 @@ function Signup(props: Props) {
                     Sign up
                 </Button>
             ) : (
-                <ActivityIndicator size={50} />
-            )}
+                    <ActivityIndicator style={{marginTop: 24}} size={50} />
+                )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </ScrollView>
     );
@@ -269,10 +292,13 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     textinputLast: {
-        marginBottom: 20,
+        marginBottom: 16,
     },
     buttonLabel: {
         paddingVertical: 6,
+    },
+    signupButton: {
+        marginTop: 16
     },
     errorText: {
         fontSize: 13,
@@ -288,15 +314,9 @@ const styles = StyleSheet.create({
     },
     langContainer: {
         borderColor: '#888',
-        marginBottom: 24,
+        marginBottom: 16,
         borderWidth: 1,
         borderRadius: 12,
-    },
-    helperText: {
-        fontSize: 13,
-        textAlign: 'right',
-        marginTop: 4,
-        marginBottom: 24,
     },
     arrowBack: {
         position: 'absolute',

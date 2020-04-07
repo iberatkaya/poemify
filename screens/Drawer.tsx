@@ -7,6 +7,7 @@ import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import { User } from '../interfaces/User';
 import { DrawerParamList } from 'AppNav';
+import AsyncStorage from '@react-native-community/async-storage';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<DrawerParamList, 'Tabs'>;
 
@@ -46,9 +47,10 @@ function Drawer(props: Props) {
             )}
             <TouchableOpacity
                 style={styles.logout}
-                onPress={() => {
-                    let user: User = { id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
+                onPress={async () => {
+                    let user: User = { topics: [], id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
                     props.setUser(user);
+                    await AsyncStorage.setItem('user', JSON.stringify(user));
                 }}
             >
                 <IconButton icon="logout" size={20} color="#777" />

@@ -12,6 +12,8 @@ import { HomeStackParamList } from '../AppNav';
 import { Poem } from '../interfaces/Poem';
 import firestore from '@react-native-firebase/firestore';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
+import { allTopics } from '../constants/topics';
+
 
 type ProfileScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'WritePoem'>;
 
@@ -37,6 +39,7 @@ function WritePoem(props: Props) {
     const [title, setTitle] = useState('');
     const [poem, setPoem] = useState('');
     const [lang, setLang] = useState(props.user.preferredLanguages[0]);
+    const [topics, setTopics] = useState([props.user.topics[0], props.user.topics[1]]);
 
     return (
         <View style={styles.container}>
@@ -51,16 +54,43 @@ function WritePoem(props: Props) {
                     multiline={true}
                     numberOfLines={18}
                 />
-                <View style={{ marginLeft: 4 }}>
+                <View style={styles.pickerContainer}>
                     <RNPickerSelect
-                        style={{ fontSize: 40 }}
                         onValueChange={(value) => setLang(value)}
                         placeholder={{}}
                         items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
                         value={lang}
                     />
                 </View>
-                <HelperText style={{ paddingBottom: 12 }}>Select the poem language</HelperText>
+                <HelperText style={styles.helpText}>Select the poem language</HelperText>
+                <Divider style={styles.divider} />
+                <View style={styles.pickerContainer}>
+                    <RNPickerSelect
+                        onValueChange={(value) => {
+                            let mytopics = [...topics];
+                            mytopics[0] = value;
+                            setTopics(mytopics);
+                        }}
+                        placeholder={{}}
+                        items={allTopics.map((i) => ({ value: i, label: i }))}
+                        value={topics[0]}
+                    />
+                </View>
+                <HelperText style={styles.helpText}>Select the first poem topic</HelperText>
+                <Divider style={styles.divider} />
+                <View style={styles.pickerContainer}>
+                    <RNPickerSelect
+                        onValueChange={(value) => {
+                            let mytopics = [...topics];
+                            mytopics[1] = value;
+                            setTopics(mytopics);
+                        }}
+                        placeholder={{}}
+                        items={allTopics.map((i) => ({ value: i, label: i }))}
+                        value={topics[1]}
+                    />
+                </View>
+                <HelperText style={styles.helpText}>Select the second poem topic</HelperText>
                 <Divider style={styles.divider} />
             </ScrollView>
             <FAB
@@ -78,6 +108,7 @@ function WritePoem(props: Props) {
                         let mypoem: Poem = {
                             author: { id: props.user.id, username: props.user.username },
                             body: poem,
+                            topics: topics,
                             date: new Date().getTime(),
                             language: lang,
                             likes: [],
@@ -118,10 +149,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#ededed',
         height: '100%',
     },
+    pickerContainer: {
+        marginLeft: 4
+    },
     divider: {
         backgroundColor: '#b6b6b6',
         height: 2,
-        marginTop: 8,
+        marginTop: 2,
+    },
+    helpText: {
+        paddingBottom: 8
     },
     fab: {
         position: 'absolute',

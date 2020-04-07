@@ -8,7 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
 import { Card, Title, Divider } from 'react-native-paper';
 
-type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Settings'>;
+type ProfileDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Settings'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -22,11 +22,11 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type Props = PropsFromRedux & {
-    navigation: PoemDetailNavigationProp;
+    navigation: ProfileDetailNavigationProp;
 };
 
 function Settings(props: Props) {
-    let settings: Array<{ label: string; route: 'ChangeLang' }> = [{ label: 'Change Languages', route: 'ChangeLang' }];
+    let settings: Array<{ label: string; route: 'ChangeLang' | 'ChangeTopics' }> = [{ label: 'Change Languages', route: 'ChangeLang' }, {label: 'Change Topics', route: 'ChangeTopics'}];
     return (
         <View>
             <FlatList
@@ -60,6 +60,5 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        marginTop: 8,
     },
 });

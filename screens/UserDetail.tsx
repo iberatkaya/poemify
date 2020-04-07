@@ -36,6 +36,7 @@ type Props = PropsFromRedux & {
 function UserDetail(props: Props) {
     let temp: User = {
         email: '',
+        topics: [],
         id: props.route.params!.profileUser.id,
         username: props.route.params!.profileUser.username,
         followers: [],

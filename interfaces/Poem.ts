@@ -1,5 +1,6 @@
 import { SubUser, User } from './User';
 import { Language } from './Language';
+import { Topic } from './Topic';
 
 export interface Poem {
     author: SubUser;
@@ -9,4 +10,5 @@ export interface Poem {
     date: number;
     likes: SubUser[];
     language: Language;
+    topics: Topic[];
 }

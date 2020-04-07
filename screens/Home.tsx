@@ -89,9 +89,9 @@ function Home(props: Props) {
                 refreshControl={
                     <RefreshControl
                         refreshing={refresh}
-                        onRefresh={() => {
-                            fetchPoems();
-                            fetchSelf();
+                        onRefresh={async () => {
+                            await fetchSelf();
+                            await fetchPoems();
                         }}
                     />
                 }

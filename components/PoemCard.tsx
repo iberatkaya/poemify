@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, TouchableRipple } from 'react-native-paper';
+import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, TouchableRipple, HelperText } from 'react-native-paper';
 import { Poem } from '../interfaces/Poem';
 import { connect, ConnectedProps } from 'react-redux';
 import { User } from '../interfaces/User';
@@ -93,6 +93,8 @@ function PoemCard(props: Props) {
                                             .where('poemId', '==', props.item.poemId)
                                             .get();
                                         await firestore().collection(poemsCollectionId).doc(req.docs[0].id).delete();
+                                        if(props.full)
+                                            props.navigation.pop();
                                     } catch (e) {
                                         Toast.show("We're sorry but an error occurred :(");
                                         console.log(e);
@@ -109,11 +111,12 @@ function PoemCard(props: Props) {
             </View>
             <Divider style={{ marginBottom: 12 }} />
             <Card.Content>
-                <Paragraph>
+                <Paragraph style={styles.bodyText}>
                     {props.item.body.split('\n').length > 8 && !props.full
                         ? props.item.body.split('\n').slice(0, 8).join('\n') + '\n...'
                         : props.item.body}
                 </Paragraph>
+                <Text style={styles.topics}>#{props.item.topics[0]} #{props.item.topics[1]}</Text>
             </Card.Content>
             <Divider style={styles.divider} />
             <Card.Actions style={styles.actions}>
@@ -253,7 +256,7 @@ export default connector(PoemCard);
 
 const styles = StyleSheet.create({
     cardContainer: {
-        marginHorizontal: 8,
+        marginHorizontal: 6,
         marginVertical: 4,
     },
     cardTitle: {
@@ -266,6 +269,14 @@ const styles = StyleSheet.create({
     menu: {
         position: 'absolute',
         right: 12,
+    },
+    bodyText: {
+        fontSize: 15,
+        marginBottom: 12
+    },
+    topics: {
+        color: '#888',
+        fontSize: 13
     },
     actions: {
         alignItems: 'center',
