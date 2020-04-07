@@ -7,7 +7,7 @@ export interface updatePoemAction {
 
 export const updatePoem = (updatedPoem: Poem) => ({
     type: 'UPDATE_POEM',
-    payload: updatedPoem
+    payload: updatedPoem,
 });
 
 export interface setPoemAction {
@@ -17,7 +17,7 @@ export interface setPoemAction {
 
 export const setPoem = (key: Poem[]) => ({
     type: 'SET_POEM',
-    payload: key
+    payload: key,
 });
 
 export interface addPoemAction {
@@ -27,7 +27,7 @@ export interface addPoemAction {
 
 export const addPoem = (key: Poem) => ({
     type: 'ADD_POEM',
-    payload: key
+    payload: key,
 });
 
 export interface deletePoemAction {
@@ -37,6 +37,5 @@ export interface deletePoemAction {
 
 export const deletePoem = (key: Poem) => ({
     type: 'DELETE_POEM',
-    payload: key
+    payload: key,
 });
-

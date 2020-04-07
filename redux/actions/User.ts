@@ -28,9 +28,8 @@ export interface addUserPoemAction {
 
 export const addUserPoem = (poem: Poem) => ({
     type: 'ADD_USER_POEM',
-    payload: poem
+    payload: poem,
 });
-
 
 export interface deleteUserPoemAction {
     type: 'DELETE_USER_POEM';
@@ -39,5 +38,5 @@ export interface deleteUserPoemAction {
 
 export const deleteUserPoem = (poem: Poem) => ({
     type: 'DELETE_USER_POEM',
-    payload: poem
+    payload: poem,
 });

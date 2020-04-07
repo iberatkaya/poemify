@@ -15,3 +15,5 @@ export interface RootState {
     user: User;
     poems: Poem[];
 }
+
+export const collectionName = 'demo';

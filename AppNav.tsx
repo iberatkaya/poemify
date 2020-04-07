@@ -23,6 +23,7 @@ import ChangeLangPage from './screens/settings/ChangeLang';
 import ResetPasswordPage from './screens/ResetPassword';
 import FollowListPage from './screens/FollowList';
 import AsyncStorage from '@react-native-community/async-storage';
+import SearchPage from './screens/Search';
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -30,6 +31,7 @@ export type HomeStackParamList = {
     Home: undefined;
     WritePoem: undefined;
     PoemDetail: { poem: Poem } | undefined;
+    FollowList: { type: 'follower' | 'following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
 
@@ -37,9 +39,26 @@ function HomeStack() {
     return (
         <StackHome.Navigator>
             <StackHome.Screen name="Home" component={HomePage} options={{ headerTitle: 'Poemify', headerStyle: { elevation: 1 } }} />
-            <StackHome.Screen name="WritePoem" component={WritePoemPage} options={{ headerTitle: 'Write A Poem', headerStyle: { elevation: 1 } }} />
-            <StackHome.Screen name="PoemDetail" component={PoemDetailPage} options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }} />
-            <StackHome.Screen name="UserDetail" component={UserDetailPage} options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }} />
+            <StackHome.Screen
+                name="WritePoem"
+                component={WritePoemPage}
+                options={{ headerTitle: 'Write A Poem', headerStyle: { elevation: 1 } }}
+            />
+            <StackHome.Screen
+                name="PoemDetail"
+                component={PoemDetailPage}
+                options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }}
+            />
+            <StackHome.Screen
+                name="UserDetail"
+                component={UserDetailPage}
+                options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="FollowList"
+                component={FollowListPage}
+                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+            />
         </StackHome.Navigator>
     );
 }
@@ -51,21 +70,72 @@ export type ProfileStackParamList = {
     PoemDetail: { poem: Poem } | undefined;
     Settings: undefined;
     ChangeLang: undefined;
-    FollowList: {type: 'follower' | 'following'};
+    FollowList: { type: 'follower' | 'following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
-
 
 function ProfileStack() {
     return (
         <StackProfile.Navigator>
             <StackProfile.Screen name="Profile" component={ProfilePage} options={{ headerStyle: { elevation: 1 } }} />
-            <StackProfile.Screen name="PoemDetail" component={PoemDetailPage} options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }} />
-            <StackProfile.Screen name="Settings" component={SettingsPage} options={{ headerTitle: 'Settings', headerStyle: { elevation: 1 } }} />
-            <StackProfile.Screen name="ChangeLang" component={ChangeLangPage} options={{ headerTitle: 'Change Languages', headerStyle: { elevation: 1 } }} />
-            <StackProfile.Screen name="FollowList" component={FollowListPage} options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }} />
-            <StackHome.Screen name="UserDetail" component={UserDetailPage} options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }} />
+            <StackProfile.Screen
+                name="PoemDetail"
+                component={PoemDetailPage}
+                options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="Settings"
+                component={SettingsPage}
+                options={{ headerTitle: 'Settings', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="ChangeLang"
+                component={ChangeLangPage}
+                options={{ headerTitle: 'Change Languages', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="FollowList"
+                component={FollowListPage}
+                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+            />
+            <StackHome.Screen
+                name="UserDetail"
+                component={UserDetailPage}
+                options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }}
+            />
         </StackProfile.Navigator>
+    );
+}
+
+const StackSearch = createStackNavigator<SearchStackParamList>();
+
+export type SearchStackParamList = {
+    Search: undefined;
+    FollowList: { type: 'follower' | 'following' };
+    PoemDetail: { poem: Poem } | undefined;
+    UserDetail: { profileUser: SubUser } | undefined;
+};
+
+function SearchStack() {
+    return (
+        <StackSearch.Navigator>
+            <StackSearch.Screen name="Search" component={SearchPage} options={{ headerShown: false }} />
+            <StackProfile.Screen
+                name="FollowList"
+                component={FollowListPage}
+                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+            />
+            <StackHome.Screen
+                name="UserDetail"
+                component={UserDetailPage}
+                options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="PoemDetail"
+                component={PoemDetailPage}
+                options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }}
+            />
+        </StackSearch.Navigator>
     );
 }
 
@@ -74,13 +144,12 @@ const Tab = createBottomTabNavigator();
 function Tabs() {
     return (
         <Tab.Navigator
-            tabBarOptions={{ 
-                keyboardHidesTabBar: true, 
+            tabBarOptions={{
+                keyboardHidesTabBar: true,
                 activeBackgroundColor: '#ececec',
                 inactiveBackgroundColor: '#f9f9f9',
                 activeTintColor: '#333',
-                inactiveTintColor: '#888'
-                
+                inactiveTintColor: '#888',
             }}
         >
             <Tab.Screen
@@ -90,6 +159,16 @@ function Tabs() {
                     title: 'Home',
                     tabBarIcon: ({ color, size }) => {
                         return <IconButton icon="home" size={size} color={color} />;
+                    },
+                })}
+            />
+            <Tab.Screen
+                name="SearchTab"
+                component={SearchStack}
+                options={() => ({
+                    title: 'Search',
+                    tabBarIcon: ({ color, size }) => {
+                        return <IconButton icon="magnify" size={size} color={color} />;
                     },
                 })}
             />
@@ -118,9 +197,7 @@ export type EnteranceStackParamList = {
 
 function EnteranceStack() {
     return (
-        <StackEnterance.Navigator
-            headerMode="none"
-        >
+        <StackEnterance.Navigator headerMode="none">
             <StackEnterance.Screen name="Enterance" component={Enterance} />
             <StackEnterance.Screen name="Login" component={LoginPage} />
             <StackEnterance.Screen name="Signup" component={SignupPage} />
@@ -129,28 +206,26 @@ function EnteranceStack() {
     );
 }
 
-
 const Drawer = createDrawerNavigator();
 
 export type DrawerParamList = {
     EnteranceStack: undefined;
     Tabs: undefined;
-}
+};
 
 const mapState = (state: RootState) => ({
-    user: state.user
+    user: state.user,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-type Props = PropsFromRedux & {
-};
+type Props = PropsFromRedux & {};
 
 let ConnectedDrawer = connector(function MyDrawer(props: Props) {
     const [user, setUser] = useState<User | null>(null);
@@ -158,41 +233,37 @@ let ConnectedDrawer = connector(function MyDrawer(props: Props) {
     useEffect(() => {
         let func = async () => {
             let getuser = await AsyncStorage.getItem('user');
-            let usr = (getuser !== null) ? JSON.parse(getuser) : null;
+            let usr = getuser !== null ? JSON.parse(getuser) : null;
             if (usr !== null && usr.username !== '') {
                 props.setUser(usr);
                 setUser(usr);
             }
-        }
+        };
         func();
-    }, [])
+    }, []);
 
     useEffect(() => {
         let logout = async () => {
             let usr = props.user;
             if (usr.username === '') {
                 setUser(null);
-            }
-            else{
+            } else {
                 setUser(usr);
             }
-        }
+        };
         logout();
     }, [props.user]);
 
     return (
         <Drawer.Navigator
             screenOptions={user !== null ? { gestureEnabled: true } : { gestureEnabled: false }}
-            drawerContent={(prps) => (
-                <DrawerPage nav={prps.navigation} />
-            )}
+            drawerContent={(prps) => <DrawerPage nav={prps.navigation} />}
         >
-            {
-                user === null ?
-                    <Drawer.Screen name="EnteranceStack" component={EnteranceStack} />
-                    :
-                    <Drawer.Screen name="Tabs" component={Tabs} />
-            }
+            {user === null ? (
+                <Drawer.Screen name="EnteranceStack" component={EnteranceStack} />
+            ) : (
+                <Drawer.Screen name="Tabs" component={Tabs} />
+            )}
         </Drawer.Navigator>
     );
 });

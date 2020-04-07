@@ -8,10 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
 import { Card, Title, Divider } from 'react-native-paper';
 
-type PoemDetailNavigationProp = StackNavigationProp<
-    ProfileStackParamList,
-    'Settings'
->;
+type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Settings'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -29,7 +26,7 @@ type Props = PropsFromRedux & {
 };
 
 function Settings(props: Props) {
-    let settings: Array<{label: string, route: "ChangeLang"}> = [{label: "Change Languages", route: 'ChangeLang'}]
+    let settings: Array<{ label: string; route: 'ChangeLang' }> = [{ label: 'Change Languages', route: 'ChangeLang' }];
     return (
         <View>
             <FlatList
@@ -38,18 +35,17 @@ function Settings(props: Props) {
                 ItemSeparatorComponent={() => <Divider style={styles.divider} />}
                 renderItem={({ item }) => (
                     <Card style={styles.cardContainer}>
-                        <Title style={styles.cardTitle} onPress={() => props.navigation.navigate(item.route)}>{item.label}</Title> 
+                        <Title style={styles.cardTitle} onPress={() => props.navigation.navigate(item.route)}>
+                            {item.label}
+                        </Title>
                     </Card>
                 )}
             />
-
         </View>
     );
 }
 
 export default connector(Settings);
-
-
 
 const styles = StyleSheet.create({
     cardContainer: {
@@ -65,5 +61,5 @@ const styles = StyleSheet.create({
     divider: {
         height: 1,
         marginTop: 8,
-    }
+    },
 });

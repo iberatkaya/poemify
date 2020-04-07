@@ -8,22 +8,18 @@ import { User, SubUser } from '../interfaces/User';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
-import Toast from 'react-native-simple-toast';
 import firestore from '@react-native-firebase/firestore';
+import { usersCollectionId } from '../constants/collection';
 
-
-type UserCardDetailNavigationProp = StackNavigationProp<
-    ProfileStackParamList,
-    'Profile'
->;
+type UserCardDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
-    poems: state.poems
+    poems: state.poems,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -34,7 +30,6 @@ type Props = PropsFromRedux & {
     theUserProp: User;
     navigation: UserCardDetailNavigationProp;
 };
-
 
 function UserCard(props: Props) {
     const [lock, setLock] = useState(false);
@@ -47,27 +42,33 @@ function UserCard(props: Props) {
             }
         }
         return false;
-    }
-
+    };
 
     return (
         <Card style={styles.cardContainer}>
             <Card.Content style={styles.cardTitleContainer}>
                 <Avatar.Text style={styles.icon} size={40} label={props.theUserProp.username.slice(0, 2).toUpperCase()} />
                 <Title style={styles.cardTitle}>{props.theUserProp.username}</Title>
-                {
-                    props.theUserProp.username === props.user.username ?
-                        < IconButton style={{ marginLeft: 'auto' }} icon="settings"
-                            onPress={() => {
-                                props.navigation.navigate('Settings');
-                            }}
-                        />
-                        :
-                        <View />
-                }
+                {props.theUserProp.username === props.user.username ? (
+                    <IconButton
+                        style={{ marginLeft: 'auto' }}
+                        icon="settings"
+                        onPress={() => {
+                            props.navigation.navigate('Settings');
+                        }}
+                    />
+                ) : (
+                    <View />
+                )}
             </Card.Content>
             <Divider style={styles.divider} />
-            <Card.Content style={props.theUserProp.username === props.user.username ? styles.cardContentContainer : { ...styles.cardContentContainer, justifyContent: 'center' }}>
+            <Card.Content
+                style={
+                    props.theUserProp.username === props.user.username
+                        ? styles.cardContentContainer
+                        : { ...styles.cardContentContainer, justifyContent: 'center' }
+                }
+            >
                 <Text style={styles.textContainer}>
                     <Text style={styles.userInfoText}>
                         {millify(props.theUserProp.poems.length, { lowerCase: true })}
@@ -75,129 +76,131 @@ function UserCard(props: Props) {
                     </Text>
                     Poems
                 </Text>
-                {
-                    props.theUserProp.username === props.user.username ?
-                        <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', {type: 'follower'})} >
-                            <Text style={styles.userInfoText}>
-                                {millify(props.theUserProp.followers.length, { lowerCase: true })}
-                                {'\n'}
-                            </Text>
-                                Followers
-                            </Text>
-                        :
-                        <View />
-                }
-                {
-                    props.theUserProp.username === props.user.username ?
-                        <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', {type: 'following'})}>
-                            <Text style={styles.userInfoText}>
-                                {millify(props.theUserProp.following.length, { lowerCase: true })}
-                                {'\n'}
-                            </Text>
-                                Following
-                            </Text>
-                        :
-                        <View />
-                }
+                {props.theUserProp.username === props.user.username ? (
+                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'follower' })}>
+                        <Text style={styles.userInfoText}>
+                            {millify(props.theUserProp.followers.length, { lowerCase: true })}
+                            {'\n'}
+                        </Text>
+                        Followers
+                    </Text>
+                ) : (
+                    <View />
+                )}
+                {props.theUserProp.username === props.user.username ? (
+                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'following' })}>
+                        <Text style={styles.userInfoText}>
+                            {millify(props.theUserProp.following.length, { lowerCase: true })}
+                            {'\n'}
+                        </Text>
+                        Following
+                    </Text>
+                ) : (
+                    <View />
+                )}
             </Card.Content>
-            {
-                props.theUserProp.username !== props.user.username ?
-                    < Divider style={styles.divider} />
-                    :
-                    <View />
-            }
-            {
-                props.theUserProp.username !== props.user.username
-                    ?
-                    <Card.Content>
-                        {
-                            follows() ?
-                                <Button mode="contained" dark={true} style={styles.followButton}
-                                    disabled={lock}
-                                    onPress={async () => {
-                                        try {
-                                            setLock(true);
-                                            let usr = { ...props.user };
-                                            let myindex = usr.following.findIndex((val) => (val.username === props.user.username && val.id === props.user.id));
-                                            usr.following.splice(myindex, 1);
+            {props.theUserProp.username !== props.user.username ? <Divider style={styles.divider} /> : <View />}
+            {props.theUserProp.username !== props.user.username ? (
+                <Card.Content>
+                    {follows() ? (
+                        <Button
+                            mode="contained"
+                            dark={true}
+                            style={styles.followButton}
+                            onPress={async () => {
+                                try {
+                                    if (lock) return;
+                                    setLock(true);
+                                    let usr = { ...props.user };
+                                    let myindex = usr.following.findIndex(
+                                        (val) => val.username === props.user.username && val.id === props.user.id
+                                    );
+                                    usr.following.splice(myindex, 1);
 
-                                            /**
-                                             * Redux Operations
-                                             */
+                                    /**
+                                     * Redux Operations
+                                     */
 
-                                            props.setUser(usr);
+                                    props.setUser(usr);
 
+                                    /**
+                                     * Firebase Operations
+                                     */
 
-                                            /**
-                                             * Firebase Operations
-                                             */
+                                    //Update user
+                                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ following: usr.following });
 
-                                            //Update user
-                                            await firestore().collection('users').doc(props.user.id).update({ following: usr.following });
+                                    //Get followed user
+                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.id).get();
+                                    let followedusr = res.data()!;
+                                    let index = followedusr.followers.findIndex(
+                                        (val: User) => val.username === props.user.username && val.id === props.user.id
+                                    );
+                                    if (index === -1) throw 'FIREBASE: An error occurred!';
+                                    followedusr.followers.splice(index, 1);
 
-                                            //Get followed user
-                                            let res = await firestore().collection('users').doc(props.theUserProp.id).get();
-                                            let followedusr = res.data()!;
-                                            let index = followedusr.followers.findIndex((val: User) => (val.username === props.user.username && val.id === props.user.id));
-                                            if (index === -1)
-                                                throw "FIREBASE: An error occurred!";
-                                            followedusr.followers.splice(index, 1);
-
-                                            //Unfollow
-                                            await firestore().collection('users').doc(props.theUserProp.id).update({ followers: followedusr.followers });
-                                            setLock(false);
-
-                                        } catch (e) {
-                                            setLock(false);
-                                            console.log(e);
-                                        }
-                                    }}
-                                >
-                                    Following
-                            </Button>
-                                :
-                                <Button mode="contained" style={styles.followButton} dark={true}
-                                    onPress={async () => {
-                                        try {
-                                            setLock(true);
-                                            let usr = { ...props.user };
-                                            usr.following.push({ id: props.theUserProp.id, username: props.theUserProp.username });
-
-                                            /**
-                                             * Redux Operations
-                                             */
-
-                                            props.setUser(usr);
-
-                                            /**
-                                             * Firebase Operations
-                                             */
-
-                                             //Update user
-                                            await firestore().collection('users').doc(props.user.id).update({ following: usr.following });
-
-                                            //Get user desired to follow
-                                            let res = await firestore().collection('users').doc(props.theUserProp.id).get();
-                                            let followedusr = res.data()!;
-                                            followedusr.followers.push({ id: props.user.id, username: props.user.username });
-
-                                            //Add user to the followed user followers
-                                            await firestore().collection('users').doc(props.theUserProp.id).update({ followers: followedusr.followers });
-                                            setLock(false);
-
-                                        } catch (e) {
-                                            setLock(false);
-                                            console.log(e);
-                                        }
-                                    }}
-                                >
-                                    Follow
+                                    //Unfollow
+                                    await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.theUserProp.id)
+                                        .update({ followers: followedusr.followers });
+                                    setLock(false);
+                                } catch (e) {
+                                    setLock(false);
+                                    console.log(e);
+                                }
+                            }}
+                        >
+                            Following
                         </Button>
-                        }
-                    </Card.Content>
-                    :
-                    <View />
-            }
+                    ) : (
+                        <Button
+                            mode="contained"
+                            style={styles.followButton}
+                            dark={true}
+                            onPress={async () => {
+                                try {
+                                    setLock(true);
+                                    let usr = { ...props.user };
+                                    usr.following.push({ id: props.theUserProp.id, username: props.theUserProp.username });
+
+                                    /**
+                                     * Redux Operations
+                                     */
+
+                                    props.setUser(usr);
+
+                                    /**
+                                     * Firebase Operations
+                                     */
+
+                                    //Update user
+                                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ following: usr.following });
+
+                                    //Get user desired to follow
+                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.id).get();
+                                    let followedusr = res.data()!;
+                                    followedusr.followers.push({ id: props.user.id, username: props.user.username });
+
+                                    //Add user to the followed user followers
+                                    await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.theUserProp.id)
+                                        .update({ followers: followedusr.followers });
+                                    setLock(false);
+                                } catch (e) {
+                                    setLock(false);
+                                    console.log(e);
+                                }
+                            }}
+                        >
+                            Follow
+                        </Button>
+                    )}
+                </Card.Content>
+            ) : (
+                <View />
+            )}
         </Card>
     );
 }
@@ -222,12 +225,12 @@ const styles = StyleSheet.create({
         marginRight: 16,
     },
     trashIcon: {
-        alignSelf: 'flex-end'
+        alignSelf: 'flex-end',
     },
     cardContentContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingBottom: 12
+        paddingBottom: 12,
     },
     textContainer: {
         textAlign: 'center',
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     followButton: {
-        marginVertical: 4
+        marginVertical: 4,
     },
     userInfoText: {
         fontWeight: 'bold',

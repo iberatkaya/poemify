@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, FlatList } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -10,11 +10,10 @@ import { User, SubUser } from '../interfaces/User';
 import firestore from '@react-native-firebase/firestore';
 import PoemCard from '../components/PoemCard';
 import { ActivityIndicator } from 'react-native-paper';
+import Toast from 'react-native-simple-toast';
+import { usersCollectionId } from '../constants/collection';
 
-type PoemDetailNavigationProp = StackNavigationProp<
-    HomeStackParamList,
-    'UserDetail'
->;
+type PoemDetailNavigationProp = StackNavigationProp<HomeStackParamList, 'UserDetail'>;
 
 type PoemDetailRouteProp = RouteProp<HomeStackParamList, 'UserDetail'>;
 
@@ -35,43 +34,52 @@ type Props = PropsFromRedux & {
 };
 
 function UserDetail(props: Props) {
-    let temp: User = { email: '', id: props.route.params!.profileUser.id, username: props.route.params!.profileUser.username, followers: [], following: [], poems: [], preferredLanguages: [] };
+    let temp: User = {
+        email: '',
+        id: props.route.params!.profileUser.id,
+        username: props.route.params!.profileUser.username,
+        followers: [],
+        following: [],
+        poems: [],
+        preferredLanguages: [],
+    };
     const [theUser, setTheUser] = useState<User>(temp);
 
     useEffect(() => {
         let func = async () => {
-            let tempUser = await firestore().collection('users').doc(props.route.params!.profileUser.id).get();
+            let tempUser = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.id).get();
             let userData = tempUser.data() as User;
+            if (userData === undefined) {
+                Toast.show("User doesn't exist!");
+                //                await firestore().collection(usersCollectionId);
+                props.navigation.pop();
+                return;
+            }
             setTheUser(userData);
-        }
+        };
         func();
     }, [props.user]);
-    
+
     return (
         <View>
-            <UserCard
-                theUserProp={theUser}
-            />
-            {
-                theUser.email !== '' ?
+            <UserCard theUserProp={theUser} navigation={props.navigation} />
+            {theUser.email !== '' ? (
                 <FlatList
                     keyExtractor={(_i, index) => index.toString()}
                     data={theUser.poems.sort((a, b) => b.poemId - a.poemId)}
-                    renderItem={({ item }) => (
-                        <PoemCard item={item} navigation={props.navigation} full={false} />
-                    )}
+                    renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
                 />
-                :
+            ) : (
                 <ActivityIndicator style={styles.loading} size={50} />
-            }
+            )}
         </View>
-    )
+    );
 }
 
 export default connector(UserDetail);
 
 const styles = StyleSheet.create({
     loading: {
-        marginTop: 40
-    }
+        marginTop: 40,
+    },
 });

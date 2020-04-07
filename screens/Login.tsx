@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -11,19 +11,17 @@ import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { usersCollectionId } from '../constants/collection';
 
-type EnteranceScreenNavigationProp = StackNavigationProp<
-    EnteranceStackParamList
-, 'Login'>;
-
+type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'Login'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
-    poems: state.poems
+    poems: state.poems,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -37,7 +35,10 @@ type Props = PropsFromRedux & {
 function Login(props: Props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState([{ error: false, msg: '' }, { error: false, msg: '' }]);
+    const [errors, setErrors] = useState([
+        { error: false, msg: '' },
+        { error: false, msg: '' },
+    ]);
     const [loading, setLoading] = useState(false);
 
     return (
@@ -46,61 +47,54 @@ function Login(props: Props) {
             <Subheading>Welcome back!</Subheading>
             <View style={styles.textinput}>
                 <TextInput
+                    returnKeyType="done"
                     error={errors[0].error}
                     label="Email"
-                    mode='outlined'
+                    mode="outlined"
                     value={email}
                     onChangeText={(text) => setEmail(text)}
                 />
-                {
-                    errors[0].error ?
-                        <HelperText style={styles.errorText}>{errors[0].msg}</HelperText>
-                        :
-                        <View />
-                }
+                {errors[0].error ? <HelperText style={styles.errorText}>{errors[0].msg}</HelperText> : <View />}
             </View>
             <View style={styles.textinputLast}>
                 <TextInput
+                    returnKeyType="done"
                     error={errors[1].error}
                     label="Password"
                     secureTextEntry={true}
-                    mode='outlined'
+                    mode="outlined"
                     value={password}
                     onChangeText={(text) => setPassword(text)}
                 />
-                {
-                    errors[1].error ?
-                        <HelperText style={styles.errorText}>{errors[1].msg}</HelperText>
-                        :
-                        <View />
-                }
+                {errors[1].error ? <HelperText style={styles.errorText}>{errors[1].msg}</HelperText> : <View />}
             </View>
-            <Text style={styles.helperText} onPress={() => props.navigation.navigate('ResetPassword')} >Forgot your password?</Text>
-            {!loading ?
-                <Button mode="contained" dark={true} labelStyle={styles.buttonLabel}
+            <Text style={styles.helperText} onPress={() => props.navigation.navigate('ResetPassword')}>
+                Forgot your password?
+            </Text>
+            {!loading ? (
+                <Button
+                    mode="contained"
+                    dark={true}
+                    labelStyle={styles.buttonLabel}
                     onPress={async () => {
                         let myerrors = [...errors];
                         let hasError = false;
                         if (email === '') {
-                            myerrors[0] = { error: true, msg: 'Email cannot be empty!' }
+                            myerrors[0] = { error: true, msg: 'Email cannot be empty!' };
                             hasError = true;
-                        }
-                        else if (!EmailValidator.validate(email)) {
-                            myerrors[0] = { error: true, msg: 'Not a valid email!' }
+                        } else if (!EmailValidator.validate(email)) {
+                            myerrors[0] = { error: true, msg: 'Not a valid email!' };
                             hasError = true;
-                        }
-                        else {
+                        } else {
                             myerrors[0] = { error: false, msg: '' };
                         }
                         if (password === '') {
-                            myerrors[1] = { error: true, msg: 'Password cannot be empty!' }
+                            myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
                             hasError = true;
-                        }
-                        else if (password.length < 6) {
-                            myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' }
+                        } else if (password.length < 6) {
+                            myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
                             hasError = true;
-                        }
-                        else {
+                        } else {
                             myerrors[1] = { error: false, msg: '' };
                         }
                         setErrors(myerrors);
@@ -108,8 +102,8 @@ function Login(props: Props) {
                             setLoading(true);
                             try {
                                 await auth().signInWithEmailAndPassword(email, password);
-                                let res = await firestore().collection('users').where('email', '==', email).get();
-                                let user = { ...res.docs[0].data() , id: res.docs[0].data().id };
+                                let res = await firestore().collection(usersCollectionId).where('email', '==', email).get();
+                                let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
                                 props.setUser(user as User);
                                 await AsyncStorage.setItem('user', JSON.stringify(user));
                                 /**
@@ -120,21 +114,25 @@ function Login(props: Props) {
                                 setLoading(false);
                             } catch (e) {
                                 console.log(e);
-                                setErrors([{error: true, msg: 'Incorrect email or password!'}, {error: true, msg: 'Incorrect email or password!'}]);
+                                setErrors([
+                                    { error: true, msg: 'Incorrect email or password!' },
+                                    { error: true, msg: 'Incorrect email or password!' },
+                                ]);
                                 setLoading(false);
                             }
-                        }
-                        else {
+                        } else {
                             setLoading(false);
                         }
                     }}
-                >Login</Button>
-                :
+                >
+                    Login
+                </Button>
+            ) : (
                 <ActivityIndicator size={50} />
-            }
+            )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </View>
-    )
+    );
 }
 
 export default connector(Login);
@@ -143,39 +141,37 @@ const styles = StyleSheet.create({
     container: {
         height: '100%',
         paddingHorizontal: 24,
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     title: {
         paddingTop: 2,
         textAlign: 'center',
         fontSize: 32,
-        marginBottom: 32
+        marginBottom: 32,
     },
     textinput: {
-        marginBottom: 20
+        marginBottom: 20,
     },
     buttonLabel: {
-        paddingVertical: 6
+        paddingVertical: 6,
     },
-    textinputLast: {
-
-    },
+    textinputLast: {},
     errorText: {
         fontSize: 13,
         color: 'red',
         marginTop: 4,
-        marginBottom: 4
+        marginBottom: 4,
     },
     helperText: {
         color: '#555',
         fontSize: 13,
         textAlign: 'right',
         marginTop: 6,
-        marginBottom: 24
+        marginBottom: 24,
     },
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4
-    }
-})
+        top: 4,
+    },
+});

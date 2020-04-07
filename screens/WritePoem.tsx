@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { StyleSheet, ScrollView, View } from 'react-native'
+import React, { useState } from 'react';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { TextInput, HelperText, FAB, IconButton, Divider } from 'react-native-paper';
 import Toast from 'react-native-simple-toast';
 import RNPickerSelect from 'react-native-picker-select';
@@ -11,11 +11,9 @@ import { addUserPoem } from '../redux/actions/User';
 import { HomeStackParamList } from '../AppNav';
 import { Poem } from '../interfaces/Poem';
 import firestore from '@react-native-firebase/firestore';
+import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 
-type ProfileScreenNavigationProp = StackNavigationProp<
-    HomeStackParamList,
-    'WritePoem'
->;
+type ProfileScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'WritePoem'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -24,7 +22,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     addPoem,
-    addUserPoem
+    addUserPoem,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -35,21 +33,17 @@ type Props = PropsFromRedux & {
     navigation: ProfileScreenNavigationProp;
 };
 
-
 function WritePoem(props: Props) {
-    const [title, setTitle] = useState('')
+    const [title, setTitle] = useState('');
     const [poem, setPoem] = useState('');
     const [lang, setLang] = useState(props.user.preferredLanguages[0]);
 
     return (
         <View style={styles.container}>
             <ScrollView>
+                <TextInput returnKeyType="done" value={title} onChangeText={(text) => setTitle(text)} label="Title" />
                 <TextInput
-                    value={title}
-                    onChangeText={(text) => setTitle(text)}
-                    label="Title"
-                />
-                <TextInput
+                    returnKeyLabel="Done"
                     style={{ fontSize: 16 }}
                     value={poem}
                     label="Poem"
@@ -57,13 +51,15 @@ function WritePoem(props: Props) {
                     multiline={true}
                     numberOfLines={18}
                 />
-                <RNPickerSelect
-                    style={{ fontSize: 40 }}
-                    onValueChange={(value) => setLang(value)}
-                    placeholder={{}}
-                    items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
-                    value={lang}
-                />
+                <View style={{ marginLeft: 4 }}>
+                    <RNPickerSelect
+                        style={{ fontSize: 40 }}
+                        onValueChange={(value) => setLang(value)}
+                        placeholder={{}}
+                        items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
+                        value={lang}
+                    />
+                </View>
                 <HelperText style={{ paddingBottom: 12 }}>Select the poem language</HelperText>
                 <Divider style={styles.divider} />
             </ScrollView>
@@ -71,19 +67,23 @@ function WritePoem(props: Props) {
                 onPress={async () => {
                     if (title === '') {
                         Toast.show('Title cannot be empty!');
-                    }
-                    else if (title.length < 3) {
+                    } else if (title.length < 3) {
                         Toast.show('Title must be longer than 3 characters!');
-                    }
-                    else if (poem === '') {
+                    } else if (poem === '') {
                         Toast.show('The poem cannot be empty!');
-                    }
-                    else if (poem.length < 3) {
+                    } else if (poem.length < 3) {
                         Toast.show('The poem must be longer than 3 characters!');
-                    }
-                    else {
-                        let poemid = (props.user.poems.length !== 0) ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
-                        let mypoem: Poem = { author: {id: props.user.id, username: props.user.username}, body: poem, date: new Date().getTime(), language: lang, likes: [], poemId: poemid, title: title };
+                    } else {
+                        let poemid = props.user.poems.length !== 0 ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
+                        let mypoem: Poem = {
+                            author: { id: props.user.id, username: props.user.username },
+                            body: poem,
+                            date: new Date().getTime(),
+                            language: lang,
+                            likes: [],
+                            poemId: poemid,
+                            title: title,
+                        };
                         let mypoems = [...props.user.poems];
                         mypoems.push(mypoem);
 
@@ -97,15 +97,18 @@ function WritePoem(props: Props) {
                         /**
                          * Firebase Operations
                          */
-                        await firestore().collection('users').doc(props.user.id).update({ poems: mypoems });
+                        //Main database
+                        await firestore().collection(usersCollectionId).doc(props.user.id).update({ poems: mypoems });
 
+                        //Database for all poems
+                        await firestore().collection(poemsCollectionId).add(mypoem);
                     }
                 }}
                 style={styles.fab}
                 icon="check"
             />
         </View>
-    )
+    );
 }
 
 export default connector(WritePoem);
@@ -113,7 +116,7 @@ export default connector(WritePoem);
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#ededed',
-        height: '100%'
+        height: '100%',
     },
     divider: {
         backgroundColor: '#b6b6b6',
@@ -126,5 +129,5 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         right: 0,
         bottom: 0,
-    }
-})
+    },
+});

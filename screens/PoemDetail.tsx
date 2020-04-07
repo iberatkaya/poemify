@@ -1,5 +1,5 @@
-import React from 'react'
-import { StyleSheet, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,10 +9,7 @@ import { addUserPoem } from '../redux/actions/User';
 import { HomeStackParamList } from '../AppNav';
 import PoemCard from '../components/PoemCard';
 
-type PoemDetailNavigationProp = StackNavigationProp<
-    HomeStackParamList,
-    'PoemDetail'
->;
+type PoemDetailNavigationProp = StackNavigationProp<HomeStackParamList, 'PoemDetail'>;
 
 type PoemDetailRouteProp = RouteProp<HomeStackParamList, 'PoemDetail'>;
 
@@ -23,7 +20,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     addPoem,
-    addUserPoem
+    addUserPoem,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -35,18 +32,14 @@ type Props = PropsFromRedux & {
     route: PoemDetailRouteProp;
 };
 
-function PoemDetail(props: Props){
+function PoemDetail(props: Props) {
     return (
-        <View>
-            <PoemCard
-                item={props.route.params!.poem}
-                navigation={props.navigation}
-                full={true}
-            />
-        </View>
-    )
+        <ScrollView>
+            <PoemCard item={props.route.params!.poem} navigation={props.navigation} full={true} />
+        </ScrollView>
+    );
 }
 
-export default PoemDetail
+export default PoemDetail;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

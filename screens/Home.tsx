@@ -14,11 +14,12 @@ import firestore from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
+import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
     DrawerNavigationProp<DrawerParamList, 'Tabs'>,
     StackNavigationProp<HomeStackParamList>
->
+>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -27,7 +28,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     setPoem,
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -42,56 +43,45 @@ function Home(props: Props) {
     props.navigation.setOptions({
         headerLeft: () => {
             return (
-                <IconButton icon="menu"
+                <IconButton
+                    icon="menu"
                     onPress={() => {
                         props.navigation.openDrawer();
-                    }} />
+                    }}
+                />
             );
         },
     });
 
     const [refresh, setRefresh] = useState(false);
 
-
     const fetchPoems = async () => {
         try {
             setRefresh(true);
-            let res = await firestore().collection('users').where('preferredLanguages', 'array-contains-any', props.user.preferredLanguages).get();
+            let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
             let data = res.docs;
             let poems: Poem[] = data.map((i) => {
-                let temp = i.data();
-                let arr: Poem[] = temp.poems.filter((k: Poem) => (props.user.preferredLanguages.includes(k.language))).map((j: Poem) => ({
-                    author: j.author,
-                    body: j.body,
-                    date: j.date,
-                    language: j.language,
-                    likes: j.likes,
-                    poemId: j.poemId,
-                    title: j.title
-                }));
-                return arr;
-            }).flat();
+                let temp = i.data() as Poem;
+                return temp;
+            });
             props.setPoem(poems);
             setRefresh(false);
         } catch (e) {
             console.log(e);
-            Toast.show("Please check your internet connection!")
+            Toast.show('Please check your internet connection!');
         }
-    }
-
+    };
 
     let fetchSelf = async () => {
-        let res = await firestore().collection('users').where('email', '==', props.user.email).get();
+        let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
         let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
         props.setUser(user as User);
-    }
-
+    };
 
     useEffect(() => {
         fetchPoems();
-        fetchSelf(); 
+        fetchSelf();
     }, []);
-
 
     return (
         <View style={styles.container}>
@@ -99,14 +89,15 @@ function Home(props: Props) {
                 refreshControl={
                     <RefreshControl
                         refreshing={refresh}
-                        onRefresh={fetchPoems}
+                        onRefresh={() => {
+                            fetchPoems();
+                            fetchSelf();
+                        }}
                     />
                 }
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.poems.sort((a, b) => b.date - a.date)}
-                renderItem={({ item }) => (
-                    <PoemCard item={item} navigation={props.navigation} full={false} />
-                )}
+                renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
             />
             <FAB onPress={() => props.navigation.push('WritePoem')} style={styles.fab} icon="plus" />
         </View>
@@ -117,7 +108,7 @@ export default connector(Home);
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%'
+        height: '100%',
     },
     fab: {
         position: 'absolute',

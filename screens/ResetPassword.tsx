@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { TextInput, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -9,18 +9,15 @@ import auth from '@react-native-firebase/auth';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-type EnteranceScreenNavigationProp = StackNavigationProp<
-    EnteranceStackParamList
-, 'ResetPassword'>;
-
+type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'ResetPassword'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
-    poems: state.poems
+    poems: state.poems,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -41,33 +38,30 @@ function ResetPassword(props: Props) {
             <Text style={styles.title}>Reset Password</Text>
             <View style={styles.textinput}>
                 <TextInput
+                    returnKeyType="done"
                     error={errorObj.error}
                     label="Email"
-                    mode='outlined'
+                    mode="outlined"
                     value={email}
                     onChangeText={(text) => setEmail(text)}
                 />
-                {
-                    errorObj.error ?
-                        <HelperText style={styles.errorText}>{errorObj.msg}</HelperText>
-                        :
-                        <View />
-                }
+                {errorObj.error ? <HelperText style={styles.errorText}>{errorObj.msg}</HelperText> : <View />}
             </View>
-            {!loading ?
-                <Button mode="contained" dark={true} labelStyle={styles.buttonLabel}
+            {!loading ? (
+                <Button
+                    mode="contained"
+                    dark={true}
+                    labelStyle={styles.buttonLabel}
                     onPress={async () => {
-                        let myerrors = {...errorObj};
+                        let myerrors = { ...errorObj };
                         let hasError = false;
                         if (email === '') {
-                            myerrors = { error: true, msg: 'Email cannot be empty!' }
+                            myerrors = { error: true, msg: 'Email cannot be empty!' };
                             hasError = true;
-                        }
-                        else if (!EmailValidator.validate(email)) {
-                            myerrors = { error: true, msg: 'Not a valid email!' }
+                        } else if (!EmailValidator.validate(email)) {
+                            myerrors = { error: true, msg: 'Not a valid email!' };
                             hasError = true;
-                        }
-                        else {
+                        } else {
                             myerrors = { error: false, msg: '' };
                         }
                         setErrorObj(myerrors);
@@ -79,21 +73,22 @@ function ResetPassword(props: Props) {
                                 setLoading(false);
                             } catch (e) {
                                 console.log(e);
-                                setErrorObj({error: true, msg: 'An email linked to this account was not found!'});
+                                setErrorObj({ error: true, msg: 'An email linked to this account was not found!' });
                                 setLoading(false);
                             }
-                        }
-                        else {
+                        } else {
                             setLoading(false);
                         }
                     }}
-                >Reset</Button>
-                :
+                >
+                    Reset
+                </Button>
+            ) : (
                 <ActivityIndicator size={50} />
-            }
+            )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </View>
-    )
+    );
 }
 
 export default connector(ResetPassword);
@@ -102,29 +97,29 @@ const styles = StyleSheet.create({
     container: {
         height: '100%',
         paddingHorizontal: 24,
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     title: {
         paddingTop: 2,
         textAlign: 'center',
         fontSize: 32,
-        marginBottom: 32
+        marginBottom: 32,
     },
     textinput: {
-        marginBottom: 20
+        marginBottom: 20,
     },
     buttonLabel: {
-        paddingVertical: 6
+        paddingVertical: 6,
     },
     errorText: {
         fontSize: 13,
         color: 'red',
         marginTop: 4,
-        marginBottom: 4
+        marginBottom: 4,
     },
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4
-    }
-})
+        top: 4,
+    },
+});

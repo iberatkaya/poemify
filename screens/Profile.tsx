@@ -7,10 +7,7 @@ import PoemCard from '../components/PoemCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
 
-type PoemDetailNavigationProp = StackNavigationProp<
-    ProfileStackParamList,
-    'Profile'
->;
+type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -34,11 +31,8 @@ function Profile(props: Props) {
             <FlatList
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.user.poems.sort((a, b) => b.poemId - a.poemId)}
-                renderItem={({ item }) => (
-                    <PoemCard item={item} navigation={props.navigation} full={false} />
-                )}
+                renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
             />
-
         </View>
     );
 }

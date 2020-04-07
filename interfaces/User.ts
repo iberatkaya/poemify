@@ -18,9 +18,9 @@ export interface FirebaseUser {
     followers: User[];
     poems: Poem[];
     email: string;
-};
+}
 
 export interface SubUser {
     username: string;
     id: string;
-};
+}
