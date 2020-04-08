@@ -5,6 +5,7 @@ const USER_INITIAL_STATE: User = {
     email: '',
     id: '',
     topics: [],
+    bookmarks: [],
     username: '',
     preferredLanguages: [],
     poems: [],
@@ -40,6 +41,11 @@ export const userReducer = (
             );
             if (myindex === -1) throw 'USER REDUCER: An error occurred!';
             myusr.poems.splice(myindex, 1);
+            let myindex2 = myusr.bookmarks.findIndex(
+                (i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username
+            );
+            if (myindex2 !== -1) 
+                myusr.bookmarks.splice(myindex2, 1);
             return myusr;
         default:
             return state;

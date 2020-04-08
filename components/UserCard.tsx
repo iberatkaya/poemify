@@ -77,7 +77,7 @@ function UserCard(props: Props) {
                     Poems
                 </Text>
                 {props.theUserProp.username === props.user.username ? (
-                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'follower' })}>
+                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'Followers' })}>
                         <Text style={styles.userInfoText}>
                             {millify(props.theUserProp.followers.length, { lowerCase: true })}
                             {'\n'}
@@ -88,7 +88,7 @@ function UserCard(props: Props) {
                     <View />
                 )}
                 {props.theUserProp.username === props.user.username ? (
-                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'following' })}>
+                    <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'Following' })}>
                         <Text style={styles.userInfoText}>
                             {millify(props.theUserProp.following.length, { lowerCase: true })}
                             {'\n'}
@@ -115,6 +115,8 @@ function UserCard(props: Props) {
                                     let myindex = usr.following.findIndex(
                                         (val) => val.username === props.user.username && val.id === props.user.id
                                     );
+                                    if(myindex === -1)
+                                        throw "An error occurred";
                                     usr.following.splice(myindex, 1);
 
                                     /**

@@ -15,6 +15,8 @@ import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
+import RNBootSplash from "react-native-bootsplash";
+import AsyncStorage from '@react-native-community/async-storage';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
     DrawerNavigationProp<DrawerParamList, 'Tabs'>,
@@ -40,6 +42,7 @@ type Props = PropsFromRedux & {
 };
 
 function Home(props: Props) {
+
     props.navigation.setOptions({
         headerLeft: () => {
             return (
@@ -52,6 +55,7 @@ function Home(props: Props) {
             );
         },
     });
+
 
     const [refresh, setRefresh] = useState(false);
 
@@ -67,8 +71,8 @@ function Home(props: Props) {
             props.setPoem(poems);
             setRefresh(false);
         } catch (e) {
-            console.log(e);
             Toast.show('Please check your internet connection!');
+            console.log(e);
         }
     };
 
@@ -79,8 +83,15 @@ function Home(props: Props) {
     };
 
     useEffect(() => {
-        fetchPoems();
-        fetchSelf();
+        RNBootSplash.hide({ duration: 500 });
+    }, [])
+
+    useEffect(() => {
+        let myfetch = async () => {
+            await fetchSelf();
+            await fetchPoems();
+        }
+        myfetch();
     }, []);
 
     return (
@@ -92,6 +103,7 @@ function Home(props: Props) {
                         onRefresh={async () => {
                             await fetchSelf();
                             await fetchPoems();
+                            await AsyncStorage.setItem('user', JSON.stringify(props.user));
                         }}
                     />
                 }

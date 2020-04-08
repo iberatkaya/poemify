@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -42,7 +42,7 @@ function Login(props: Props) {
     const [loading, setLoading] = useState(false);
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <Title style={styles.title}>Login</Title>
             <Subheading>Welcome back!</Subheading>
             <View style={styles.textinput}>
@@ -50,6 +50,7 @@ function Login(props: Props) {
                     returnKeyType="done"
                     error={errors[0].error}
                     label="Email"
+                    keyboardType="email-address"
                     mode="outlined"
                     value={email}
                     onChangeText={(text) => setEmail(text)}
@@ -71,67 +72,64 @@ function Login(props: Props) {
             <Text style={styles.helperText} onPress={() => props.navigation.navigate('ResetPassword')}>
                 Forgot your password?
             </Text>
-            {!loading ? (
-                <Button
-                    mode="contained"
-                    dark={true}
-                    labelStyle={styles.buttonLabel}
-                    onPress={async () => {
-                        let myerrors = [...errors];
-                        let hasError = false;
-                        if (email === '') {
-                            myerrors[0] = { error: true, msg: 'Email cannot be empty!' };
-                            hasError = true;
-                        } else if (!EmailValidator.validate(email)) {
-                            myerrors[0] = { error: true, msg: 'Not a valid email!' };
-                            hasError = true;
-                        } else {
-                            myerrors[0] = { error: false, msg: '' };
-                        }
-                        if (password === '') {
-                            myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
-                            hasError = true;
-                        } else if (password.length < 6) {
-                            myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
-                            hasError = true;
-                        } else {
-                            myerrors[1] = { error: false, msg: '' };
-                        }
-                        setErrors(myerrors);
-                        if (!hasError) {
-                            setLoading(true);
-                            try {
-                                await auth().signInWithEmailAndPassword(email, password);
-                                let res = await firestore().collection(usersCollectionId).where('email', '==', email).get();
-                                let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
-                                props.setUser(user as User);
-                                await AsyncStorage.setItem('user', JSON.stringify(user));
-                                /**
-                                 * Reset State since logging out returns to last page in the drawer stack
-                                 */
-                                setEmail('');
-                                setPassword('');
-                                setLoading(false);
-                            } catch (e) {
-                                console.log(e);
-                                setErrors([
-                                    { error: true, msg: 'Incorrect email or password!' },
-                                    { error: true, msg: 'Incorrect email or password!' },
-                                ]);
-                                setLoading(false);
-                            }
-                        } else {
+            <Button
+                mode="contained"
+                dark={true}
+                loading={loading}
+                labelStyle={styles.buttonLabel}
+                onPress={async () => {
+                    let myerrors = [...errors];
+                    let hasError = false;
+                    if (email === '') {
+                        myerrors[0] = { error: true, msg: 'Email cannot be empty!' };
+                        hasError = true;
+                    } else if (!EmailValidator.validate(email)) {
+                        myerrors[0] = { error: true, msg: 'Not a valid email!' };
+                        hasError = true;
+                    } else {
+                        myerrors[0] = { error: false, msg: '' };
+                    }
+                    if (password === '') {
+                        myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
+                        hasError = true;
+                    } else if (password.length < 6) {
+                        myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
+                        hasError = true;
+                    } else {
+                        myerrors[1] = { error: false, msg: '' };
+                    }
+                    setErrors(myerrors);
+                    if (!hasError) {
+                        setLoading(true);
+                        try {
+                            await auth().signInWithEmailAndPassword(email, password);
+                            let res = await firestore().collection(usersCollectionId).where('email', '==', email).get();
+                            let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
+                            props.setUser(user as User);
+                            await AsyncStorage.setItem('user', JSON.stringify(user));
+                            /**
+                             * Reset State since logging out returns to last page in the drawer stack
+                             */
+                            setEmail('');
+                            setPassword('');
+                            setLoading(false);
+                        } catch (e) {
+                            console.log(e);
+                            setErrors([
+                                { error: true, msg: 'Incorrect email or password!' },
+                                { error: true, msg: 'Incorrect email or password!' },
+                            ]);
                             setLoading(false);
                         }
-                    }}
-                >
-                    Login
+                    } else {
+                        setLoading(false);
+                    }
+                }}
+            >
+                Login
                 </Button>
-            ) : (
-                <ActivityIndicator style={{marginTop: 24}} size={50} />
-            )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
-        </View>
+        </ScrollView>
     );
 }
 

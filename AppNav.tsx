@@ -26,6 +26,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import SearchPage from './screens/Search';
 import SelectTopicsPage from './screens/SelectTopics';
 import ChangeTopicPage from './screens/settings/ChangeTopics';
+import BookmarksPage from './screens/Bookmarks';
+import IntroScreen from './screens/FirstIntro';
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -33,7 +35,7 @@ export type HomeStackParamList = {
     Home: undefined;
     WritePoem: undefined;
     PoemDetail: { poem: Poem } | undefined;
-    FollowList: { type: 'follower' | 'following' };
+    FollowList: { type: 'Followers' | 'Following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
 
@@ -59,7 +61,7 @@ function HomeStack() {
             <StackProfile.Screen
                 name="FollowList"
                 component={FollowListPage}
-                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+                options={({ route }) => ({ title: route.params.type, headerStyle: { elevation: 1 } })}
             />
         </StackHome.Navigator>
     );
@@ -73,7 +75,7 @@ export type ProfileStackParamList = {
     Settings: undefined;
     ChangeLang: undefined;
     ChangeTopics: undefined;
-    FollowList: { type: 'follower' | 'following' };
+    FollowList: { type: 'Followers' | 'Following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
 
@@ -104,7 +106,7 @@ function ProfileStack() {
             <StackProfile.Screen
                 name="FollowList"
                 component={FollowListPage}
-                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+                options={({ route }) => ({ title: route.params.type, headerStyle: { elevation: 1 } })}
             />
             <StackHome.Screen
                 name="UserDetail"
@@ -119,7 +121,7 @@ const StackSearch = createStackNavigator<SearchStackParamList>();
 
 export type SearchStackParamList = {
     Search: undefined;
-    FollowList: { type: 'follower' | 'following' };
+    FollowList: { type: 'Followers' | 'Following' };
     PoemDetail: { poem: Poem } | undefined;
     UserDetail: { profileUser: SubUser } | undefined;
 };
@@ -131,7 +133,7 @@ function SearchStack() {
             <StackProfile.Screen
                 name="FollowList"
                 component={FollowListPage}
-                options={{ headerTitle: 'Followers', headerStyle: { elevation: 1 } }}
+                options={({ route }) => ({ title: route.params.type, headerStyle: { elevation: 1 } })}
             />
             <StackHome.Screen
                 name="UserDetail"
@@ -146,6 +148,44 @@ function SearchStack() {
         </StackSearch.Navigator>
     );
 }
+
+
+export type BookmarkStackParamList = {
+    Bookmarks: undefined;
+    FollowList: { type: 'Followers' | 'Following' };
+    PoemDetail: { poem: Poem } | undefined;
+    UserDetail: { profileUser: SubUser } | undefined;
+};
+
+const StackBookmarks = createStackNavigator<BookmarkStackParamList>();
+
+function BookmarksStack() {
+    return (
+        <StackBookmarks.Navigator>
+            <StackBookmarks.Screen
+                name="Bookmarks"
+                component={BookmarksPage}
+                options={{ headerTitle: 'Bookmarks', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="FollowList"
+                component={FollowListPage}
+                options={({ route }) => { console.log(route.params); return ({ title: route.params.type, headerStyle: { elevation: 1 } })}}
+            />
+            <StackHome.Screen
+                name="UserDetail"
+                component={UserDetailPage}
+                options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="PoemDetail"
+                component={PoemDetailPage}
+                options={{ headerTitle: 'Poem', headerStyle: { elevation: 1 } }}
+            />
+        </StackBookmarks.Navigator>
+    );
+}
+
 
 const Tab = createBottomTabNavigator();
 
@@ -181,6 +221,16 @@ function Tabs() {
                 })}
             />
             <Tab.Screen
+                name="BookmarksTab"
+                component={BookmarksStack}
+                options={() => ({
+                    title: 'Bookmarks',
+                    tabBarIcon: ({ color, size }) => {
+                        return <IconButton icon="bookmark" size={size} color={color} />;
+                    },
+                })}
+            />
+            <Tab.Screen
                 name="ProfileTab"
                 component={ProfileStack}
                 options={() => ({
@@ -198,6 +248,7 @@ const StackEnterance = createStackNavigator();
 
 export type EnteranceStackParamList = {
     Enterance: undefined;
+    Intro: undefined;
     Login: undefined;
     Signup: undefined;
     ResetPassword: undefined;
@@ -208,6 +259,7 @@ function EnteranceStack() {
     return (
         <StackEnterance.Navigator headerMode="none">
             <StackEnterance.Screen name="Enterance" component={Enterance} />
+            <StackEnterance.Screen name="Intro" component={IntroScreen} />
             <StackEnterance.Screen name="Login" component={LoginPage} />
             <StackEnterance.Screen name="Signup" component={SignupPage} />
             <StackEnterance.Screen name="ResetPassword" component={ResetPasswordPage} />
@@ -272,8 +324,8 @@ let ConnectedDrawer = connector(function MyDrawer(props: Props) {
             {user === null ? (
                 <Drawer.Screen name="EnteranceStack" component={EnteranceStack} />
             ) : (
-                <Drawer.Screen name="Tabs" component={Tabs} />
-            )}
+                    <Drawer.Screen name="Tabs" component={Tabs} />
+                )}
         </Drawer.Navigator>
     );
 });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
-import { Chip, Title, IconButton, Button } from 'react-native-paper';
+import { Chip, Title, IconButton, Button, Text, Divider } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
@@ -44,7 +44,8 @@ const SelectTopics = (props: Props) => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Title style={styles.title}>Select your topics</Title>
+            <Text style={styles.title}>Select topics you are interested in</Text>
+            <Divider style={styles.divider} />
             <View style={styles.topicContainer}>
                 {allTopics.map((i, index) => (
                     <Chip
@@ -61,6 +62,7 @@ const SelectTopics = (props: Props) => {
             </View>
             <Button
                 mode="contained"
+                loading={loading}
                 dark={true}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
@@ -101,12 +103,15 @@ const styles = StyleSheet.create({
     title: {
         paddingTop: 2,
         textAlign: 'center',
-        fontSize: 32,
-        marginBottom: 32,
+        fontSize: 28,
     },
     arrowBack: {
         position: 'absolute',
         left: 2,
         top: 4,
+    },
+    divider: {
+        height: 1,
+        marginVertical: 24,
     },
 });

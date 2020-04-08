@@ -29,6 +29,7 @@ const Search = (props: Props) => {
                 autoCapitalize="none"
                 returnKeyType="done"
                 onChangeText={async (val) => {
+                    setLoading(true);
                     //Clicked the clear button
                     if (searchText !== '' && val === '') {
                         setPoems([]);

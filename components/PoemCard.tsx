@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, TouchableRipple, HelperText } from 'react-native-paper';
+import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, HelperText, TextInput, Avatar } from 'react-native-paper';
 import { Poem } from '../interfaces/Poem';
 import { connect, ConnectedProps } from 'react-redux';
 import { User } from '../interfaces/User';
 import { updatePoem, deletePoem } from '../redux/actions/Poem';
-import { updateUserPoem, deleteUserPoem } from '../redux/actions/User';
-import { HomeStackParamList, ProfileStackParamList } from '../AppNav';
+import { updateUserPoem, deleteUserPoem, setUser } from '../redux/actions/User';
+import { HomeStackParamList, ProfileStackParamList, BookmarkStackParamList, SearchStackParamList } from '../AppNav';
 import { RootState } from '../redux/store';
 import Toast from 'react-native-simple-toast';
 import firestore from '@react-native-firebase/firestore';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
+import { Comment } from '../interfaces/Comment';
+import millify from 'millify';
 
-type PoemCardScreenNavigationProp = StackNavigationProp<HomeStackParamList & ProfileStackParamList, 'Home'>;
+type PoemCardScreenNavigationProp = StackNavigationProp<HomeStackParamList & ProfileStackParamList & BookmarkStackParamList & SearchStackParamList, 'Bookmarks'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -27,6 +29,7 @@ const mapDispatch = {
     updateUserPoem,
     deletePoem,
     deleteUserPoem,
+    setUser
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -41,7 +44,11 @@ type Props = PropsFromRedux & {
 
 function PoemCard(props: Props) {
     const [lock, setLock] = useState(false);
+    const [lockComment, setLockComment] = useState(false);
+    const [lockBookmark, setLockBookmark] = useState(false);
     const [menu, setMenu] = useState(false);
+    const [myComment, setMyComment] = useState('');
+    const [deleting, setDeleting] = useState(false);
 
     let userLiked = () => {
         for (let i in props.item.likes) {
@@ -50,7 +57,17 @@ function PoemCard(props: Props) {
             }
         }
         return false;
+    }
+
+    let userBookmarked = () => {
+        for (let i in props.user.bookmarks) {
+            if (props.item.author.username === props.user.bookmarks[i].author.username && props.item.poemId === props.user.bookmarks[i].poemId && props.item.date === props.user.bookmarks[i].date) {
+                return true;
+            }
+        }
+        return false;
     };
+
 
     let _openMenu = () => setMenu(true);
 
@@ -67,10 +84,10 @@ function PoemCard(props: Props) {
                 if (!props.full) props.navigation.push('PoemDetail', { poem: props.item });
             }}
         >
-            <View>
-                <Card.Title titleStyle={styles.cardTitle} title={props.item.title} />
+            <View style={styles.titleContainer}>
+                <Text style={{ ...styles.cardTitle, flex: 2 }} >{props.item.title}</Text>
                 {props.user.username === props.item.author.username ? (
-                    <View style={styles.menu}>
+                    <View style={{ flex: 0.25 }} /*  style={styles.menu} */>
                         <Menu visible={menu} onDismiss={_closeMenu} anchor={<IconButton icon="chevron-down" onPress={_openMenu} />}>
                             <Menu.Item
                                 onPress={async () => {
@@ -93,7 +110,7 @@ function PoemCard(props: Props) {
                                             .where('poemId', '==', props.item.poemId)
                                             .get();
                                         await firestore().collection(poemsCollectionId).doc(req.docs[0].id).delete();
-                                        if(props.full)
+                                        if (props.full)
                                             props.navigation.pop();
                                     } catch (e) {
                                         Toast.show("We're sorry but an error occurred :(");
@@ -102,14 +119,13 @@ function PoemCard(props: Props) {
                                 }}
                                 title="Delete"
                             />
-                            <Divider />
                         </Menu>
                     </View>
                 ) : (
-                    <View />
-                )}
+                        <View />
+                    )}
             </View>
-            <Divider style={{ marginBottom: 12 }} />
+            <Divider style={{ marginBottom: 8 }} />
             <Card.Content>
                 <Paragraph style={styles.bodyText}>
                     {props.item.body.split('\n').length > 8 && !props.full
@@ -147,6 +163,7 @@ function PoemCard(props: Props) {
                                     let poem = { ...props.item };
                                     let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
                                     poem.likes.splice(myindex, 1);
+                                    if (myindex === -1) throw 'An error occurred!';
 
                                     /**
                                      * Redux Operations
@@ -190,64 +207,278 @@ function PoemCard(props: Props) {
                             }}
                         />
                     ) : (
-                        <IconButton
-                            icon="heart-outline"
-                            style={styles.icon}
-                            size={20}
-                            //@ts-ignore
-                            onPress={async () => {
-                                try {
-                                    if (lock) return;
-                                    setLock(true);
-                                    let poem = { ...props.item };
-                                    poem.likes.push({ id: props.user.id, username: props.user.username });
+                            <IconButton
+                                icon="heart-outline"
+                                style={styles.icon}
+                                size={20}
+                                //@ts-ignore
+                                onPress={async () => {
+                                    try {
+                                        if (lock) return;
+                                        setLock(true);
+                                        let poem = { ...props.item };
+                                        poem.likes.push({ id: props.user.id, username: props.user.username });
 
-                                    /**
-                                     * Redux Operations
-                                     */
+                                        /**
+                                         * Redux Operations
+                                         */
 
-                                    props.updatePoem(poem);
-                                    if (poem.author.username === props.user.username) {
-                                        props.updateUserPoem(poem);
+                                        props.updatePoem(poem);
+                                        if (poem.author.username === props.user.username) {
+                                            props.updateUserPoem(poem);
+                                        }
+
+                                        /**
+                                         * Firebase Operations
+                                         */
+
+                                        let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                        let userData = req.data() as User;
+                                        console.log(userData);
+                                        let index = userData.poems.findIndex(
+                                            (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
+                                        );
+                                        if (index === -1) throw 'FIREBASE: An error occurred!';
+                                        userData.poems[index].likes = poem.likes;
+                                        await firestore()
+                                            .collection(usersCollectionId)
+                                            .doc(props.item.author.id)
+                                            .update({ poems: userData.poems });
+
+                                        let req2 = await firestore()
+                                            .collection(poemsCollectionId)
+                                            .where('date', '==', props.item.date)
+                                            .where('title', '==', props.item.title)
+                                            .where('poemId', '==', props.item.poemId)
+                                            .get();
+                                        await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
+
+                                        setLock(false);
+                                    } catch (e) {
+                                        setLock(false);
+                                        Toast.show("We're sorry but an error occurred :(");
+                                        console.log(e);
                                     }
+                                }}
+                            />
+                        )}
+                    <Text style={styles.likeText}>{millify(props.item.likes.length, { lowerCase: true })}</Text>
+                    {
+                        userBookmarked() ?
+                            <IconButton style={styles.icon} icon="bookmark" color="black"
+                                //@ts-ignore
+                                onPress={async () => {
+                                    try {
+                                        if (lockBookmark) return;
+                                        setLockBookmark(true);
 
-                                    /**
-                                     * Firebase Operations
-                                     */
+                                        let user = { ...props.user };
+                                        let myindex = user.bookmarks.findIndex((i) => (i.poemId === props.item.poemId && i.date === props.item.date));
+                                        if(myindex === -1)
+                                            throw "An error occurred";
+                                        /**
+                                         * Redux Operations
+                                         */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
-                                    let userData = req.data() as User;
-                                    let index = userData.poems.findIndex(
-                                        (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
-                                    );
-                                    if (index === -1) throw 'FIREBASE: An error occurred!';
-                                    userData.poems[index].likes = poem.likes;
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.item.author.id)
-                                        .update({ poems: userData.poems });
+                                        user.bookmarks.splice(myindex, 1);
 
-                                    let req2 = await firestore()
-                                        .collection(poemsCollectionId)
-                                        .where('date', '==', props.item.date)
-                                        .where('title', '==', props.item.title)
-                                        .where('poemId', '==', props.item.poemId)
-                                        .get();
-                                    await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
+                                        props.setUser(user);
 
-                                    setLock(false);
-                                } catch (e) {
-                                    setLock(false);
-                                    Toast.show("We're sorry but an error occurred :(");
-                                    console.log(e);
-                                }
-                            }}
-                        />
-                    )}
+                                        /**
+                                         * Firebase Operations
+                                         */
 
-                    <Text style={styles.likeText}>{props.item.likes.length}</Text>
+                                        let req = await firestore().collection(usersCollectionId).doc(props.user.id).update({ bookmarks: user.bookmarks });
+
+                                        setLockBookmark(false);
+                                    } catch (e) {
+                                        setLockBookmark(false);
+                                        Toast.show("We're sorry but an error occurred :(");
+                                        console.log(e);
+                                    }
+                                }}
+                            />
+                            :
+                            <IconButton style={styles.icon} icon="bookmark-outline"
+                                //@ts-ignore
+                                onPress={async () => {
+                                    try {
+                                        if (lockBookmark) return;
+                                        setLockBookmark(true);
+
+                                        let user = { ...props.user };
+                                        user.bookmarks.push(props.item);
+
+                                        /**
+                                         * Redux Operations
+                                         */
+
+                                        props.setUser(user);
+
+                                        /**
+                                         * Firebase Operations
+                                         */
+
+                                        let req = await firestore().collection(usersCollectionId).doc(props.user.id).update({ bookmarks: user.bookmarks });
+
+                                        setLockBookmark(false);
+                                    } catch (e) {
+                                        setLockBookmark(false);
+                                        Toast.show("We're sorry but an error occurred :(");
+                                        console.log(e);
+                                    }
+                                }}
+                            />
+                    }
                 </View>
             </Card.Actions>
+            <Divider style={styles.divider} />
+            {
+                props.full ?
+                    <View style={styles.commentContainer}>
+                        <View style={styles.commentInput}>
+                            <TextInput
+                                mode="outlined"
+                                style={{ flex: 5, fontSize: 12, height: 32 }}
+                                value={myComment}
+                                onChangeText={(val) => setMyComment(val)}
+                            />
+                            <Button loading={lockComment} mode="text" dark={true} style={{ flex: 0.3, marginTop: 4, alignSelf: 'center' }} labelStyle={{ fontSize: 11 }}
+                                onPress={async () => {
+                                    try {
+                                        if (lockComment || myComment === '') return;
+                                        setLockComment(true);
+                                        let poem = { ...props.item };
+                                        let comm: Comment = { commentor: { id: props.user.id, username: props.user.username }, message: myComment, date: new Date().getTime() };
+                                        poem.comments.push(comm);
+
+                                        /**
+                                         * Redux Operations
+                                         */
+
+                                        props.updatePoem(poem);
+                                        if (poem.author.username === props.user.username) {
+                                            props.updateUserPoem(poem);
+                                        }
+
+                                        /**
+                                         * Firebase Operations
+                                         */
+
+                                        let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                        let userData = req.data() as User;
+                                        let index = userData.poems.findIndex(
+                                            (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
+                                        );
+                                        if (index === -1) throw 'FIREBASE: An error occurred!';
+                                        userData.poems[index].comments = poem.comments;
+                                        await firestore()
+                                            .collection(usersCollectionId)
+                                            .doc(props.item.author.id)
+                                            .update({ poems: userData.poems });
+
+                                        let req2 = await firestore()
+                                            .collection(poemsCollectionId)
+                                            .where('date', '==', props.item.date)
+                                            .where('title', '==', props.item.title)
+                                            .where('poemId', '==', props.item.poemId)
+                                            .get();
+                                        await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ comments: poem.comments });
+
+                                        setLockComment(false);
+                                        setMyComment('');
+                                    } catch (e) {
+                                        setLockComment(false);
+                                        Toast.show("We're sorry but an error occurred :(");
+                                        console.log(e);
+                                    }
+                                }}
+                            >Post</Button>
+                        </View>
+                        {props.item.comments.length > 0 ? (<Divider style={styles.divider} />) : (<View />)}
+                        <FlatList
+                            data={props.item.comments.sort((a, b) => (b.date - a.date))}
+                            keyExtractor={(_i, index) => index.toString()}
+                            ItemSeparatorComponent={() => (<Divider style={styles.divider} />)}
+                            renderItem={({ item }) => (
+                                <View style={styles.commentContainer}>
+                                    <View style={{ flexDirection: 'row', flex: 1 }}>
+                                        <TouchableOpacity style={{ marginRight: 12 }} onPress={() => props.navigation.navigate('UserDetail', { profileUser: item.commentor })}>
+                                            <Avatar.Text style={styles.icon} size={36} label={item.commentor.username.slice(0, 2).toUpperCase()} />
+                                        </TouchableOpacity>
+                                        <Text style={styles.commentContainerText}>
+                                            <Text style={styles.commentAuthor}>{item.commentor.username}  </Text>
+                                            <Text style={styles.commentText}>{item.message}</Text>
+                                        </Text>
+                                        {
+                                            props.user.username === props.item.author.username ?
+                                                <View>
+                                                    <IconButton icon="delete" style={{ flex: 0.1 }}
+                                                        //@ts-ignore
+                                                        onPress={async () => {
+                                                            try {
+                                                                if (deleting)
+                                                                    return;
+                                                                setDeleting(true);
+                                                                let commentToDelete = { ...item };
+                                                                let poem = { ...props.item };
+                                                                let myindex = poem.comments.findIndex((val) => val.commentor.username === commentToDelete!.commentor.username && val.date === commentToDelete!.date);
+                                                                if(myindex === -1)
+                                                                    throw "An error occurred";
+                                                                poem.comments.splice(myindex, 1);
+
+                                                                /**
+                                                                 * Redux Operations
+                                                                 */
+
+                                                                props.updatePoem(poem);
+                                                                if (poem.author.username === props.user.username) {
+                                                                    props.updateUserPoem(poem);
+                                                                }
+
+                                                                /**
+                                                                 * Firebase Operations
+                                                                 */
+
+                                                                let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                                                let userData = req.data() as User;
+
+                                                                let index = userData.poems.findIndex(
+                                                                    (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
+                                                                );
+                                                                if (index === -1) throw 'FIREBASE: An error occurred!';
+                                                                userData.poems[index].comments = poem.comments;
+                                                                await firestore()
+                                                                    .collection(usersCollectionId)
+                                                                    .doc(props.item.author.id)
+                                                                    .update({ poems: userData.poems });
+
+                                                                let req2 = await firestore()
+                                                                    .collection(poemsCollectionId)
+                                                                    .where('date', '==', props.item.date)
+                                                                    .where('title', '==', props.item.title)
+                                                                    .where('poemId', '==', props.item.poemId)
+                                                                    .get();
+                                                                await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ comments: poem.comments });
+                                                                setDeleting(false);
+                                                            } catch (e) {
+                                                                setDeleting(false);
+                                                                Toast.show("We're sorry but an error occurred :(");
+                                                                console.log(e);
+                                                            }
+                                                        }} />
+                                                </View>
+                                                :
+                                                <View />
+                                        }
+                                    </View>
+                                </View>
+                            )}
+                        />
+                    </View>
+                    :
+                    <View />
+            }
         </Card>
     );
 }
@@ -258,6 +489,13 @@ const styles = StyleSheet.create({
     cardContainer: {
         marginHorizontal: 6,
         marginVertical: 4,
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        flex: 1,
+        flexWrap: 'wrap',
+        paddingTop: 4,
+        paddingHorizontal: 12
     },
     cardTitle: {
         textAlign: 'center',
@@ -270,6 +508,29 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 12,
     },
+    commentContainer: {
+        paddingHorizontal: 6,
+        paddingTop: 7,
+        paddingBottom: 3,
+        justifyContent: 'center',
+        flexDirection: 'column'
+    },
+    commentContainerText: {
+        flexWrap: 'wrap',
+        flex: 1
+    },
+    commentText: {
+        fontSize: 14
+    },
+    commentAuthor: {
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+    commentInput: {
+        flex: 1,
+        flexDirection: 'row',
+        paddingBottom: 6
+    },
     bodyText: {
         fontSize: 15,
         marginBottom: 12
@@ -281,10 +542,11 @@ const styles = StyleSheet.create({
     actions: {
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 1,
-        paddingHorizontal: 16,
+        paddingVertical: 0,
+        paddingHorizontal: 8,
     },
     author: {
+        marginLeft: 8,
         fontSize: 15,
         color: '#111',
     },

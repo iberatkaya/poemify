@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { TextInput, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -34,7 +34,7 @@ function ResetPassword(props: Props) {
     const [loading, setLoading] = useState(false);
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Reset Password</Text>
             <View style={styles.textinput}>
                 <TextInput
@@ -47,47 +47,44 @@ function ResetPassword(props: Props) {
                 />
                 {errorObj.error ? <HelperText style={styles.errorText}>{errorObj.msg}</HelperText> : <View />}
             </View>
-            {!loading ? (
-                <Button
-                    mode="contained"
-                    dark={true}
-                    labelStyle={styles.buttonLabel}
-                    onPress={async () => {
-                        let myerrors = { ...errorObj };
-                        let hasError = false;
-                        if (email === '') {
-                            myerrors = { error: true, msg: 'Email cannot be empty!' };
-                            hasError = true;
-                        } else if (!EmailValidator.validate(email)) {
-                            myerrors = { error: true, msg: 'Not a valid email!' };
-                            hasError = true;
-                        } else {
-                            myerrors = { error: false, msg: '' };
-                        }
-                        setErrorObj(myerrors);
-                        if (!hasError) {
-                            setLoading(true);
-                            try {
-                                await auth().sendPasswordResetEmail(email);
-                                setEmail('');
-                                setLoading(false);
-                            } catch (e) {
-                                console.log(e);
-                                setErrorObj({ error: true, msg: 'An email linked to this account was not found!' });
-                                setLoading(false);
-                            }
-                        } else {
+            <Button
+                mode="contained"
+                dark={true}
+                loading={loading}
+                labelStyle={styles.buttonLabel}
+                onPress={async () => {
+                    let myerrors = { ...errorObj };
+                    let hasError = false;
+                    if (email === '') {
+                        myerrors = { error: true, msg: 'Email cannot be empty!' };
+                        hasError = true;
+                    } else if (!EmailValidator.validate(email)) {
+                        myerrors = { error: true, msg: 'Not a valid email!' };
+                        hasError = true;
+                    } else {
+                        myerrors = { error: false, msg: '' };
+                    }
+                    setErrorObj(myerrors);
+                    if (!hasError) {
+                        setLoading(true);
+                        try {
+                            await auth().sendPasswordResetEmail(email);
+                            setEmail('');
+                            setLoading(false);
+                        } catch (e) {
+                            console.log(e);
+                            setErrorObj({ error: true, msg: 'An email linked to this account was not found!' });
                             setLoading(false);
                         }
-                    }}
-                >
-                    Reset
+                    } else {
+                        setLoading(false);
+                    }
+                }}
+            >
+                Reset
                 </Button>
-            ) : (
-                <ActivityIndicator size={50} />
-            )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
-        </View>
+        </ScrollView>
     );
 }
 

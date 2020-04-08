@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
-import { Topic } from 'interfaces/Topic';
-import { Chip, Title, IconButton, Button } from 'react-native-paper';
+import { Chip, Text, Button } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../../redux/actions/User';
 import { RootState } from '../../redux/store';
-import { User } from '../../interfaces/User';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { allTopics } from '../../constants/topics';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';
+import Toast from 'react-native-simple-toast';
 
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'SelectTopics'>;
 
@@ -49,7 +48,7 @@ const SelectTopics = (props: Props) => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Title style={styles.title}>Select your topics</Title>
+            <Text style={styles.title}>Change your topics</Text>
             <View style={styles.topicContainer}>
                 {allTopics.map((i, index) => (
                     <Chip
@@ -67,23 +66,29 @@ const SelectTopics = (props: Props) => {
             <Button
                 mode="contained"
                 dark={true}
+                loading={loading}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
-                    if(loading)
-                        return;
-                    let user = {...props.user};
-                    user.topics = allTopics.filter((_i, index) => (selected[index]));
-                    props.setUser(user);
-                    props.navigation.goBack();
-                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ topics: user.topics });
-                    await AsyncStorage.setItem('user', JSON.stringify(user));
+                    try{
+                        setLoading(true);
+                        if(loading)
+                            return;
+                        let user = {...props.user};
+                        user.topics = allTopics.filter((_i, index) => (selected[index]));
+                        props.setUser(user);
+                        props.navigation.goBack();
+                        await firestore().collection(usersCollectionId).doc(props.user.id).update({ topics: user.topics });
+                        await AsyncStorage.setItem('user', JSON.stringify(user));
+                        setLoading(false);
+                    } catch(e){
+                        setLoading(false);
+                        Toast.show("We're sorry but an error occurred :(");
+                        console.log(e);
+                    }
                 }}
             >
                 Save
             </Button>
-
-            <IconButton onPress={() => props.navigation.pop()} style={styles.arrowBack} icon="arrow-left" size={32} />
-
         </ScrollView >
     )
 }
@@ -92,7 +97,7 @@ export default connector(SelectTopics);
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 40,
+        paddingTop: 20,
         paddingBottom: 24,
         justifyContent: 'center',
         paddingHorizontal: 12
@@ -106,9 +111,8 @@ const styles = StyleSheet.create({
         marginBottom: 24
     },
     title: {
-        paddingTop: 2,
+        fontSize: 24,
         textAlign: 'center',
-        fontSize: 32,
         marginBottom: 32,
     },
     arrowBack: {

@@ -44,7 +44,7 @@ function WritePoem(props: Props) {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <TextInput returnKeyType="done" value={title} onChangeText={(text) => setTitle(text)} label="Title" />
+                <TextInput returnKeyType="done" maxLength={50} value={title} onChangeText={(text) => setTitle(text)} label="Title" />
                 <TextInput
                     returnKeyLabel="Done"
                     style={{ fontSize: 16 }}
@@ -114,6 +114,7 @@ function WritePoem(props: Props) {
                             likes: [],
                             poemId: poemid,
                             title: title,
+                            comments: []
                         };
                         let mypoems = [...props.user.poems];
                         mypoems.push(mypoem);

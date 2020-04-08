@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Linking, Platform } from 'react-native';
-import { IconButton } from 'react-native-paper';
+import { StyleSheet, TouchableOpacity, Text, View, Linking, Platform, Image } from 'react-native';
+import { IconButton, Divider } from 'react-native-paper';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
@@ -31,7 +31,10 @@ type Props = PropsFromRedux & {
 function Drawer(props: Props) {
     return (
         <View style={{ height: '100%' }}>
-            <View style={{ height: 150, backgroundColor: 'blue' }}></View>
+            <View style={{ height: 150, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                <Image style={{height: 100, width: 100}} source={require('../assets/icon.png')} />
+            </View>
+            <Divider style={styles.divider} />
             {Platform.OS === 'android' ? (
                 <TouchableOpacity
                     onPress={() => {
@@ -48,7 +51,7 @@ function Drawer(props: Props) {
             <TouchableOpacity
                 style={styles.logout}
                 onPress={async () => {
-                    let user: User = { topics: [], id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
+                    let user: User = { bookmarks: [], topics: [], id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
                     props.setUser(user);
                     await AsyncStorage.setItem('user', JSON.stringify(user));
                 }}
@@ -82,5 +85,9 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         position: 'absolute',
         bottom: 0,
+    },
+    divider: {
+        backgroundColor: '#ccc',
+        height: 1,
     },
 });

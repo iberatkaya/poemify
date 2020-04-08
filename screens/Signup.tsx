@@ -14,6 +14,7 @@ import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../constants/collection';
 import { EnteranceStackParamList } from 'AppNav';
+import Toast from 'react-native-simple-toast';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<EnteranceStackParamList, 'Signup'>;
 
@@ -172,55 +173,56 @@ function Signup(props: Props) {
             <Button
                 mode="outlined"
                 dark={true}
-                labelStyle={errors[3].error ? {...styles.buttonLabel, color: 'red'} : styles.buttonLabel}
+                labelStyle={errors[3].error ? { ...styles.buttonLabel, color: 'red' } : styles.buttonLabel}
                 onPress={() => props.navigation.navigate('SelectTopics')}>{props.user.topics.length < 1 ? "Select your topics" : "Selected " + props.user.topics.length.toString() + " topics"}</Button>
 
             {errors[3].error ? <HelperText style={styles.errorText}>{errors[3].msg}</HelperText> : <View />}
-            
-            {!loading ? (
-                <Button
-                    mode="contained"
-                    dark={true}
-                    labelStyle={styles.buttonLabel}
-                    style={styles.signupButton}
-                    onPress={async () => {
-                        setLoading(true);
-                        let myerrors = [...errors];
-                        let hasError = false;
-                        if (username === '') {
-                            myerrors[0] = { error: true, msg: 'Username cannot be empty!' };
-                            hasError = true;
-                        } else if (username.length < 5) {
-                            myerrors[0] = { error: true, msg: 'Username must be longer than 4 characters!' };
-                            hasError = true;
-                        } else {
-                            myerrors[0] = { error: false, msg: '' };
-                        }
-                        if (password === '') {
-                            myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
-                            hasError = true;
-                        } else if (password.length < 6) {
-                            myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
-                            hasError = true;
-                        } else {
-                            myerrors[1] = { error: false, msg: '' };
-                        }
-                        if (email === '') {
-                            myerrors[2] = { error: true, msg: 'Email cannot be empty!' };
-                            hasError = true;
-                        } else if (!EmailValidator.validate(email)) {
-                            myerrors[2] = { error: true, msg: 'Not a valid email!' };
-                            hasError = true;
-                        } else {
-                            myerrors[2] = { error: false, msg: '' };
-                        }
-                        if (props.user.topics.length < 2) {
-                            myerrors[3] = {error: true, msg: 'Select at least 2 topics!'};
-                        } else {
-                            myerrors[3] = { error: false, msg: '' };
-                        }
-                        setErrors(myerrors);
-                        if (!hasError) {
+
+            <Button
+                mode="contained"
+                loading={loading}
+                dark={true}
+                labelStyle={styles.buttonLabel}
+                style={styles.signupButton}
+                onPress={async () => {
+                    setLoading(true);
+                    let myerrors = [...errors];
+                    let hasError = false;
+                    if (username === '') {
+                        myerrors[0] = { error: true, msg: 'Username cannot be empty!' };
+                        hasError = true;
+                    } else if (username.length < 5) {
+                        myerrors[0] = { error: true, msg: 'Username must be longer than 4 characters!' };
+                        hasError = true;
+                    } else {
+                        myerrors[0] = { error: false, msg: '' };
+                    }
+                    if (password === '') {
+                        myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
+                        hasError = true;
+                    } else if (password.length < 6) {
+                        myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
+                        hasError = true;
+                    } else {
+                        myerrors[1] = { error: false, msg: '' };
+                    }
+                    if (email === '') {
+                        myerrors[2] = { error: true, msg: 'Email cannot be empty!' };
+                        hasError = true;
+                    } else if (!EmailValidator.validate(email)) {
+                        myerrors[2] = { error: true, msg: 'Not a valid email!' };
+                        hasError = true;
+                    } else {
+                        myerrors[2] = { error: false, msg: '' };
+                    }
+                    if (props.user.topics.length < 2) {
+                        myerrors[3] = { error: true, msg: 'Select at least 2 topics!' };
+                    } else {
+                        myerrors[3] = { error: false, msg: '' };
+                    }
+                    setErrors(myerrors);
+                    if (!hasError) {
+                        try {
                             let usernameIsTaken = await firestore().collection(usersCollectionId).where('username', '==', username).get();
                             if (!usernameIsTaken.empty) {
                                 setErrors([
@@ -235,6 +237,7 @@ function Signup(props: Props) {
                             let res = await auth().createUserWithEmailAndPassword(email, password);
                             let fuser: FirebaseUser = {
                                 email: email,
+                                bookmarks: [],
                                 username: username,
                                 preferredLanguages: filtered,
                                 poems: [],
@@ -258,16 +261,17 @@ function Signup(props: Props) {
                             setEmail('');
                             setLoading(false);
                             setLangs(['English', null, null]);
-                        } else {
-                            setLoading(false);
+                        } catch (e) {
+                            Toast.show('Please check your internet connection!');
+                            console.log(e);
                         }
-                    }}
-                >
-                    Sign up
+                    } else {
+                        setLoading(false);
+                    }
+                }}
+            >
+                Sign up
                 </Button>
-            ) : (
-                    <ActivityIndicator style={{marginTop: 24}} size={50} />
-                )}
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </ScrollView>
     );

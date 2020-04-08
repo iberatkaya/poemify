@@ -37,6 +37,7 @@ function UserDetail(props: Props) {
     let temp: User = {
         email: '',
         topics: [],
+        bookmarks: [],
         id: props.route.params!.profileUser.id,
         username: props.route.params!.profileUser.username,
         followers: [],

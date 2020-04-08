@@ -11,6 +11,7 @@ export interface User {
     followers: SubUser[];
     email: string;
     topics: Topic[];
+    bookmarks: Poem[];
 }
 
 export interface FirebaseUser {
@@ -21,6 +22,7 @@ export interface FirebaseUser {
     poems: Poem[];
     email: string;
     topics: Topic[];
+    bookmarks: Poem[];
 }
 
 export interface SubUser {
