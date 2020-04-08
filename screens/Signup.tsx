@@ -13,7 +13,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../constants/collection';
-import { allLangs } from '../interfaces/Language';
+import { allLangs } from '../constants/language';
 import { EnteranceStackParamList } from 'AppNav';
 import Toast from 'react-native-simple-toast';
 

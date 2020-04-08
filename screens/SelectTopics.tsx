@@ -6,7 +6,7 @@ import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { allTopics } from '../constants/topics';
+import { allTopics } from '../constants/topic';
 
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'SelectTopics'>;
 

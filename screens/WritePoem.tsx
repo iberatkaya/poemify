@@ -12,7 +12,7 @@ import { HomeStackParamList } from '../AppNav';
 import { Poem } from '../interfaces/Poem';
 import firestore from '@react-native-firebase/firestore';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
-import { allTopics } from '../constants/topics';
+import { allTopics } from '../constants/topic';
 
 
 type ProfileScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'WritePoem'>;

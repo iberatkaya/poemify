@@ -6,7 +6,7 @@ import { setUser } from '../../redux/actions/User';
 import { RootState } from '../../redux/store';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { allTopics } from '../../constants/topics';
+import { allTopics } from '../../constants/topic';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';

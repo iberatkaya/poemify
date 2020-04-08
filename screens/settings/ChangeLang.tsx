@@ -12,7 +12,7 @@ import { RootState } from '../../redux/store';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';
-import { allLangs } from '../../interfaces/Language';
+import { allLangs } from '../../constants/language';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined; Login: undefined; Home: undefined }, 'Enterance'>;
 
