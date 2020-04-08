@@ -12,6 +12,7 @@ import { RootState } from '../../redux/store';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';
+import { allLangs } from '../../interfaces/Language';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<{ Enterance: undefined; Login: undefined; Home: undefined }, 'Enterance'>;
 
@@ -33,18 +34,7 @@ type Props = PropsFromRedux & {
 };
 
 function ChangeLang(props: Props) {
-    let allLangs: Array<Language> = [
-        'English',
-        'French',
-        'German',
-        'Italian',
-        'Japanese',
-        'Korean',
-        'Portuguese',
-        'Russian',
-        'Spanish',
-        'Turkish',
-    ];
+    
     let arr: Array<Language | null> = [];
     for (let i = 0; i < 3; i++) {
         if (props.user.preferredLanguages.length > i) arr.push(props.user.preferredLanguages[i]);

@@ -13,6 +13,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../constants/collection';
+import { allLangs } from '../interfaces/Language';
 import { EnteranceStackParamList } from 'AppNav';
 import Toast from 'react-native-simple-toast';
 
@@ -36,18 +37,6 @@ type Props = PropsFromRedux & {
 };
 
 function Signup(props: Props) {
-    let allLangs: Array<Language> = [
-        'English',
-        'French',
-        'German',
-        'Italian',
-        'Japanese',
-        'Korean',
-        'Portuguese',
-        'Russian',
-        'Spanish',
-        'Turkish',
-    ];
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
