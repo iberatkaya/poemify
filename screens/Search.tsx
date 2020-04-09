@@ -18,8 +18,7 @@ const mapState = (state: RootState) => ({
     poems: state.poems,
 });
 
-const mapDispatch = {
-};
+const mapDispatch = {};
 
 const connector = connect(mapState, mapDispatch);
 
@@ -54,15 +53,19 @@ const Search = (props: Props) => {
                     let resPoem = await firestore().collection(poemsCollectionId).where('title', '==', val).get();
                     let resUser = await firestore().collection(usersCollectionId).where('username', '==', val).get();
                     setPoems(resPoem.docs.map((i) => i.data() as Poem));
-                    setUsers(resUser.docs.map((i) => i.data() as User).filter((i) => {
-                        let blockedUsers = props.user.blockedUsers;
-                        for(let a in props.user.blockedUsers){
-                            if(blockedUsers[a].username === i.username){
-                                return false;
-                            }
-                        }
-                        return true;
-                    }));
+                    setUsers(
+                        resUser.docs
+                            .map((i) => i.data() as User)
+                            .filter((i) => {
+                                let blockedUsers = props.user.blockedUsers;
+                                for (let a in props.user.blockedUsers) {
+                                    if (blockedUsers[a].username === i.username) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            })
+                    );
                     setLoading(false);
                 }}
                 placeholder="Search"

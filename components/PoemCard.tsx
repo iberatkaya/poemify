@@ -34,7 +34,7 @@ const mapDispatch = {
     deletePoem,
     deleteUserPoem,
     setUser,
-    setPoem
+    setPoem,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -82,17 +82,19 @@ function PoemCard(props: Props) {
         try {
             let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
             let data = res.docs;
-            let poems: Poem[] = data.map((i) => {
-                let temp = i.data() as Poem;
-                return temp;
-            }).filter((j) => {
-                for(let k in props.user.blockedUsers){
-                    if(j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid){
-                        return false;
+            let poems: Poem[] = data
+                .map((i) => {
+                    let temp = i.data() as Poem;
+                    return temp;
+                })
+                .filter((j) => {
+                    for (let k in props.user.blockedUsers) {
+                        if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
+                            return false;
+                        }
                     }
-                }
-                return true;
-            });
+                    return true;
+                });
             props.setPoem(poems);
         } catch (e) {
             console.log(e);
@@ -109,20 +111,27 @@ function PoemCard(props: Props) {
 
     let blockUser = async () => {
         try {
-            if(lockMenu){
+            if (lockMenu) {
                 Toast.show('Please wait for the request to be finished!');
                 return;
             }
             _closeMenu();
             setLockMenu(true);
-            let myuser = {...props.user};
-            myuser.blockedUsers.push({...props.item.author});
-            
+            let myuser = { ...props.user };
+            myuser.blockedUsers.push({ ...props.item.author });
+
             //Remove blocked user from following and being followed
-            myuser.followers = myuser.followers.filter((i) => (i.username !== props.item.author.username && i.docid !== props.item.author.docid));
-            myuser.following = myuser.following.filter((i) => (i.username !== props.item.author.username && i.docid !== props.item.author.docid));
+            myuser.followers = myuser.followers.filter(
+                (i) => i.username !== props.item.author.username && i.docid !== props.item.author.docid
+            );
+            myuser.following = myuser.following.filter(
+                (i) => i.username !== props.item.author.username && i.docid !== props.item.author.docid
+            );
             props.setUser(myuser);
-            await firestore().collection(usersCollectionId).doc(props.user.docid).update({ blockedUsers: myuser.blockedUsers, followers: myuser.followers, following: myuser.following });
+            await firestore()
+                .collection(usersCollectionId)
+                .doc(props.user.docid)
+                .update({ blockedUsers: myuser.blockedUsers, followers: myuser.followers, following: myuser.following });
 
             if (props.full) props.navigation.pop();
             await fetchPoems();
@@ -132,7 +141,7 @@ function PoemCard(props: Props) {
             Toast.show("We're sorry but an error occurred :(");
             console.log(e);
         }
-    }
+    };
 
     return (
         <Card
@@ -149,7 +158,7 @@ function PoemCard(props: Props) {
                             <Menu.Item
                                 onPress={async () => {
                                     try {
-                                        if(lockMenu){
+                                        if (lockMenu) {
                                             Toast.show('Please wait for the request to be finished!');
                                             return;
                                         }
@@ -183,44 +192,62 @@ function PoemCard(props: Props) {
                                 title="Delete"
                             />
                         ) : (
-                                <View>
-                                    <Menu.Item
-                                        onPress={async () => {
-                                            await blockUser();
-                                        }}
-                                        title="Block"
-                                    />
-                                    <Menu.Item
-                                        onPress={async () => {
-                                            try {
-                                                _closeMenu();
-                                                let resreport = await firestore().collection(reportCollectionId).where('date', '==', props.item.date).where('poemId', '==', props.item.poemId).where('author', '==', props.item.author.username).get();
-                                                if(resreport.empty){
-                                                    let report: Report = {amount: 1, poem: props.item, author: props.item.author.username, date: props.item.date, poemId: props.item.poemId, reportedBy: [{docid: props.user.docid, uid: props.user.uid, username: props.user.username}]};
-                                                    await firestore().collection(reportCollectionId).add(report);
-                                                } 
-                                                else {
-                                                    let docid = resreport.docs[0].id;
-                                                    let report = resreport.docs[0].data() as Report;
-                                                    for(let i in report.reportedBy){
-                                                        if(report.reportedBy[i].username === props.user.username && report.reportedBy[i].docid === props.user.docid){
-                                                            Toast.show("You already reported this poem!");
-                                                            return;
-                                                        }
+                            <View>
+                                <Menu.Item
+                                    onPress={async () => {
+                                        await blockUser();
+                                    }}
+                                    title="Block"
+                                />
+                                <Menu.Item
+                                    onPress={async () => {
+                                        try {
+                                            _closeMenu();
+                                            let resreport = await firestore()
+                                                .collection(reportCollectionId)
+                                                .where('date', '==', props.item.date)
+                                                .where('poemId', '==', props.item.poemId)
+                                                .where('author', '==', props.item.author.username)
+                                                .get();
+                                            if (resreport.empty) {
+                                                let report: Report = {
+                                                    amount: 1,
+                                                    poem: props.item,
+                                                    author: props.item.author.username,
+                                                    date: props.item.date,
+                                                    poemId: props.item.poemId,
+                                                    reportedBy: [
+                                                        { docid: props.user.docid, uid: props.user.uid, username: props.user.username },
+                                                    ],
+                                                };
+                                                await firestore().collection(reportCollectionId).add(report);
+                                            } else {
+                                                let docid = resreport.docs[0].id;
+                                                let report = resreport.docs[0].data() as Report;
+                                                for (let i in report.reportedBy) {
+                                                    if (
+                                                        report.reportedBy[i].username === props.user.username &&
+                                                        report.reportedBy[i].docid === props.user.docid
+                                                    ) {
+                                                        Toast.show('You already reported this poem!');
+                                                        return;
                                                     }
-                                                    await firestore().collection(reportCollectionId).doc(docid).update({ amount: report.amount + 1 });
                                                 }
-                                                await blockUser();
-                                            } catch (e) {
-                                                Toast.show("We're sorry but an error occurred :(");
-                                                console.log(e);
+                                                await firestore()
+                                                    .collection(reportCollectionId)
+                                                    .doc(docid)
+                                                    .update({ amount: report.amount + 1 });
                                             }
-                                        }}
-                                        title="Report"
-                                    />
-                                </View>
-                            )}
-
+                                            await blockUser();
+                                        } catch (e) {
+                                            Toast.show("We're sorry but an error occurred :(");
+                                            console.log(e);
+                                        }
+                                    }}
+                                    title="Report"
+                                />
+                            </View>
+                        )}
                     </Menu>
                 </View>
             </View>
@@ -308,61 +335,61 @@ function PoemCard(props: Props) {
                             }}
                         />
                     ) : (
-                            <IconButton
-                                icon="heart-outline"
-                                style={styles.icon}
-                                size={20}
-                                //@ts-ignore
-                                onPress={async () => {
-                                    try {
-                                        if (lock) return;
-                                        setLock(true);
-                                        let poem = { ...props.item };
-                                        poem.likes.push({ docid: props.user.docid, username: props.user.username, uid: props.user.uid });
+                        <IconButton
+                            icon="heart-outline"
+                            style={styles.icon}
+                            size={20}
+                            //@ts-ignore
+                            onPress={async () => {
+                                try {
+                                    if (lock) return;
+                                    setLock(true);
+                                    let poem = { ...props.item };
+                                    poem.likes.push({ docid: props.user.docid, username: props.user.username, uid: props.user.uid });
 
-                                        /**
-                                         * Redux Operations
-                                         */
+                                    /**
+                                     * Redux Operations
+                                     */
 
-                                        props.updatePoem(poem);
-                                        if (poem.author.username === props.user.username) {
-                                            props.updateUserPoem(poem);
-                                        }
-
-                                        /**
-                                         * Firebase Operations
-                                         */
-
-                                        let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
-                                        let userData = req.data() as User;
-
-                                        let index = userData.poems.findIndex(
-                                            (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
-                                        );
-                                        if (index === -1) throw 'FIREBASE: An error occurred!';
-                                        userData.poems[index].likes = poem.likes;
-                                        await firestore()
-                                            .collection(usersCollectionId)
-                                            .doc(props.item.author.docid)
-                                            .update({ poems: userData.poems });
-
-                                        let req2 = await firestore()
-                                            .collection(poemsCollectionId)
-                                            .where('date', '==', props.item.date)
-                                            .where('title', '==', props.item.title)
-                                            .where('poemId', '==', props.item.poemId)
-                                            .get();
-                                        await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
-
-                                        setLock(false);
-                                    } catch (e) {
-                                        setLock(false);
-                                        Toast.show("We're sorry but an error occurred :(");
-                                        console.log(e);
+                                    props.updatePoem(poem);
+                                    if (poem.author.username === props.user.username) {
+                                        props.updateUserPoem(poem);
                                     }
-                                }}
-                            />
-                        )}
+
+                                    /**
+                                     * Firebase Operations
+                                     */
+
+                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
+                                    let userData = req.data() as User;
+
+                                    let index = userData.poems.findIndex(
+                                        (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
+                                    );
+                                    if (index === -1) throw 'FIREBASE: An error occurred!';
+                                    userData.poems[index].likes = poem.likes;
+                                    await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.item.author.docid)
+                                        .update({ poems: userData.poems });
+
+                                    let req2 = await firestore()
+                                        .collection(poemsCollectionId)
+                                        .where('date', '==', props.item.date)
+                                        .where('title', '==', props.item.title)
+                                        .where('poemId', '==', props.item.poemId)
+                                        .get();
+                                    await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
+
+                                    setLock(false);
+                                } catch (e) {
+                                    setLock(false);
+                                    Toast.show("We're sorry but an error occurred :(");
+                                    console.log(e);
+                                }
+                            }}
+                        />
+                    )}
                     <Text style={styles.likeText}>{millify(props.item.likes.length, { lowerCase: true })}</Text>
                     {userBookmarked() ? (
                         <IconButton
@@ -406,42 +433,42 @@ function PoemCard(props: Props) {
                             }}
                         />
                     ) : (
-                            <IconButton
-                                style={styles.icon}
-                                icon="bookmark-outline"
-                                //@ts-ignore
-                                onPress={async () => {
-                                    try {
-                                        if (lockBookmark) return;
-                                        setLockBookmark(true);
+                        <IconButton
+                            style={styles.icon}
+                            icon="bookmark-outline"
+                            //@ts-ignore
+                            onPress={async () => {
+                                try {
+                                    if (lockBookmark) return;
+                                    setLockBookmark(true);
 
-                                        let user = { ...props.user };
-                                        user.bookmarks.push(props.item);
+                                    let user = { ...props.user };
+                                    user.bookmarks.push(props.item);
 
-                                        /**
-                                         * Redux Operations
-                                         */
+                                    /**
+                                     * Redux Operations
+                                     */
 
-                                        props.setUser(user);
+                                    props.setUser(user);
 
-                                        /**
-                                         * Firebase Operations
-                                         */
+                                    /**
+                                     * Firebase Operations
+                                     */
 
-                                        let req = await firestore()
-                                            .collection(usersCollectionId)
-                                            .doc(props.user.docid)
-                                            .update({ bookmarks: user.bookmarks });
+                                    let req = await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.user.docid)
+                                        .update({ bookmarks: user.bookmarks });
 
-                                        setLockBookmark(false);
-                                    } catch (e) {
-                                        setLockBookmark(false);
-                                        Toast.show("We're sorry but an error occurred :(");
-                                        console.log(e);
-                                    }
-                                }}
-                            />
-                        )}
+                                    setLockBookmark(false);
+                                } catch (e) {
+                                    setLockBookmark(false);
+                                    Toast.show("We're sorry but an error occurred :(");
+                                    console.log(e);
+                                }
+                            }}
+                        />
+                    )}
                 </View>
             </Card.Actions>
             <Divider style={styles.divider} />
@@ -613,16 +640,16 @@ function PoemCard(props: Props) {
                                             />
                                         </View>
                                     ) : (
-                                            <View />
-                                        )}
+                                        <View />
+                                    )}
                                 </View>
                             </View>
                         )}
                     />
                 </View>
             ) : (
-                    <View />
-                )}
+                <View />
+            )}
         </Card>
     );
 }

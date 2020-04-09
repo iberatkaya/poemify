@@ -236,11 +236,13 @@ function Signup(props: Props) {
                                 return;
                             }
 
-                            let unsub = production ? auth().onAuthStateChanged((usr) => {
-                                if (!usr?.emailVerified) {
-                                    usr?.sendEmailVerification();
-                                }
-                            }) : () => {};
+                            let unsub = production
+                                ? auth().onAuthStateChanged((usr) => {
+                                      if (!usr?.emailVerified) {
+                                          usr?.sendEmailVerification();
+                                      }
+                                  })
+                                : () => {};
 
                             let fuser: FirebaseUser = {
                                 email: email,

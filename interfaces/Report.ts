@@ -1,5 +1,5 @@
-import { Poem } from "./Poem";
-import { SubUser } from "./User";
+import { Poem } from './Poem';
+import { SubUser } from './User';
 
 export interface Report {
     poem: Poem;

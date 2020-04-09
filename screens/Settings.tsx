@@ -29,7 +29,7 @@ function Settings(props: Props) {
     let settings: Array<{ label: string; route: 'ChangeLang' | 'ChangeTopics' | 'BlockList' }> = [
         { label: 'Change Languages', route: 'ChangeLang' },
         { label: 'Change Topics', route: 'ChangeTopics' },
-        { label: 'View Block List', route: 'BlockList' }
+        { label: 'View Block List', route: 'BlockList' },
     ];
     return (
         <View>

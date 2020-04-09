@@ -61,17 +61,19 @@ function Home(props: Props) {
         try {
             let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
             let data = res.docs;
-            let poems: Poem[] = data.map((i) => {
-                let temp = i.data() as Poem;
-                return temp;
-            }).filter((j) => {
-                for(let k in props.user.blockedUsers){
-                    if(j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid){
-                        return false;
+            let poems: Poem[] = data
+                .map((i) => {
+                    let temp = i.data() as Poem;
+                    return temp;
+                })
+                .filter((j) => {
+                    for (let k in props.user.blockedUsers) {
+                        if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
+                            return false;
+                        }
                     }
-                }
-                return true;
-            });
+                    return true;
+                });
             props.setPoem(poems);
         } catch (e) {
             setRefresh(false);
@@ -105,7 +107,6 @@ function Home(props: Props) {
         };
         myfetch();
     }, []);
-
 
     return (
         <View style={styles.container}>

@@ -56,7 +56,7 @@ function WritePoem(props: Props) {
                     returnKeyType="next"
                     style={{ fontSize: 16 }}
                     value={poem}
-                    inputAccessoryViewID= {Platform.OS === "ios" ? "done" : undefined}
+                    inputAccessoryViewID={Platform.OS === 'ios' ? 'done' : undefined}
                     label="Poem"
                     onChangeText={(text) => setPoem(text)}
                     multiline={true}
@@ -64,8 +64,7 @@ function WritePoem(props: Props) {
                     //@ts-ignore
                     minHeight={Platform.OS === 'ios' && 18 ? 20 * 18 : undefined}
                 />
-                {
-                    Platform.OS === "ios" ?
+                {Platform.OS === 'ios' ? (
                     <InputAccessoryView
                         nativeID="done"
                         style={{ alignSelf: 'flex-end', justifyContent: 'flex-end', alignItems: 'flex-end', alignContent: 'flex-end' }}
@@ -74,9 +73,9 @@ function WritePoem(props: Props) {
                             Done
                         </Button>
                     </InputAccessoryView>
-                    :
-                    <View/>
-                }
+                ) : (
+                    <View />
+                )}
                 <View style={styles.pickerContainer}>
                     <RNPickerSelect
                         onValueChange={(value) => setLang(value)}

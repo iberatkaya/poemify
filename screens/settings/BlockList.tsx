@@ -42,7 +42,14 @@ function ChangeLang(props: Props) {
         let fetchBlockedUsers = async () => {
             try {
                 setLoading(true);
-                let res = await firestore().collection(usersCollectionId).where('docid', 'in', props.user.blockedUsers.map((i) => i.docid)).get();
+                let res = await firestore()
+                    .collection(usersCollectionId)
+                    .where(
+                        'docid',
+                        'in',
+                        props.user.blockedUsers.map((i) => i.docid)
+                    )
+                    .get();
                 let data = res.docs.map((i) => i.data() as User);
                 setBlockedUsers(data);
                 setLoading(false);
@@ -50,32 +57,26 @@ function ChangeLang(props: Props) {
                 setLoading(false);
                 console.log(e);
             }
-        }
+        };
         fetchBlockedUsers();
     }, []);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {
-                loading ?
-                    <ActivityIndicator size={50} style={{ marginTop: 50 }} />
-                    :
-                    <View>
-                        {
-                            blockedUsers.length > 0 ?
-                                <FlatList
-                                    data={blockedUsers}
-                                    renderItem={({ item }) => (
-                                        <UserCard theUserProp={item} navigation={props.navigation} useForBlocking={true} />
-                                    )}
-                                />
-                                :
-                                <Text style={styles.text}>
-                                    You have not blocked any users!
-                                </Text>
-                        }
-                    </View>
-            }
+            {loading ? (
+                <ActivityIndicator size={50} style={{ marginTop: 50 }} />
+            ) : (
+                <View>
+                    {blockedUsers.length > 0 ? (
+                        <FlatList
+                            data={blockedUsers}
+                            renderItem={({ item }) => <UserCard theUserProp={item} navigation={props.navigation} useForBlocking={true} />}
+                        />
+                    ) : (
+                        <Text style={styles.text}>You have not blocked any users!</Text>
+                    )}
+                </View>
+            )}
         </ScrollView>
     );
 }
@@ -89,9 +90,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        textAlign: 'center', 
-        fontSize: 20, 
-        paddingTop: 24, 
-        paddingHorizontal: 24
-    }
+        textAlign: 'center',
+        fontSize: 20,
+        paddingTop: 24,
+        paddingHorizontal: 24,
+    },
 });
