@@ -4,6 +4,7 @@
 
 android/app/google-services.json
 constants/
+android/gradle.properties
 
 # Xcode
 #
