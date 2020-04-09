@@ -76,8 +76,8 @@ function Signup(props: Props) {
                                 setErrors(newerrors);
                                 setLock(false);
                                 return;
-                            }                            
-                        } catch(e){
+                            }
+                        } catch (e) {
                             Toast.show('Please check your internet connection!');
                             setLock(false);
                             console.log(e);
@@ -229,7 +229,7 @@ function Signup(props: Props) {
                                     { error: true, msg: 'Username is already taken' },
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
-                                    { error: false, msg: '' }
+                                    { error: false, msg: '' },
                                 ]);
                                 setLoading(false);
                                 return;
@@ -240,7 +240,7 @@ function Signup(props: Props) {
                                     usr?.sendEmailVerification();
                                 }
                             });
-                            
+
                             let fuser: FirebaseUser = {
                                 email: email,
                                 uid: res.user.uid,
@@ -257,8 +257,8 @@ function Signup(props: Props) {
                             //Maybe delete later?
                             let res3 = await firestore().collection(usersCollectionId).doc(res2.id).update({ docid: res2.id });
                             unsub();
-                            Toast.show("Please authenticate your email.");
-                            props.navigation.navigate("Login");
+                            Toast.show('Please authenticate your email.');
+                            props.navigation.navigate('Login');
                             //props.setUser(user);
                             //await AsyncStorage.setItem('user', JSON.stringify(user));
                             /**
@@ -270,17 +270,18 @@ function Signup(props: Props) {
                             //setLoading(false);
                             //setLangs(['English', null, null]);
                         } catch (e) {
-                            if(e.toString() === "Error: [auth/email-already-in-use] The email address is already in use by another account."){
+                            if (
+                                e.toString() ===
+                                'Error: [auth/email-already-in-use] The email address is already in use by another account.'
+                            ) {
                                 setErrors([
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
                                     { error: true, msg: 'The email address is already used!' },
-                                    { error: false, msg: '' }
+                                    { error: false, msg: '' },
                                 ]);
                                 setLoading(false);
-                            }
-                            else
-                                Toast.show('Please check your internet connection!');
+                            } else Toast.show('Please check your internet connection!');
                         }
                     } else {
                         setLoading(false);

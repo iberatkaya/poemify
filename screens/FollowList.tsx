@@ -39,7 +39,11 @@ function FollowList(props: Props) {
                 renderItem={({ item }) => (
                     <Card
                         style={styles.cardContainer}
-                        onPress={() => props.navigation.push('UserDetail', { profileUser: { docid: item.docid, uid: item.uid, username: item.username } })}
+                        onPress={() =>
+                            props.navigation.push('UserDetail', {
+                                profileUser: { docid: item.docid, uid: item.uid, username: item.username },
+                            })
+                        }
                     >
                         <Card.Content style={styles.contentContainer}>
                             <Avatar.Text size={36} label={item.username.slice(0, 2)}></Avatar.Text>

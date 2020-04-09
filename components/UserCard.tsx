@@ -129,7 +129,10 @@ function UserCard(props: Props) {
                                      */
 
                                     //Update user
-                                    await firestore().collection(usersCollectionId).doc(props.user.docid).update({ following: usr.following });
+                                    await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.user.docid)
+                                        .update({ following: usr.following });
 
                                     //Get followed user
                                     let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
@@ -163,7 +166,11 @@ function UserCard(props: Props) {
                                 try {
                                     setLock(true);
                                     let usr = { ...props.user };
-                                    usr.following.push({ docid: props.theUserProp.docid, username: props.theUserProp.username, uid: props.theUserProp.uid });
+                                    usr.following.push({
+                                        docid: props.theUserProp.docid,
+                                        username: props.theUserProp.username,
+                                        uid: props.theUserProp.uid,
+                                    });
 
                                     /**
                                      * Redux Operations
@@ -176,7 +183,10 @@ function UserCard(props: Props) {
                                      */
 
                                     //Update user
-                                    await firestore().collection(usersCollectionId).doc(props.user.docid).update({ following: usr.following });
+                                    await firestore()
+                                        .collection(usersCollectionId)
+                                        .doc(props.user.docid)
+                                        .update({ following: usr.following });
 
                                     //Get user desired to follow
                                     let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();

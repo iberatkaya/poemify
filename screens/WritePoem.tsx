@@ -43,7 +43,14 @@ function WritePoem(props: Props) {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <TextInput returnKeyType="done" autoCapitalize="words" maxLength={50} value={title} onChangeText={(text) => setTitle(text)} label="Title" />
+                <TextInput
+                    returnKeyType="done"
+                    autoCapitalize="words"
+                    maxLength={50}
+                    value={title}
+                    onChangeText={(text) => setTitle(text)}
+                    label="Title"
+                />
                 <TextInput
                     returnKeyLabel="Done"
                     returnKeyType="next"
@@ -109,7 +116,7 @@ function WritePoem(props: Props) {
             </ScrollView>
             <FAB
                 onPress={async () => {
-                    try{
+                    try {
                         if (title === '') {
                             Toast.show('Title cannot be empty!');
                         } else if (title.length < 3) {
@@ -133,7 +140,7 @@ function WritePoem(props: Props) {
                             };
                             let mypoems = [...props.user.poems];
                             mypoems.push(mypoem);
-                            /** 
+                            /**
                              * Firebase Operations
                              */
                             //Main database
@@ -147,13 +154,15 @@ function WritePoem(props: Props) {
                             props.addPoem(mypoem);
                             props.addUserPoem(mypoem);
                             props.navigation.pop();
-                        }    
-                    } catch(e){
-                        console.log(e);    
-                        if(e.toString() === "Error: [firestore/permission-denied] The caller does not have permission to execute the specified operation."){
-                            Toast.show('An error occurred!');
                         }
-                        else{
+                    } catch (e) {
+                        console.log(e);
+                        if (
+                            e.toString() ===
+                            'Error: [firestore/permission-denied] The caller does not have permission to execute the specified operation.'
+                        ) {
+                            Toast.show('An error occurred!');
+                        } else {
                             Toast.show('Please check your internet connection!');
                         }
                     }

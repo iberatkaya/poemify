@@ -58,21 +58,23 @@ function Login(props: Props) {
                     onChangeText={(text) => setEmail(text)}
                 />
                 {errors[0].error ? <HelperText style={styles.errorText}>{errors[0].msg}</HelperText> : <View />}
-                {
-                unverified && errors[0].error ? 
-                    <Button 
+                {unverified && errors[0].error ? (
+                    <Button
                         mode="contained"
                         labelStyle={styles.buttonLabel}
                         onPress={async () => {
                             let unsub = auth().onAuthStateChanged(async (usr) => {
-                                    await usr?.sendEmailVerification();
-                                    setUnverified(false);
+                                await usr?.sendEmailVerification();
+                                setUnverified(false);
                             });
                             unsub();
-                        }}>Resend Email Verification</Button> 
-                    : 
+                        }}
+                    >
+                        Resend Email Verification
+                    </Button>
+                ) : (
                     <View />
-                    }
+                )}
             </View>
             <View style={styles.textinputLast}>
                 <TextInput
@@ -120,7 +122,7 @@ function Login(props: Props) {
                         setLoading(true);
                         try {
                             let authres = await auth().signInWithEmailAndPassword(email, password);
-                            if(!authres.user.emailVerified){
+                            if (!authres.user.emailVerified) {
                                 setErrors([
                                     { error: true, msg: 'Please verify your email!' },
                                     { error: false, msg: '' },
@@ -128,9 +130,7 @@ function Login(props: Props) {
                                 setUnverified(true);
                                 setLoading(false);
                                 return;
-                            }
-                            else
-                                setUnverified(false);
+                            } else setUnverified(false);
                             let res = await firestore().collection(usersCollectionId).where('email', '==', email).get();
                             let user: User = res.docs[0].data() as User;
                             props.setUser(user as User);
