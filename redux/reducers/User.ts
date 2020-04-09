@@ -44,8 +44,7 @@ export const userReducer = (
             let myindex2 = myusr.bookmarks.findIndex(
                 (i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username
             );
-            if (myindex2 !== -1) 
-                myusr.bookmarks.splice(myindex2, 1);
+            if (myindex2 !== -1) myusr.bookmarks.splice(myindex2, 1);
             return myusr;
         default:
             return state;

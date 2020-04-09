@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Platform } from 'react-native';
 import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, ActivityIndicator, Card } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
@@ -37,7 +37,6 @@ type Props = PropsFromRedux & {
 };
 
 function Signup(props: Props) {
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -45,7 +44,7 @@ function Signup(props: Props) {
         { error: false, msg: '' },
         { error: false, msg: '' },
         { error: false, msg: '' },
-        { error: false, msg: '' }
+        { error: false, msg: '' },
     ]);
     const [langs, setLangs] = useState<Array<Language | null>>(['English', null, null]);
     const [loading, setLoading] = useState(false);
@@ -112,6 +111,7 @@ function Signup(props: Props) {
                     <RNPickerSelect
                         items={allLangs.filter((i) => i !== langs[1] && i !== langs[2]).map((i) => ({ value: i, label: i }))}
                         placeholder={{}}
+                        style={pickerSelectStyles}
                         value={langs[0]}
                         placeholderTextColor="#555"
                         onValueChange={(val) => {
@@ -127,6 +127,7 @@ function Signup(props: Props) {
                 <View style={styles.langContainer}>
                     <RNPickerSelect
                         items={allLangs.filter((i) => i !== langs[0] && i !== langs[2]).map((i) => ({ value: i, label: i }))}
+                        style={pickerSelectStyles}
                         placeholder={{ label: 'Select your second language' }}
                         value={langs[1]}
                         placeholderTextColor="#555"
@@ -138,32 +139,35 @@ function Signup(props: Props) {
                     />
                 </View>
             </View>
-            {
-                langs[1] != null ?
-                    <View>
-                        <Text style={styles.langText}>Third Language (Optional)</Text>
-                        <View style={styles.langContainer}>
-                            <RNPickerSelect
-                                items={allLangs.filter((i) => i !== langs[0] && i !== langs[1]).map((i) => ({ value: i, label: i }))}
-                                placeholder={{ label: 'Select your third language' }}
-                                value={langs[2]}
-                                placeholderTextColor="#555"
-                                onValueChange={(val) => {
-                                    let lang = [...langs];
-                                    lang[2] = val;
-                                    setLangs(lang);
-                                }}
-                            />
-                        </View>
+            {langs[1] != null ? (
+                <View>
+                    <Text style={styles.langText}>Third Language (Optional)</Text>
+                    <View style={styles.langContainer}>
+                        <RNPickerSelect
+                            items={allLangs.filter((i) => i !== langs[0] && i !== langs[1]).map((i) => ({ value: i, label: i }))}
+                            placeholder={{ label: 'Select your third language' }}
+                            style={pickerSelectStyles}
+                            value={langs[2]}
+                            placeholderTextColor="#555"
+                            onValueChange={(val) => {
+                                let lang = [...langs];
+                                lang[2] = val;
+                                setLangs(lang);
+                            }}
+                        />
                     </View>
-                    :
-                    <View />
-            }
+                </View>
+            ) : (
+                <View />
+            )}
             <Button
                 mode="outlined"
                 dark={true}
                 labelStyle={errors[3].error ? { ...styles.buttonLabel, color: 'red' } : styles.buttonLabel}
-                onPress={() => props.navigation.navigate('SelectTopics')}>{props.user.topics.length < 1 ? "Select your topics" : "Selected " + props.user.topics.length.toString() + " topics"}</Button>
+                onPress={() => props.navigation.navigate('SelectTopics')}
+            >
+                {props.user.topics.length < 1 ? 'Select your topics' : 'Selected ' + props.user.topics.length.toString() + ' topics'}
+            </Button>
 
             {errors[3].error ? <HelperText style={styles.errorText}>{errors[3].msg}</HelperText> : <View />}
 
@@ -232,7 +236,7 @@ function Signup(props: Props) {
                                 poems: [],
                                 followers: [],
                                 following: [],
-                                topics: [...props.user.topics]
+                                topics: [...props.user.topics],
                             };
                             let res2 = await firestore().collection(usersCollectionId).add(fuser);
 
@@ -260,7 +264,7 @@ function Signup(props: Props) {
                 }}
             >
                 Sign up
-                </Button>
+            </Button>
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </ScrollView>
     );
@@ -270,7 +274,7 @@ export default connector(Signup);
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 40,
+        paddingTop: Platform.OS === 'ios' ? 64 : 40,
         paddingBottom: 16,
         paddingHorizontal: 24,
         justifyContent: 'center',
@@ -291,7 +295,7 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
     },
     signupButton: {
-        marginTop: 16
+        marginTop: 16,
     },
     errorText: {
         fontSize: 13,
@@ -314,6 +318,15 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+    },
+    inputAndroid: {},
 });

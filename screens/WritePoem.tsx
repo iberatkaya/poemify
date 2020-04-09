@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { TextInput, HelperText, FAB, IconButton, Divider } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, Platform, InputAccessoryView } from 'react-native';
+import { TextInput, HelperText, FAB, Button, Divider } from 'react-native-paper';
 import Toast from 'react-native-simple-toast';
 import RNPickerSelect from 'react-native-picker-select';
 import { connect, ConnectedProps } from 'react-redux';
@@ -13,7 +13,6 @@ import { Poem } from '../interfaces/Poem';
 import firestore from '@react-native-firebase/firestore';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 import { allTopics } from '../constants/topic';
-
 
 type ProfileScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'WritePoem'>;
 
@@ -47,17 +46,30 @@ function WritePoem(props: Props) {
                 <TextInput returnKeyType="done" maxLength={50} value={title} onChangeText={(text) => setTitle(text)} label="Title" />
                 <TextInput
                     returnKeyLabel="Done"
+                    returnKeyType="next"
                     style={{ fontSize: 16 }}
                     value={poem}
+                    inputAccessoryViewID="done"
                     label="Poem"
                     onChangeText={(text) => setPoem(text)}
                     multiline={true}
-                    numberOfLines={18}
+                    numberOfLines={Platform.OS === 'ios' ? undefined : 18}
+                    //@ts-ignore
+                    minHeight={Platform.OS === 'ios' && 18 ? 20 * 18 : undefined}
                 />
+                <InputAccessoryView
+                    nativeID="done"
+                    style={{ alignSelf: 'flex-end', justifyContent: 'flex-end', alignItems: 'flex-end', alignContent: 'flex-end' }}
+                >
+                    <Button style={{ alignSelf: 'flex-end', width: 120 }} mode="contained" onPress={() => {}}>
+                        Done
+                    </Button>
+                </InputAccessoryView>
                 <View style={styles.pickerContainer}>
                     <RNPickerSelect
                         onValueChange={(value) => setLang(value)}
                         placeholder={{}}
+                        style={pickerSelectStyles}
                         items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
                         value={lang}
                     />
@@ -72,6 +84,7 @@ function WritePoem(props: Props) {
                             setTopics(mytopics);
                         }}
                         placeholder={{}}
+                        style={pickerSelectStyles}
                         items={allTopics.map((i) => ({ value: i, label: i }))}
                         value={topics[0]}
                     />
@@ -86,6 +99,7 @@ function WritePoem(props: Props) {
                             setTopics(mytopics);
                         }}
                         placeholder={{}}
+                        style={pickerSelectStyles}
                         items={allTopics.map((i) => ({ value: i, label: i }))}
                         value={topics[1]}
                     />
@@ -114,7 +128,7 @@ function WritePoem(props: Props) {
                             likes: [],
                             poemId: poemid,
                             title: title,
-                            comments: []
+                            comments: [],
                         };
                         let mypoems = [...props.user.poems];
                         mypoems.push(mypoem);
@@ -151,7 +165,7 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     pickerContainer: {
-        marginLeft: 4
+        marginLeft: 4,
     },
     divider: {
         backgroundColor: '#b6b6b6',
@@ -159,7 +173,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     helpText: {
-        paddingBottom: 8
+        paddingBottom: 8,
     },
     fab: {
         position: 'absolute',
@@ -168,4 +182,13 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
     },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+    },
+    inputAndroid: {},
 });

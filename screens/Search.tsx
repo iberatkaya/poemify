@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Platform } from 'react-native';
 import { Searchbar, Card, Avatar, Divider, ActivityIndicator } from 'react-native-paper';
 import { Poem } from '../interfaces/Poem';
 import { SubUser, User } from '../interfaces/User';
@@ -22,7 +22,7 @@ const Search = (props: Props) => {
     let [loading, setLoading] = useState(false);
 
     return (
-        <View>
+        <View style={styles.main}>
             <Searchbar
                 style={{ marginHorizontal: 6, marginVertical: 12 }}
                 value={searchText}
@@ -112,6 +112,9 @@ const Search = (props: Props) => {
 export default Search;
 
 const styles = StyleSheet.create({
+    main: {
+        paddingTop: Platform.OS === 'ios' ? 24 : 0,
+    },
     cardContainer: {
         marginHorizontal: 6,
         marginVertical: 6,

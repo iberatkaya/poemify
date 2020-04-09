@@ -22,7 +22,7 @@ function App() {
     return (
         <ReduxProvider store={store}>
             <PaperProvider theme={theme}>
-                  <StatusBar backgroundColor="#6F7F88" barStyle="default" />
+                <StatusBar backgroundColor="#6F7F88" barStyle="default" />
                 <AppNav />
             </PaperProvider>
         </ReduxProvider>

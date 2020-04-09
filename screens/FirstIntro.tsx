@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {  EnteranceStackParamList } from '../AppNav';
+import { EnteranceStackParamList } from '../AppNav';
 import AsyncStorage from '@react-native-community/async-storage';
 import { User } from '../interfaces/User';
 
@@ -30,7 +30,7 @@ const slides = [
     },
     {
         key: 4,
-        title: 'Like and View\nOther User\'s Poems',
+        title: "Like and View\nOther User's Poems",
         image: require('../assets/screenshots/3.jpg'),
     },
     {
@@ -42,11 +42,10 @@ const slides = [
         key: 4,
         title: 'Bookmark Their\nPoems',
         image: require('../assets/screenshots/5.jpg'),
-    }
+    },
 ];
 
 function Intro(props: Props) {
-
     let _renderItem = ({ item }: any) => {
         return (
             <View style={styles.slide}>
@@ -54,13 +53,29 @@ function Intro(props: Props) {
                 <Text style={styles.title}>{item.title}</Text>
             </View>
         );
-    }
+    };
     //@ts-ignore
-    return <AppIntroSlider renderItem={_renderItem} data={slides} onDone={async () => {
+    return (
+        <AppIntroSlider
+            renderItem={_renderItem}
+            data={slides}
+            onDone={async () => {
                 props.navigation.navigate('Enterance');
-                let user: User = { bookmarks: [], topics: [], id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
+                let user: User = {
+                    bookmarks: [],
+                    topics: [],
+                    id: '-1',
+                    email: '',
+                    username: '',
+                    poems: [],
+                    preferredLanguages: [],
+                    followers: [],
+                    following: [],
+                };
                 await AsyncStorage.setItem('user', JSON.stringify(user));
-            }} />;
+            }}
+        />
+    );
 }
 
 export default Intro;
@@ -71,7 +86,7 @@ const styles = StyleSheet.create({
         paddingBottom: '20%',
         backgroundColor: '#b7c8dd',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     title: {
         textAlign: 'center',
@@ -80,6 +95,6 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '55%',
-        height: '80%'
-    }
-})
+        height: '80%',
+    },
+});

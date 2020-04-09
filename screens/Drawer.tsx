@@ -32,7 +32,7 @@ function Drawer(props: Props) {
     return (
         <View style={{ height: '100%' }}>
             <View style={{ height: 150, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
-                <Image style={{height: 100, width: 100}} source={require('../assets/icon.png')} />
+                <Image style={{ height: 100, width: 100 }} source={require('../assets/icon.png')} />
             </View>
             <Divider style={styles.divider} />
             {Platform.OS === 'android' ? (
@@ -51,7 +51,17 @@ function Drawer(props: Props) {
             <TouchableOpacity
                 style={styles.logout}
                 onPress={async () => {
-                    let user: User = { bookmarks: [], topics: [], id: '-1', email: '', username: '', poems: [], preferredLanguages: [], followers: [], following: [] };
+                    let user: User = {
+                        bookmarks: [],
+                        topics: [],
+                        id: '-1',
+                        email: '',
+                        username: '',
+                        poems: [],
+                        preferredLanguages: [],
+                        followers: [],
+                        following: [],
+                    };
                     props.setUser(user);
                     await AsyncStorage.setItem('user', JSON.stringify(user));
                 }}

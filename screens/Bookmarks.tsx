@@ -19,7 +19,7 @@ const mapState = (state: RootState) => ({
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -34,13 +34,13 @@ function Bookmarks(props: Props) {
     let [loading, setLoading] = useState(true);
 
     let fetchSelf = async () => {
-        try{
+        try {
             setLoading(true);
             let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-            let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
-            props.setUser(user as User);
+            let user = { ...res.docs[0].data(), id: res.docs[0].data().id } as User;
+            props.setUser(user);
             setLoading(false);
-        } catch(e){
+        } catch (e) {
             setLoading(false);
             console.log(e);
         }
@@ -50,24 +50,27 @@ function Bookmarks(props: Props) {
         fetchSelf();
     }, []);
 
-
     return (
-        <ScrollView style={styles.container}
+        <ScrollView
+            style={styles.container}
             refreshControl={
                 <RefreshControl
                     refreshing={loading}
                     onRefresh={async () => {
+                        setLoading(true);
                         await fetchSelf();
+                        setLoading(false);
                     }}
                 />
             }
         >
-            {
-                props.user.bookmarks.length === 0 ?
-                    <Text style={{ textAlign: 'center', fontSize: 20, paddingTop: 24, paddingHorizontal: 24 }}>You don't have any bookmarked poems!</Text>
-                    :
-                    <View />
-            }
+            {props.user.bookmarks.length === 0 ? (
+                <Text style={{ textAlign: 'center', fontSize: 20, paddingTop: 24, paddingHorizontal: 24 }}>
+                    You don't have any bookmarked poems!
+                </Text>
+            ) : (
+                <View />
+            )}
             <FlatList
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.user.bookmarks.sort((a, b) => b.date - a.date)}
@@ -91,6 +94,6 @@ const styles = StyleSheet.create({
         bottom: 0,
     },
     loading: {
-        marginTop: 40
-    }
+        marginTop: 40,
+    },
 });

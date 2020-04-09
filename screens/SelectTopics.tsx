@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Platform } from 'react-native';
 import { Chip, Title, IconButton, Button, Text, Divider } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
@@ -11,11 +11,11 @@ import { allTopics } from '../constants/topic';
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'SelectTopics'>;
 
 const mapState = (state: RootState) => ({
-    user: state.user
+    user: state.user,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -32,15 +32,15 @@ const SelectTopics = (props: Props) => {
 
     useEffect(() => {
         let myselected = [...selected];
-        for(let i in allTopics){
-            for(let j in props.user.topics){
-                if(allTopics[i] === props.user.topics[j]){
-                    myselected[i] = true;      
+        for (let i in allTopics) {
+            for (let j in props.user.topics) {
+                if (allTopics[i] === props.user.topics[j]) {
+                    myselected[i] = true;
                 }
             }
         }
         setSelected(myselected);
-    }, [])
+    }, []);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -55,7 +55,9 @@ const SelectTopics = (props: Props) => {
                             let items = [...selected];
                             items[index] = !items[index];
                             setSelected(items);
-                        }} style={{ margin: 4 }}>
+                        }}
+                        style={{ margin: 4 }}
+                    >
                         {i}
                     </Chip>
                 ))}
@@ -66,10 +68,9 @@ const SelectTopics = (props: Props) => {
                 dark={true}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
-                    if(loading)
-                        return;
-                    let user = {...props.user};
-                    user.topics = allTopics.filter((_i, index) => (selected[index]));
+                    if (loading) return;
+                    let user = { ...props.user };
+                    user.topics = allTopics.filter((_i, index) => selected[index]);
                     props.setUser(user);
                     props.navigation.pop();
                 }}
@@ -78,19 +79,18 @@ const SelectTopics = (props: Props) => {
             </Button>
 
             <IconButton onPress={() => props.navigation.pop()} style={styles.arrowBack} icon="arrow-left" size={32} />
-
-        </ScrollView >
-    )
-}
+        </ScrollView>
+    );
+};
 
 export default connector(SelectTopics);
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 40,
+        paddingTop: Platform.OS === 'ios' ? 64 : 40,
         paddingBottom: 24,
         justifyContent: 'center',
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
     },
     buttonLabel: {
         paddingVertical: 6,
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     topicContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginBottom: 24
+        marginBottom: 24,
     },
     title: {
         paddingTop: 2,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
     divider: {
         height: 1,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Platform } from 'react-native';
 import { TextInput, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -71,6 +71,7 @@ function ResetPassword(props: Props) {
                             await auth().sendPasswordResetEmail(email);
                             setEmail('');
                             setLoading(false);
+                            props.navigation.navigate('Enterance');
                         } catch (e) {
                             console.log(e);
                             setErrorObj({ error: true, msg: 'An email linked to this account was not found!' });
@@ -82,7 +83,7 @@ function ResetPassword(props: Props) {
                 }}
             >
                 Reset
-                </Button>
+            </Button>
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </ScrollView>
     );
@@ -117,6 +118,6 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
 });

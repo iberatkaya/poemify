@@ -115,8 +115,7 @@ function UserCard(props: Props) {
                                     let myindex = usr.following.findIndex(
                                         (val) => val.username === props.user.username && val.id === props.user.id
                                     );
-                                    if(myindex === -1)
-                                        throw "An error occurred";
+                                    if (myindex === -1) throw 'An error occurred';
                                     usr.following.splice(myindex, 1);
 
                                     /**
@@ -246,6 +245,7 @@ const styles = StyleSheet.create({
     },
     userInfoText: {
         fontWeight: 'bold',
+        textAlign: 'center',
         fontSize: 18,
     },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Platform } from 'react-native';
 import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
@@ -48,6 +48,7 @@ function Login(props: Props) {
             <View style={styles.textinput}>
                 <TextInput
                     returnKeyType="done"
+                    autoCapitalize="none"
                     error={errors[0].error}
                     label="Email"
                     keyboardType="email-address"
@@ -127,7 +128,7 @@ function Login(props: Props) {
                 }}
             >
                 Login
-                </Button>
+            </Button>
             <IconButton onPress={() => props.navigation.navigate('Enterance')} style={styles.arrowBack} icon="arrow-left" size={32} />
         </ScrollView>
     );
@@ -170,6 +171,6 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
 });

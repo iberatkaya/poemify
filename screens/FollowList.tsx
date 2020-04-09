@@ -31,7 +31,6 @@ type Props = PropsFromRedux & {
 function FollowList(props: Props) {
     let myitems = props.route.params!.type === 'Followers' ? [...props.user.followers] : [...props.user.following];
 
-
     return (
         <View style={{ flex: 1 }}>
             <FlatList

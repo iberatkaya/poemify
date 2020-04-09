@@ -1,5 +1,4 @@
-import { SubUser } from "./User";
-
+import { SubUser } from './User';
 
 export interface Comment {
     commentor: SubUser;

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Platform } from 'react-native';
 import { Chip, Text, Button } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../../redux/actions/User';
@@ -15,11 +15,11 @@ import Toast from 'react-native-simple-toast';
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'SelectTopics'>;
 
 const mapState = (state: RootState) => ({
-    user: state.user
+    user: state.user,
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -36,15 +36,15 @@ const SelectTopics = (props: Props) => {
 
     useEffect(() => {
         let myselected = [...selected];
-        for(let i in allTopics){
-            for(let j in props.user.topics){
-                if(allTopics[i] === props.user.topics[j]){
-                    myselected[i] = true;      
+        for (let i in allTopics) {
+            for (let j in props.user.topics) {
+                if (allTopics[i] === props.user.topics[j]) {
+                    myselected[i] = true;
                 }
             }
         }
         setSelected(myselected);
-    }, [])
+    }, []);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -58,7 +58,9 @@ const SelectTopics = (props: Props) => {
                             let items = [...selected];
                             items[index] = !items[index];
                             setSelected(items);
-                        }} style={{ margin: 4 }}>
+                        }}
+                        style={{ margin: 4 }}
+                    >
                         {i}
                     </Chip>
                 ))}
@@ -69,18 +71,17 @@ const SelectTopics = (props: Props) => {
                 loading={loading}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
-                    try{
+                    try {
                         setLoading(true);
-                        if(loading)
-                            return;
-                        let user = {...props.user};
-                        user.topics = allTopics.filter((_i, index) => (selected[index]));
+                        if (loading) return;
+                        let user = { ...props.user };
+                        user.topics = allTopics.filter((_i, index) => selected[index]);
                         props.setUser(user);
                         props.navigation.goBack();
                         await firestore().collection(usersCollectionId).doc(props.user.id).update({ topics: user.topics });
                         await AsyncStorage.setItem('user', JSON.stringify(user));
                         setLoading(false);
-                    } catch(e){
+                    } catch (e) {
                         setLoading(false);
                         Toast.show("We're sorry but an error occurred :(");
                         console.log(e);
@@ -89,9 +90,9 @@ const SelectTopics = (props: Props) => {
             >
                 Save
             </Button>
-        </ScrollView >
-    )
-}
+        </ScrollView>
+    );
+};
 
 export default connector(SelectTopics);
 
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         paddingBottom: 24,
         justifyContent: 'center',
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
     },
     buttonLabel: {
         paddingVertical: 6,
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     topicContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginBottom: 24
+        marginBottom: 24,
     },
     title: {
         fontSize: 24,
@@ -118,6 +119,6 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
 });

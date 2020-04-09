@@ -149,7 +149,6 @@ function SearchStack() {
     );
 }
 
-
 export type BookmarkStackParamList = {
     Bookmarks: undefined;
     FollowList: { type: 'Followers' | 'Following' };
@@ -170,7 +169,7 @@ function BookmarksStack() {
             <StackProfile.Screen
                 name="FollowList"
                 component={FollowListPage}
-                options={({ route }) => { console.log(route.params); return ({ title: route.params.type, headerStyle: { elevation: 1 } })}}
+                options={({ route }) => ({ title: route.params.type, headerStyle: { elevation: 1 } })}
             />
             <StackHome.Screen
                 name="UserDetail"
@@ -185,7 +184,6 @@ function BookmarksStack() {
         </StackBookmarks.Navigator>
     );
 }
-
 
 const Tab = createBottomTabNavigator();
 
@@ -324,8 +322,8 @@ let ConnectedDrawer = connector(function MyDrawer(props: Props) {
             {user === null ? (
                 <Drawer.Screen name="EnteranceStack" component={EnteranceStack} />
             ) : (
-                    <Drawer.Screen name="Tabs" component={Tabs} />
-                )}
+                <Drawer.Screen name="Tabs" component={Tabs} />
+            )}
         </Drawer.Navigator>
     );
 });

@@ -15,7 +15,7 @@ import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
-import RNBootSplash from "react-native-bootsplash";
+import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
@@ -42,7 +42,6 @@ type Props = PropsFromRedux & {
 };
 
 function Home(props: Props) {
-
     props.navigation.setOptions({
         headerLeft: () => {
             return (
@@ -56,12 +55,10 @@ function Home(props: Props) {
         },
     });
 
-
     const [refresh, setRefresh] = useState(false);
 
     const fetchPoems = async () => {
         try {
-            setRefresh(true);
             let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
             let data = res.docs;
             let poems: Poem[] = data.map((i) => {
@@ -69,28 +66,36 @@ function Home(props: Props) {
                 return temp;
             });
             props.setPoem(poems);
-            setRefresh(false);
         } catch (e) {
+            setRefresh(false);
             Toast.show('Please check your internet connection!');
             console.log(e);
         }
     };
 
     let fetchSelf = async () => {
-        let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-        let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
-        props.setUser(user as User);
+        try {
+            let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
+            let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
+            props.setUser(user as User);
+        } catch (e) {
+            setRefresh(false);
+            Toast.show('Please check your internet connection!');
+            console.log(e);
+        }
     };
 
     useEffect(() => {
         RNBootSplash.hide({ duration: 500 });
-    }, [])
+    }, []);
 
     useEffect(() => {
+        setRefresh(true);
         let myfetch = async () => {
             await fetchSelf();
             await fetchPoems();
-        }
+            setRefresh(false);
+        };
         myfetch();
     }, []);
 
@@ -101,9 +106,11 @@ function Home(props: Props) {
                     <RefreshControl
                         refreshing={refresh}
                         onRefresh={async () => {
+                            setRefresh(true);
                             await fetchSelf();
                             await fetchPoems();
                             await AsyncStorage.setItem('user', JSON.stringify(props.user));
+                            setRefresh(false);
                         }}
                     />
                 }

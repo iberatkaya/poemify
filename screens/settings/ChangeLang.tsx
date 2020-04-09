@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Platform } from 'react-native';
 import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
@@ -34,7 +34,6 @@ type Props = PropsFromRedux & {
 };
 
 function ChangeLang(props: Props) {
-    
     let arr: Array<Language | null> = [];
     for (let i = 0; i < 3; i++) {
         if (props.user.preferredLanguages.length > i) arr.push(props.user.preferredLanguages[i]);
@@ -52,6 +51,7 @@ function ChangeLang(props: Props) {
                         items={allLangs.filter((i) => i !== langs[1] && i !== langs[2]).map((i) => ({ value: i, label: i }))}
                         placeholder={{}}
                         value={langs[0]}
+                        style={pickerSelectStyles}
                         placeholderTextColor="#555"
                         onValueChange={(val) => {
                             let lang = [...langs];
@@ -67,6 +67,7 @@ function ChangeLang(props: Props) {
                     <RNPickerSelect
                         items={allLangs.filter((i) => i !== langs[0] && i !== langs[2]).map((i) => ({ value: i, label: i }))}
                         placeholder={{ label: 'Select your second language.' }}
+                        style={pickerSelectStyles}
                         value={langs[1]}
                         placeholderTextColor="#555"
                         onValueChange={(val) => {
@@ -84,6 +85,7 @@ function ChangeLang(props: Props) {
                         items={allLangs.filter((i) => i !== langs[0] && i !== langs[1]).map((i) => ({ value: i, label: i }))}
                         placeholder={{ label: 'Select your third language.' }}
                         value={langs[2]}
+                        style={pickerSelectStyles}
                         placeholderTextColor="#555"
                         onValueChange={(val) => {
                             let lang = [...langs];
@@ -164,6 +166,15 @@ const styles = StyleSheet.create({
     arrowBack: {
         position: 'absolute',
         left: 2,
-        top: 4,
+        top: Platform.OS === 'ios' ? 36 : 4,
     },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+    },
+    inputAndroid: {},
 });
