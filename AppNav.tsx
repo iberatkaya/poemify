@@ -28,6 +28,7 @@ import SelectTopicsPage from './screens/SelectTopics';
 import ChangeTopicPage from './screens/settings/ChangeTopics';
 import BookmarksPage from './screens/Bookmarks';
 import IntroScreen from './screens/FirstIntro';
+import BlockListPage from './screens/settings/BlockList';
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -75,6 +76,7 @@ export type ProfileStackParamList = {
     Settings: undefined;
     ChangeLang: undefined;
     ChangeTopics: undefined;
+    BlockList: undefined;
     FollowList: { type: 'Followers' | 'Following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
@@ -102,6 +104,11 @@ function ProfileStack() {
                 name="ChangeTopics"
                 component={ChangeTopicPage}
                 options={{ headerTitle: 'Change Topics', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="BlockList"
+                component={BlockListPage}
+                options={{ headerTitle: 'Block List', headerStyle: { elevation: 1 } }}
             />
             <StackProfile.Screen
                 name="FollowList"

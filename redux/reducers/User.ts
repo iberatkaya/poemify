@@ -3,7 +3,9 @@ import { setUserAction, updateUserPoemAction, addUserPoemAction, deleteUserPoemA
 
 const USER_INITIAL_STATE: User = {
     email: '',
-    id: '',
+    blockedUsers: [],
+    docid: '',
+    uid: '',
     topics: [],
     bookmarks: [],
     username: '',

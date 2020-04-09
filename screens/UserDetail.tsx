@@ -37,6 +37,7 @@ function UserDetail(props: Props) {
     let temp: User = {
         email: '',
         topics: [],
+        blockedUsers: [],
         uid: props.route.params!.profileUser.uid,
         bookmarks: [],
         docid: props.route.params!.profileUser.docid,

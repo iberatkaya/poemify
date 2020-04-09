@@ -56,7 +56,7 @@ function WritePoem(props: Props) {
                     returnKeyType="next"
                     style={{ fontSize: 16 }}
                     value={poem}
-                    inputAccessoryViewID="done"
+                    inputAccessoryViewID= {Platform.OS === "ios" ? "done" : undefined}
                     label="Poem"
                     onChangeText={(text) => setPoem(text)}
                     multiline={true}
@@ -64,14 +64,19 @@ function WritePoem(props: Props) {
                     //@ts-ignore
                     minHeight={Platform.OS === 'ios' && 18 ? 20 * 18 : undefined}
                 />
-                <InputAccessoryView
-                    nativeID="done"
-                    style={{ alignSelf: 'flex-end', justifyContent: 'flex-end', alignItems: 'flex-end', alignContent: 'flex-end' }}
-                >
-                    <Button style={{ alignSelf: 'flex-end', width: 120 }} mode="contained" onPress={() => {}}>
-                        Done
-                    </Button>
-                </InputAccessoryView>
+                {
+                    Platform.OS === "ios" ?
+                    <InputAccessoryView
+                        nativeID="done"
+                        style={{ alignSelf: 'flex-end', justifyContent: 'flex-end', alignItems: 'flex-end', alignContent: 'flex-end' }}
+                    >
+                        <Button style={{ alignSelf: 'flex-end', width: 120 }} mode="contained" onPress={() => {}}>
+                            Done
+                        </Button>
+                    </InputAccessoryView>
+                    :
+                    <View/>
+                }
                 <View style={styles.pickerContainer}>
                     <RNPickerSelect
                         onValueChange={(value) => setLang(value)}
@@ -92,7 +97,7 @@ function WritePoem(props: Props) {
                         }}
                         placeholder={{}}
                         style={pickerSelectStyles}
-                        items={allTopics.map((i) => ({ value: i, label: i }))}
+                        items={allTopics.filter((j) => j !== topics[1]).map((i) => ({ value: i, label: i }))}
                         value={topics[0]}
                     />
                 </View>
@@ -107,7 +112,7 @@ function WritePoem(props: Props) {
                         }}
                         placeholder={{}}
                         style={pickerSelectStyles}
-                        items={allTopics.map((i) => ({ value: i, label: i }))}
+                        items={allTopics.filter((j) => j !== topics[0]).map((i) => ({ value: i, label: i }))}
                         value={topics[1]}
                     />
                 </View>
@@ -140,6 +145,9 @@ function WritePoem(props: Props) {
                             };
                             let mypoems = [...props.user.poems];
                             mypoems.push(mypoem);
+                            props.addPoem(mypoem);
+                            props.addUserPoem(mypoem);
+                            props.navigation.pop();
                             /**
                              * Firebase Operations
                              */
@@ -151,9 +159,6 @@ function WritePoem(props: Props) {
                             /**
                              * Redux Operations
                              */
-                            props.addPoem(mypoem);
-                            props.addUserPoem(mypoem);
-                            props.navigation.pop();
                         }
                     } catch (e) {
                         console.log(e);

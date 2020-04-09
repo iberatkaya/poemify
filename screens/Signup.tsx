@@ -16,6 +16,7 @@ import { usersCollectionId } from '../constants/collection';
 import { allLangs } from '../constants/language';
 import { EnteranceStackParamList } from 'AppNav';
 import Toast from 'react-native-simple-toast';
+import { production } from '../constants/collection';
 
 type EnteranceScreenNavigationProp = DrawerNavigationProp<EnteranceStackParamList, 'Signup'>;
 
@@ -235,15 +236,16 @@ function Signup(props: Props) {
                                 return;
                             }
 
-                            let unsub = auth().onAuthStateChanged((usr) => {
+                            let unsub = production ? auth().onAuthStateChanged((usr) => {
                                 if (!usr?.emailVerified) {
                                     usr?.sendEmailVerification();
                                 }
-                            });
+                            }) : () => {};
 
                             let fuser: FirebaseUser = {
                                 email: email,
                                 uid: res.user.uid,
+                                blockedUsers: [],
                                 bookmarks: [],
                                 username: username,
                                 preferredLanguages: filtered,

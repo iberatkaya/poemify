@@ -10,6 +10,7 @@ import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import firestore from '@react-native-firebase/firestore';
 import { usersCollectionId } from '../constants/collection';
+import Toast from 'react-native-simple-toast';
 
 type UserCardDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
@@ -29,10 +30,12 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromRedux & {
     theUserProp: User;
     navigation: UserCardDetailNavigationProp;
+    useForBlocking?: boolean;
 };
 
 function UserCard(props: Props) {
     const [lock, setLock] = useState(false);
+
 
     let follows = () => {
         let following = [...props.user.following];
@@ -58,8 +61,8 @@ function UserCard(props: Props) {
                         }}
                     />
                 ) : (
-                    <View />
-                )}
+                        <View />
+                    )}
             </Card.Content>
             <Divider style={styles.divider} />
             <Card.Content
@@ -85,8 +88,8 @@ function UserCard(props: Props) {
                         Followers
                     </Text>
                 ) : (
-                    <View />
-                )}
+                        <View />
+                    )}
                 {props.theUserProp.username === props.user.username ? (
                     <Text style={styles.textContainer} onPress={() => props.navigation.navigate('FollowList', { type: 'Following' })}>
                         <Text style={styles.userInfoText}>
@@ -96,124 +99,154 @@ function UserCard(props: Props) {
                         Following
                     </Text>
                 ) : (
-                    <View />
-                )}
+                        <View />
+                    )}
             </Card.Content>
             {props.theUserProp.username !== props.user.username ? <Divider style={styles.divider} /> : <View />}
             {props.theUserProp.username !== props.user.username ? (
                 <Card.Content>
-                    {follows() ? (
-                        <Button
-                            mode="contained"
-                            dark={true}
-                            style={styles.followButton}
-                            onPress={async () => {
-                                try {
-                                    if (lock) return;
-                                    setLock(true);
-                                    let usr = { ...props.user };
-                                    let myindex = usr.following.findIndex(
-                                        (val) => val.username === props.user.username && val.docid === props.user.docid
-                                    );
-                                    if (myindex === -1) throw 'An error occurred';
-                                    usr.following.splice(myindex, 1);
+                    {
+                        props.useForBlocking ?
+                            <View>
+                                <Button
+                                    mode="contained"
+                                    dark={true}
+                                    style={styles.followButton}
+                                    onPress={async () => {
+                                        try {
+                                            let myuser = { ...props.user };
+                                            let blocked = myuser.blockedUsers.filter((i) => (i.username !== props.theUserProp.username && i.docid !== props.theUserProp.docid ));
+                                            myuser.blockedUsers = blocked;
+                                            props.setUser(myuser);
+                                            await firestore().collection(usersCollectionId).doc(props.user.docid).update({ blockedUsers: myuser.blockedUsers });
+                                            props.navigation.pop();
+                                        } catch (e) {
+                                            console.log(e);
+                                        }
+                                    }}
+                                >Unblock</Button>
 
-                                    /**
-                                     * Redux Operations
-                                     */
+                            </View>
+                            :
+                            <View>
+                                {follows() ? (
+                                    <Button
+                                        mode="contained"
+                                        dark={true}
+                                        style={styles.followButton}
+                                        onPress={async () => {
+                                            try {
+                                                if (lock) return;
+                                                setLock(true);
+                                                let usr = { ...props.user };
+                                                let myfollowing = usr.following.filter(
+                                                    (val) => {
+                                                        return (
+                                                        val.username !== props.theUserProp.username && val.docid !== props.theUserProp.docid);}
+                                                );
+                                                usr.following = myfollowing;
+                                                /**
+                                                 * Redux Operations
+                                                 */
 
-                                    props.setUser(usr);
+                                                props.setUser(usr);
 
-                                    /**
-                                     * Firebase Operations
-                                     */
+                                                /**
+                                                 * Firebase Operations
+                                                 */
 
-                                    //Update user
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.user.docid)
-                                        .update({ following: usr.following });
+                                                //Update user
+                                                await firestore()
+                                                    .collection(usersCollectionId)
+                                                    .doc(props.user.docid)
+                                                    .update({ following: usr.following });
 
-                                    //Get followed user
-                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
-                                    let followedusr = res.data()!;
-                                    let index = followedusr.followers.findIndex(
-                                        (val: User) => val.username === props.user.username && val.docid === props.user.docid
-                                    );
-                                    if (index === -1) throw 'FIREBASE: An error occurred!';
-                                    followedusr.followers.splice(index, 1);
+                                                //Get followed user
+                                                let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
+                                                let followedusr = res.data()!;
 
-                                    //Unfollow
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.theUserProp.docid)
-                                        .update({ followers: followedusr.followers });
-                                    setLock(false);
-                                } catch (e) {
-                                    setLock(false);
-                                    console.log(e);
-                                }
-                            }}
-                        >
-                            Following
-                        </Button>
-                    ) : (
-                        <Button
-                            mode="contained"
-                            style={styles.followButton}
-                            dark={true}
-                            onPress={async () => {
-                                try {
-                                    setLock(true);
-                                    let usr = { ...props.user };
-                                    usr.following.push({
-                                        docid: props.theUserProp.docid,
-                                        username: props.theUserProp.username,
-                                        uid: props.theUserProp.uid,
-                                    });
+                                                let resfollowers = followedusr.followers.filter(
+                                                    (val: User) => (val.username !== props.user.username && val.docid !== props.user.docid)
+                                                );
+                                                followedusr.followers = resfollowers;
 
-                                    /**
-                                     * Redux Operations
-                                     */
+                                                //Unfollow
+                                                await firestore()
+                                                    .collection(usersCollectionId)
+                                                    .doc(props.theUserProp.docid)
+                                                    .update({ followers: followedusr.followers });
+                                                setLock(false);
+                                            } catch (e) {
+                                                setLock(false);
+                                                console.log(e);
+                                            }
+                                        }}
+                                    >
+                                        Following
+                                    </Button>
+                                ) : (
+                                        <Button
+                                            mode="contained"
+                                            style={styles.followButton}
+                                            dark={true}
+                                            onPress={async () => {
+                                                try {
+                                                    setLock(true);
+                                                    let usr = { ...props.user };
+                                                    usr.following.push({
+                                                        docid: props.theUserProp.docid,
+                                                        username: props.theUserProp.username,
+                                                        uid: props.theUserProp.uid,
+                                                    });
 
-                                    props.setUser(usr);
+                                                    /**
+                                                     * Redux Operations
+                                                     */
 
-                                    /**
-                                     * Firebase Operations
-                                     */
+                                                    props.setUser(usr);
 
-                                    //Update user
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.user.docid)
-                                        .update({ following: usr.following });
+                                                    /**
+                                                     * Firebase Operations
+                                                     */
 
-                                    //Get user desired to follow
-                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
-                                    let followedusr = res.data()!;
-                                    followedusr.followers.push({ docid: props.user.docid, username: props.user.username });
+                                                    //Update user
+                                                    await firestore()
+                                                        .collection(usersCollectionId)
+                                                        .doc(props.user.docid)
+                                                        .update({ following: usr.following });
 
-                                    //Add user to the followed user followers
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.theUserProp.docid)
-                                        .update({ followers: followedusr.followers });
-                                    setLock(false);
-                                } catch (e) {
-                                    setLock(false);
-                                    console.log(e);
-                                }
-                            }}
-                        >
-                            Follow
-                        </Button>
-                    )}
+                                                    //Get user desired to follow
+                                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
+                                                    let followedusr = res.data()!;
+                                                    followedusr.followers.push({ docid: props.user.docid, username: props.user.username });
+
+                                                    //Add user to the followed user followers
+                                                    await firestore()
+                                                        .collection(usersCollectionId)
+                                                        .doc(props.theUserProp.docid)
+                                                        .update({ followers: followedusr.followers });
+                                                    setLock(false);
+                                                } catch (e) {
+                                                    setLock(false);
+                                                    console.log(e);
+                                                }
+                                            }}
+                                        >
+                                            Follow
+                                        </Button>
+                                    )}
+                            </View>
+                    }
                 </Card.Content>
             ) : (
-                <View />
-            )}
+                    <View />
+                )}
         </Card>
     );
+}
+
+UserCard.defaultProps = {
+    useForBlocking: false
 }
 
 export default connector(UserCard);

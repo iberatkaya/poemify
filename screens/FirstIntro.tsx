@@ -54,17 +54,19 @@ function Intro(props: Props) {
             </View>
         );
     };
-    //@ts-ignore
     return (
         <AppIntroSlider
             renderItem={_renderItem}
+            //@ts-ignore
             data={slides}
             onDone={async () => {
                 props.navigation.navigate('Enterance');
                 let user: User = {
                     bookmarks: [],
+                    blockedUsers: [],
                     topics: [],
-                    id: '-1',
+                    uid: '',
+                    docid: '-1',
                     email: '',
                     username: '',
                     poems: [],

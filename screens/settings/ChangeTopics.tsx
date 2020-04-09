@@ -4,7 +4,7 @@ import { Chip, Text, Button } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../../redux/actions/User';
 import { RootState } from '../../redux/store';
-import { EnteranceStackParamList } from 'AppNav';
+import { ProfileStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { allTopics } from '../../constants/topic';
 import firestore from '@react-native-firebase/firestore';
@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';
 import Toast from 'react-native-simple-toast';
 
-type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'SelectTopics'>;
+type EnteranceScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'ChangeTopics'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,

@@ -11,7 +11,7 @@ import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-community/async-storage';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { usersCollectionId } from '../constants/collection';
+import { usersCollectionId, production } from '../constants/collection';
 
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'Login'>;
 
@@ -122,7 +122,7 @@ function Login(props: Props) {
                         setLoading(true);
                         try {
                             let authres = await auth().signInWithEmailAndPassword(email, password);
-                            if (!authres.user.emailVerified) {
+                            if (!authres.user.emailVerified && production) {
                                 setErrors([
                                     { error: true, msg: 'Please verify your email!' },
                                     { error: false, msg: '' },

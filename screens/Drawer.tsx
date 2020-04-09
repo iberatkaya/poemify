@@ -54,8 +54,10 @@ function Drawer(props: Props) {
                     let user: User = {
                         bookmarks: [],
                         topics: [],
-                        id: '-1',
+                        docid: '-1',
+                        uid: '',
                         email: '',
+                        blockedUsers: [],
                         username: '',
                         poems: [],
                         preferredLanguages: [],
