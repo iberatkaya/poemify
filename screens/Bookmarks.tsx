@@ -37,7 +37,7 @@ function Bookmarks(props: Props) {
         try {
             setLoading(true);
             let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-            let user = { ...res.docs[0].data(), id: res.docs[0].data().id } as User;
+            let user = { ...res.docs[0].data() } as User;
             props.setUser(user);
             setLoading(false);
         } catch (e) {

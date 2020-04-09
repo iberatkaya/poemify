@@ -78,7 +78,7 @@ const SelectTopics = (props: Props) => {
                         user.topics = allTopics.filter((_i, index) => selected[index]);
                         props.setUser(user);
                         props.navigation.goBack();
-                        await firestore().collection(usersCollectionId).doc(props.user.id).update({ topics: user.topics });
+                        await firestore().collection(usersCollectionId).doc(props.user.docid).update({ topics: user.topics });
                         await AsyncStorage.setItem('user', JSON.stringify(user));
                         setLoading(false);
                     } catch (e) {

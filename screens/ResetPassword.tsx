@@ -8,6 +8,7 @@ import { RootState } from '../redux/store';
 import auth from '@react-native-firebase/auth';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
+import Toast from 'react-native-simple-toast';
 
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'ResetPassword'>;
 
@@ -39,6 +40,7 @@ function ResetPassword(props: Props) {
             <View style={styles.textinput}>
                 <TextInput
                     returnKeyType="done"
+                    autoCapitalize="none"
                     error={errorObj.error}
                     label="Email"
                     mode="outlined"
@@ -78,6 +80,7 @@ function ResetPassword(props: Props) {
                             setLoading(false);
                         }
                     } else {
+                        Toast.show('Please check your internet connection!');
                         setLoading(false);
                     }
                 }}

@@ -48,6 +48,7 @@ function Signup(props: Props) {
     ]);
     const [langs, setLangs] = useState<Array<Language | null>>(['English', null, null]);
     const [loading, setLoading] = useState(false);
+    const [lock, setLock] = useState(false);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -57,20 +58,29 @@ function Signup(props: Props) {
                 <TextInput
                     returnKeyType="done"
                     textContentType="username"
+                    autoCapitalize="none"
                     label="Username"
                     error={errors[0].error}
                     onEndEditing={async () => {
-                        let usernameIsTaken = await firestore().collection(usersCollectionId).where('username', '==', username).get();
-                        if (!usernameIsTaken.empty) {
-                            let newerrors = [...errors];
-                            newerrors[0] = { error: true, msg: 'Username is already taken' };
-                            setErrors(newerrors);
-                            return;
-                        } else {
-                            let newerrors = [...errors];
-                            newerrors[0] = { error: false, msg: '' };
-                            setErrors(newerrors);
-                            return;
+                        try {
+                            setLock(true);
+                            let usernameIsTaken = await firestore().collection(usersCollectionId).where('username', '==', username).get();
+                            if (!usernameIsTaken.empty) {
+                                let newerrors = [...errors];
+                                newerrors[0] = { error: true, msg: 'Username is already taken' };
+                                setErrors(newerrors);
+                                return;
+                            } else {
+                                let newerrors = [...errors];
+                                newerrors[0] = { error: false, msg: '' };
+                                setErrors(newerrors);
+                                setLock(false);
+                                return;
+                            }                            
+                        } catch(e){
+                            Toast.show('Please check your internet connection!');
+                            setLock(false);
+                            console.log(e);
                         }
                     }}
                     mode="outlined"
@@ -82,6 +92,7 @@ function Signup(props: Props) {
             <View style={styles.textinput}>
                 <TextInput
                     returnKeyType="done"
+                    autoCapitalize="none"
                     textContentType="password"
                     label="Password"
                     error={errors[1].error}
@@ -95,6 +106,7 @@ function Signup(props: Props) {
             <View style={styles.textinputLast}>
                 <TextInput
                     returnKeyType="done"
+                    autoCapitalize="none"
                     textContentType="emailAddress"
                     label="Email"
                     error={errors[2].error}
@@ -174,37 +186,31 @@ function Signup(props: Props) {
             <Button
                 mode="contained"
                 loading={loading}
+                disabled={lock}
                 dark={true}
                 labelStyle={styles.buttonLabel}
                 style={styles.signupButton}
                 onPress={async () => {
                     setLoading(true);
                     let myerrors = [...errors];
-                    let hasError = false;
                     if (username === '') {
                         myerrors[0] = { error: true, msg: 'Username cannot be empty!' };
-                        hasError = true;
                     } else if (username.length < 5) {
                         myerrors[0] = { error: true, msg: 'Username must be longer than 4 characters!' };
-                        hasError = true;
                     } else {
                         myerrors[0] = { error: false, msg: '' };
                     }
                     if (password === '') {
                         myerrors[1] = { error: true, msg: 'Password cannot be empty!' };
-                        hasError = true;
                     } else if (password.length < 6) {
                         myerrors[1] = { error: true, msg: 'Password must be longer than 5 characters!' };
-                        hasError = true;
                     } else {
                         myerrors[1] = { error: false, msg: '' };
                     }
                     if (email === '') {
                         myerrors[2] = { error: true, msg: 'Email cannot be empty!' };
-                        hasError = true;
                     } else if (!EmailValidator.validate(email)) {
                         myerrors[2] = { error: true, msg: 'Not a valid email!' };
-                        hasError = true;
                     } else {
                         myerrors[2] = { error: false, msg: '' };
                     }
@@ -214,22 +220,30 @@ function Signup(props: Props) {
                         myerrors[3] = { error: false, msg: '' };
                     }
                     setErrors(myerrors);
-                    if (!hasError) {
+                    if (!myerrors[0].error && !myerrors[1].error && !myerrors[2].error && !myerrors[3].error) {
                         try {
-                            let usernameIsTaken = await firestore().collection(usersCollectionId).where('username', '==', username).get();
-                            if (!usernameIsTaken.empty) {
+                            let filtered = langs.filter((i) => i !== null) as Array<Language>;
+                            let res = await auth().createUserWithEmailAndPassword(email, password);
+                            if (!res.additionalUserInfo?.isNewUser) {
                                 setErrors([
                                     { error: true, msg: 'Username is already taken' },
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
+                                    { error: false, msg: '' }
                                 ]);
                                 setLoading(false);
                                 return;
                             }
-                            let filtered = langs.filter((i) => i !== null) as Array<Language>;
-                            let res = await auth().createUserWithEmailAndPassword(email, password);
+
+                            let unsub = auth().onAuthStateChanged((usr) => {
+                                if (!usr?.emailVerified) {
+                                    usr?.sendEmailVerification();
+                                }
+                            });
+                            
                             let fuser: FirebaseUser = {
                                 email: email,
+                                uid: res.user.uid,
                                 bookmarks: [],
                                 username: username,
                                 preferredLanguages: filtered,
@@ -241,22 +255,32 @@ function Signup(props: Props) {
                             let res2 = await firestore().collection(usersCollectionId).add(fuser);
 
                             //Maybe delete later?
-                            let res3 = await firestore().collection(usersCollectionId).doc(res2.id).update({ id: res2.id });
-                            let user: User = { ...fuser, id: res2.id, topics: [] };
-
-                            props.setUser(user);
-                            await AsyncStorage.setItem('user', JSON.stringify(user));
+                            let res3 = await firestore().collection(usersCollectionId).doc(res2.id).update({ docid: res2.id });
+                            unsub();
+                            Toast.show("Please authenticate your email.");
+                            props.navigation.navigate("Login");
+                            //props.setUser(user);
+                            //await AsyncStorage.setItem('user', JSON.stringify(user));
                             /**
                              * Reset State since logging out returns to last page in the drawer stack
                              */
-                            setUsername('');
-                            setPassword('');
-                            setEmail('');
-                            setLoading(false);
-                            setLangs(['English', null, null]);
+                            //setUsername('');
+                            //setPassword('');
+                            //setEmail('');
+                            //setLoading(false);
+                            //setLangs(['English', null, null]);
                         } catch (e) {
-                            Toast.show('Please check your internet connection!');
-                            console.log(e);
+                            if(e.toString() === "Error: [auth/email-already-in-use] The email address is already in use by another account."){
+                                setErrors([
+                                    { error: false, msg: '' },
+                                    { error: false, msg: '' },
+                                    { error: true, msg: 'The email address is already used!' },
+                                    { error: false, msg: '' }
+                                ]);
+                                setLoading(false);
+                            }
+                            else
+                                Toast.show('Please check your internet connection!');
                         }
                     } else {
                         setLoading(false);

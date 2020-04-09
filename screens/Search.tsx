@@ -73,7 +73,7 @@ const Search = (props: Props) => {
                             renderItem={({ item }) => (
                                 <Card
                                     onPress={() =>
-                                        props.navigation.push('UserDetail', { profileUser: { id: item.id, username: item.username } })
+                                        props.navigation.push('UserDetail', { profileUser: { docid: item.docid, username: item.username, uid: item.uid } })
                                     }
                                 >
                                     <Card.Content style={styles.contentContainer}>

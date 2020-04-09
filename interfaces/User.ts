@@ -4,7 +4,8 @@ import { Topic } from './Topic';
 
 export interface User {
     username: string;
-    id: string;
+    docid: string;
+    uid: string;
     preferredLanguages: Language[];
     poems: Poem[];
     following: SubUser[];
@@ -17,6 +18,7 @@ export interface User {
 export interface FirebaseUser {
     username: string;
     preferredLanguages: Language[];
+    uid: string;
     following: User[];
     followers: User[];
     poems: Poem[];
@@ -27,5 +29,6 @@ export interface FirebaseUser {
 
 export interface SubUser {
     username: string;
-    id: string;
+    docid: string;
+    uid: string;
 }

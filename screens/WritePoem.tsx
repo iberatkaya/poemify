@@ -43,7 +43,7 @@ function WritePoem(props: Props) {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <TextInput returnKeyType="done" maxLength={50} value={title} onChangeText={(text) => setTitle(text)} label="Title" />
+                <TextInput returnKeyType="done" autoCapitalize="words" maxLength={50} value={title} onChangeText={(text) => setTitle(text)} label="Title" />
                 <TextInput
                     returnKeyLabel="Done"
                     returnKeyType="next"
@@ -109,45 +109,53 @@ function WritePoem(props: Props) {
             </ScrollView>
             <FAB
                 onPress={async () => {
-                    if (title === '') {
-                        Toast.show('Title cannot be empty!');
-                    } else if (title.length < 3) {
-                        Toast.show('Title must be longer than 3 characters!');
-                    } else if (poem === '') {
-                        Toast.show('The poem cannot be empty!');
-                    } else if (poem.length < 3) {
-                        Toast.show('The poem must be longer than 3 characters!');
-                    } else {
-                        let poemid = props.user.poems.length !== 0 ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
-                        let mypoem: Poem = {
-                            author: { id: props.user.id, username: props.user.username },
-                            body: poem,
-                            topics: topics,
-                            date: new Date().getTime(),
-                            language: lang,
-                            likes: [],
-                            poemId: poemid,
-                            title: title,
-                            comments: [],
-                        };
-                        let mypoems = [...props.user.poems];
-                        mypoems.push(mypoem);
+                    try{
+                        if (title === '') {
+                            Toast.show('Title cannot be empty!');
+                        } else if (title.length < 3) {
+                            Toast.show('Title must be longer than 3 characters!');
+                        } else if (poem === '') {
+                            Toast.show('The poem cannot be empty!');
+                        } else if (poem.length < 3) {
+                            Toast.show('The poem must be longer than 3 characters!');
+                        } else {
+                            let poemid = props.user.poems.length !== 0 ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
+                            let mypoem: Poem = {
+                                author: { docid: props.user.docid, username: props.user.username, uid: props.user.uid },
+                                body: poem,
+                                topics: topics,
+                                date: new Date().getTime(),
+                                language: lang,
+                                likes: [],
+                                poemId: poemid,
+                                title: title,
+                                comments: [],
+                            };
+                            let mypoems = [...props.user.poems];
+                            mypoems.push(mypoem);
+                            /** 
+                             * Firebase Operations
+                             */
+                            //Main database
+                            await firestore().collection(usersCollectionId).doc(props.user.docid).update({ poems: mypoems });
+                            //Database for all poems
+                            await firestore().collection(poemsCollectionId).add(mypoem);
 
-                        /**
-                         * Redux Operations
-                         */
-                        props.addPoem(mypoem);
-                        props.addUserPoem(mypoem);
-                        props.navigation.pop();
-
-                        /**
-                         * Firebase Operations
-                         */
-                        //Main database
-                        await firestore().collection(usersCollectionId).doc(props.user.id).update({ poems: mypoems });
-
-                        //Database for all poems
-                        await firestore().collection(poemsCollectionId).add(mypoem);
+                            /**
+                             * Redux Operations
+                             */
+                            props.addPoem(mypoem);
+                            props.addUserPoem(mypoem);
+                            props.navigation.pop();
+                        }    
+                    } catch(e){
+                        console.log(e);    
+                        if(e.toString() === "Error: [firestore/permission-denied] The caller does not have permission to execute the specified operation."){
+                            Toast.show('An error occurred!');
+                        }
+                        else{
+                            Toast.show('Please check your internet connection!');
+                        }
                     }
                 }}
                 style={styles.fab}

@@ -107,7 +107,7 @@ function PoemCard(props: Props) {
                                         mypoems.splice(myindex, 1);
                                         props.deleteUserPoem(props.item);
                                         props.deletePoem(props.item);
-                                        await firestore().collection(usersCollectionId).doc(props.user.id).update({ poems: mypoems });
+                                        await firestore().collection(usersCollectionId).doc(props.user.docid).update({ poems: mypoems });
 
                                         let req = await firestore()
                                             .collection(poemsCollectionId)
@@ -146,7 +146,7 @@ function PoemCard(props: Props) {
                 <Paragraph
                     onPress={() =>
                         props.navigation.push('UserDetail', {
-                            profileUser: { id: props.item.author.id, username: props.item.author.username },
+                            profileUser: { docid: props.item.author.docid, username: props.item.author.username, uid: props.user.uid },
                         })
                     }
                     style={styles.author}
@@ -185,7 +185,7 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
                                     let userData = req.data() as User;
 
                                     let index = userData.poems.findIndex(
@@ -195,7 +195,7 @@ function PoemCard(props: Props) {
                                     userData.poems[index].likes = poem.likes;
                                     await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.item.author.id)
+                                        .doc(props.item.author.docid)
                                         .update({ poems: userData.poems });
 
                                     let req2 = await firestore()
@@ -224,7 +224,7 @@ function PoemCard(props: Props) {
                                     if (lock) return;
                                     setLock(true);
                                     let poem = { ...props.item };
-                                    poem.likes.push({ id: props.user.id, username: props.user.username });
+                                    poem.likes.push({ docid: props.user.docid, username: props.user.username, uid: props.user.uid });
 
                                     /**
                                      * Redux Operations
@@ -239,7 +239,7 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
                                     let userData = req.data() as User;
 
                                     let index = userData.poems.findIndex(
@@ -249,7 +249,7 @@ function PoemCard(props: Props) {
                                     userData.poems[index].likes = poem.likes;
                                     await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.item.author.id)
+                                        .doc(props.item.author.docid)
                                         .update({ poems: userData.poems });
 
                                     let req2 = await firestore()
@@ -300,7 +300,7 @@ function PoemCard(props: Props) {
 
                                     let req = await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.user.id)
+                                        .doc(props.user.docid)
                                         .update({ bookmarks: user.bookmarks });
 
                                     setLockBookmark(false);
@@ -336,7 +336,7 @@ function PoemCard(props: Props) {
 
                                     let req = await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.user.id)
+                                        .doc(props.user.docid)
                                         .update({ bookmarks: user.bookmarks });
 
                                     setLockBookmark(false);
@@ -372,7 +372,7 @@ function PoemCard(props: Props) {
                                     setLockComment(true);
                                     let poem = { ...props.item };
                                     let comm: Comment = {
-                                        commentor: { id: props.user.id, username: props.user.username },
+                                        commentor: { docid: props.user.docid, username: props.user.username, uid: props.user.uid },
                                         message: myComment,
                                         date: new Date().getTime(),
                                     };
@@ -391,7 +391,7 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.id).get();
+                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
                                     let userData = req.data() as User;
                                     let index = userData.poems.findIndex(
                                         (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
@@ -400,7 +400,7 @@ function PoemCard(props: Props) {
                                     userData.poems[index].comments = poem.comments;
                                     await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.item.author.id)
+                                        .doc(props.item.author.docid)
                                         .update({ poems: userData.poems });
 
                                     let req2 = await firestore()
@@ -483,7 +483,7 @@ function PoemCard(props: Props) {
 
                                                         let req = await firestore()
                                                             .collection(usersCollectionId)
-                                                            .doc(props.item.author.id)
+                                                            .doc(props.item.author.docid)
                                                             .get();
                                                         let userData = req.data() as User;
 
@@ -496,7 +496,7 @@ function PoemCard(props: Props) {
                                                         userData.poems[index].comments = poem.comments;
                                                         await firestore()
                                                             .collection(usersCollectionId)
-                                                            .doc(props.item.author.id)
+                                                            .doc(props.item.author.docid)
                                                             .update({ poems: userData.poems });
 
                                                         let req2 = await firestore()

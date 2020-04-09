@@ -103,7 +103,7 @@ function ChangeLang(props: Props) {
                     let filtered = langs.filter((i) => i !== null) as Array<Language>;
                     let user: User = { ...props.user };
                     user.preferredLanguages = filtered;
-                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ preferredLanguages: filtered });
+                    await firestore().collection(usersCollectionId).doc(props.user.docid).update({ preferredLanguages: filtered });
 
                     props.setUser(user);
                     await AsyncStorage.setItem('user', JSON.stringify(user));

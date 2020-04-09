@@ -49,6 +49,7 @@ const SelectTopics = (props: Props) => {
             <View style={styles.topicContainer}>
                 {allTopics.map((i, index) => (
                     <Chip
+                        key={index}
                         mode="outlined"
                         selected={selected[index]}
                         onPress={() => {

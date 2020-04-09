@@ -6,7 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { HomeStackParamList } from '../AppNav';
 import UserCard from '../components/UserCard';
-import { User, SubUser } from '../interfaces/User';
+import { User } from '../interfaces/User';
 import firestore from '@react-native-firebase/firestore';
 import PoemCard from '../components/PoemCard';
 import { ActivityIndicator } from 'react-native-paper';
@@ -37,8 +37,9 @@ function UserDetail(props: Props) {
     let temp: User = {
         email: '',
         topics: [],
+        uid: props.route.params!.profileUser.uid,
         bookmarks: [],
-        id: props.route.params!.profileUser.id,
+        docid: props.route.params!.profileUser.docid,
         username: props.route.params!.profileUser.username,
         followers: [],
         following: [],
@@ -49,7 +50,7 @@ function UserDetail(props: Props) {
 
     useEffect(() => {
         let func = async () => {
-            let tempUser = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.id).get();
+            let tempUser = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.docid).get();
             let userData = tempUser.data() as User;
             if (userData === undefined) {
                 Toast.show("User doesn't exist!");

@@ -76,7 +76,7 @@ function Home(props: Props) {
     let fetchSelf = async () => {
         try {
             let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-            let user = { ...res.docs[0].data(), id: res.docs[0].data().id };
+            let user = { ...res.docs[0].data() };
             props.setUser(user as User);
         } catch (e) {
             setRefresh(false);
@@ -98,6 +98,8 @@ function Home(props: Props) {
         };
         myfetch();
     }, []);
+
+    console.log(props.user);
 
     return (
         <View style={styles.container}>

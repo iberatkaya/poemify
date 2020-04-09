@@ -113,7 +113,7 @@ function UserCard(props: Props) {
                                     setLock(true);
                                     let usr = { ...props.user };
                                     let myindex = usr.following.findIndex(
-                                        (val) => val.username === props.user.username && val.id === props.user.id
+                                        (val) => val.username === props.user.username && val.docid === props.user.docid
                                     );
                                     if (myindex === -1) throw 'An error occurred';
                                     usr.following.splice(myindex, 1);
@@ -129,13 +129,13 @@ function UserCard(props: Props) {
                                      */
 
                                     //Update user
-                                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ following: usr.following });
+                                    await firestore().collection(usersCollectionId).doc(props.user.docid).update({ following: usr.following });
 
                                     //Get followed user
-                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.id).get();
+                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
                                     let followedusr = res.data()!;
                                     let index = followedusr.followers.findIndex(
-                                        (val: User) => val.username === props.user.username && val.id === props.user.id
+                                        (val: User) => val.username === props.user.username && val.docid === props.user.docid
                                     );
                                     if (index === -1) throw 'FIREBASE: An error occurred!';
                                     followedusr.followers.splice(index, 1);
@@ -143,7 +143,7 @@ function UserCard(props: Props) {
                                     //Unfollow
                                     await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.theUserProp.id)
+                                        .doc(props.theUserProp.docid)
                                         .update({ followers: followedusr.followers });
                                     setLock(false);
                                 } catch (e) {
@@ -163,7 +163,7 @@ function UserCard(props: Props) {
                                 try {
                                     setLock(true);
                                     let usr = { ...props.user };
-                                    usr.following.push({ id: props.theUserProp.id, username: props.theUserProp.username });
+                                    usr.following.push({ docid: props.theUserProp.docid, username: props.theUserProp.username, uid: props.theUserProp.uid });
 
                                     /**
                                      * Redux Operations
@@ -176,17 +176,17 @@ function UserCard(props: Props) {
                                      */
 
                                     //Update user
-                                    await firestore().collection(usersCollectionId).doc(props.user.id).update({ following: usr.following });
+                                    await firestore().collection(usersCollectionId).doc(props.user.docid).update({ following: usr.following });
 
                                     //Get user desired to follow
-                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.id).get();
+                                    let res = await firestore().collection(usersCollectionId).doc(props.theUserProp.docid).get();
                                     let followedusr = res.data()!;
-                                    followedusr.followers.push({ id: props.user.id, username: props.user.username });
+                                    followedusr.followers.push({ docid: props.user.docid, username: props.user.username });
 
                                     //Add user to the followed user followers
                                     await firestore()
                                         .collection(usersCollectionId)
-                                        .doc(props.theUserProp.id)
+                                        .doc(props.theUserProp.docid)
                                         .update({ followers: followedusr.followers });
                                     setLock(false);
                                 } catch (e) {
