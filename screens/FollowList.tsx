@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, ScrollView, FlatList, StyleSheet } from 'react-native';
-import UserCard from '../components/UserCard';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
 import { RouteProp } from '@react-navigation/native';
-import { Card, Paragraph, Avatar } from 'react-native-paper';
+import { Card, Avatar } from 'react-native-paper';
 
 type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'FollowList'>;
 

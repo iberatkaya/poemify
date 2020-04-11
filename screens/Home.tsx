@@ -3,14 +3,14 @@ import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { FAB, IconButton } from 'react-native-paper';
-import { setPoem } from '../redux/actions/Poem';
+import { setPoem, addPoem } from '../redux/actions/Poem';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { HomeStackParamList, DrawerParamList } from '../AppNav';
-import firestore from '@react-native-firebase/firestore';
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
@@ -30,6 +30,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     setPoem,
+    addPoem,
     setUser,
 };
 
@@ -59,7 +60,7 @@ function Home(props: Props) {
 
     const fetchPoems = async () => {
         try {
-            let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
+            let res = await firestore().collection(poemsCollectionId).where('language', 'array-contains-any', props.user.preferredLanguages).orderBy('date', 'desc').orderBy('username', 'asc').limit(10).get();
             let data = res.docs;
             let poems: Poem[] = data
                 .map((i) => {
@@ -123,6 +124,34 @@ function Home(props: Props) {
                         }}
                     />
                 }
+                onEndReached={async () => {
+                    try {
+                        if(props.poems.length < 3)
+                            return;
+                        let lastpoem = props.poems[props.poems.length-1];
+                        let res = await firestore().collection(poemsCollectionId).where('language', 'array-contains-any', props.user.preferredLanguages).orderBy('date', 'desc').orderBy('username', 'asc').startAfter(lastpoem.date, lastpoem.username).limit(10).get();
+                        let data = res.docs;
+                        let poems: Poem[] = data
+                            .map((i) => {
+                                let temp = i.data() as Poem;
+                                return temp;
+                            })
+                            .filter((j) => {
+                                for (let k in props.user.blockedUsers) {
+                                    if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            });
+                        poems.forEach((i) => props.addPoem(i));
+                    } catch (e) {
+                        setRefresh(false);
+                        Toast.show('No new poems was found!');
+                        console.log(e);
+                    }
+                }}
+                onEndReachedThreshold={0.1}
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.poems.sort((a, b) => b.date - a.date)}
                 renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}

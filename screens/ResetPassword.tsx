@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Platform } from 'react-native';
-import { TextInput, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
+import { TextInput, Button, HelperText, IconButton, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
 import { setUser } from '../redux/actions/User';

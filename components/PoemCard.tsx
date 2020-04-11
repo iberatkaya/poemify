@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, HelperText, TextInput, Avatar } from 'react-native-paper';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Platform } from 'react-native';
 import { Searchbar, Card, Avatar, Divider, ActivityIndicator } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
@@ -37,7 +37,7 @@ const Search = (props: Props) => {
     return (
         <View style={styles.main}>
             <Searchbar
-                style={{ marginHorizontal: 6, marginVertical: 12 }}
+                style={{ marginHorizontal: 6, marginVertical: 8 }}
                 value={searchText}
                 autoCapitalize="none"
                 returnKeyType="done"
@@ -140,7 +140,7 @@ export default connector(Search);
 
 const styles = StyleSheet.create({
     main: {
-        paddingTop: Platform.OS === 'ios' ? 24 : 0,
+        paddingTop: Platform.OS === 'ios' ? 28 : 0,
     },
     cardContainer: {
         marginHorizontal: 6,

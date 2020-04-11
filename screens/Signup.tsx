@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View, Platform } from 'react-native';
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, ActivityIndicator, Card } from 'react-native-paper';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
-import { User, FirebaseUser } from '../interfaces/User';
+import { FirebaseUser } from '../interfaces/User';
 import { Language } from 'interfaces/Language';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../constants/collection';
 import { allLangs } from '../constants/language';
 import { EnteranceStackParamList } from 'AppNav';
@@ -274,9 +273,14 @@ function Signup(props: Props) {
                             //setLoading(false);
                             //setLangs(['English', null, null]);
                         } catch (e) {
-                            if (
-                                e.toString() ===
-                                'Error: [auth/email-already-in-use] The email address is already in use by another account.'
+                            if(e.message === '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'){
+                                Toast.show('Please check your internet connection!');
+                                setLoading(false);
+                                return;
+                            }
+                            else if (
+                                e.message ===
+                                '[auth/email-already-in-use] The email address is already in use by another account.'
                             ) {
                                 setErrors([
                                     { error: false, msg: '' },
@@ -285,7 +289,8 @@ function Signup(props: Props) {
                                     { error: false, msg: '' },
                                 ]);
                                 setLoading(false);
-                            } else Toast.show('Please check your internet connection!');
+                            } else Toast.show('An error occurred');
+                            console.log(e.message);
                         }
                     } else {
                         setLoading(false);

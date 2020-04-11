@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, FlatList, StyleSheet } from 'react-native';
-import UserCard from '../components/UserCard';
+import { View, FlatList, StyleSheet } from 'react-native';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
-import PoemCard from '../components/PoemCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
 import { Card, Title, Divider } from 'react-native-paper';

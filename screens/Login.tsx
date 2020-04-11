@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Platform } from 'react-native';
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, ActivityIndicator, Text } from 'react-native-paper';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import EmailValidator from 'email-validator';
 import { setUser } from '../redux/actions/User';
@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { EnteranceStackParamList } from 'AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { usersCollectionId, production } from '../constants/collection';
+import Toast from 'react-native-simple-toast';
 
 type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'Login'>;
 
@@ -142,7 +143,11 @@ function Login(props: Props) {
                             setPassword('');
                             setLoading(false);
                         } catch (e) {
-                            console.log(e);
+                            if(e.message === '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'){
+                                Toast.show('Please check your internet connection!');
+                                setLoading(false);
+                                return;
+                            }
                             setErrors([
                                 { error: true, msg: 'Incorrect email or password!' },
                                 { error: true, msg: 'Incorrect email or password!' },

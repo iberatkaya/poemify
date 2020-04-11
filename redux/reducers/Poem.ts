@@ -1,6 +1,5 @@
 import { Poem } from '../../interfaces/Poem';
 import { setPoemAction, updatePoemAction, addPoemAction, deletePoemAction } from '../actions/Poem';
-import { SubUser } from '../../interfaces/User';
 
 const poems: Poem[] = [];
 

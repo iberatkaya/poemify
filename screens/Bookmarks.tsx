@@ -4,7 +4,7 @@ import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Text, ActivityIndicator } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { BookmarkStackParamList } from '../AppNav';
 import firestore from '@react-native-firebase/firestore';
 import { setUser } from '../redux/actions/User';

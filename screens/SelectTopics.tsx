@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Platform } from 'react-native';
-import { Chip, Title, IconButton, Button, Text, Divider } from 'react-native-paper';
+import { Chip, IconButton, Button, Text, Divider } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';

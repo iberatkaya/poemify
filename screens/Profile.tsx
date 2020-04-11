@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
 import UserCard from '../components/UserCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';

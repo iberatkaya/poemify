@@ -4,13 +4,12 @@ import { Card, Avatar, Text, Divider, Title, IconButton, Button } from 'react-na
 import millify from 'millify';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
-import { User, SubUser } from '../interfaces/User';
+import { User } from '../interfaces/User';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import firestore from '@react-native-firebase/firestore';
 import { usersCollectionId } from '../constants/collection';
-import Toast from 'react-native-simple-toast';
 
 type UserCardDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 

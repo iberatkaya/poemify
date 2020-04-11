@@ -134,9 +134,10 @@ function WritePoem(props: Props) {
                             let mypoem: Poem = {
                                 author: { docid: props.user.docid, username: props.user.username, uid: props.user.uid },
                                 body: poem,
+                                username: props.user.username,
                                 topics: topics,
                                 date: new Date().getTime(),
-                                language: lang,
+                                language: [lang],
                                 likes: [],
                                 poemId: poemid,
                                 title: title,
