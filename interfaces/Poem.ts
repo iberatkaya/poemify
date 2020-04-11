@@ -3,7 +3,6 @@ import { Language } from './Language';
 import { Topic } from './Topic';
 import { Comment } from './Comment';
 
-
 //Language is set as an array for Firestore indexing
 //An array is required since Firestore indexing does not support
 //the in operation, but the array-contains-any operation.

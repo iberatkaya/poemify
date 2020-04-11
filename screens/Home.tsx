@@ -60,7 +60,13 @@ function Home(props: Props) {
 
     const fetchPoems = async () => {
         try {
-            let res = await firestore().collection(poemsCollectionId).where('language', 'array-contains-any', props.user.preferredLanguages).orderBy('date', 'desc').orderBy('username', 'asc').limit(10).get();
+            let res = await firestore()
+                .collection(poemsCollectionId)
+                .where('language', 'array-contains-any', props.user.preferredLanguages)
+                .orderBy('date', 'desc')
+                .orderBy('username', 'asc')
+                .limit(10)
+                .get();
             let data = res.docs;
             let poems: Poem[] = data
                 .map((i) => {
@@ -126,10 +132,16 @@ function Home(props: Props) {
                 }
                 onEndReached={async () => {
                     try {
-                        if(props.poems.length < 3)
-                            return;
-                        let lastpoem = props.poems[props.poems.length-1];
-                        let res = await firestore().collection(poemsCollectionId).where('language', 'array-contains-any', props.user.preferredLanguages).orderBy('date', 'desc').orderBy('username', 'asc').startAfter(lastpoem.date, lastpoem.username).limit(10).get();
+                        if (props.poems.length < 3) return;
+                        let lastpoem = props.poems[props.poems.length - 1];
+                        let res = await firestore()
+                            .collection(poemsCollectionId)
+                            .where('language', 'array-contains-any', props.user.preferredLanguages)
+                            .orderBy('date', 'desc')
+                            .orderBy('username', 'asc')
+                            .startAfter(lastpoem.date, lastpoem.username)
+                            .limit(10)
+                            .get();
                         let data = res.docs;
                         let poems: Poem[] = data
                             .map((i) => {
@@ -138,7 +150,10 @@ function Home(props: Props) {
                             })
                             .filter((j) => {
                                 for (let k in props.user.blockedUsers) {
-                                    if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
+                                    if (
+                                        j.author.username === props.user.blockedUsers[k].username &&
+                                        j.author.uid === props.user.blockedUsers[k].uid
+                                    ) {
                                         return false;
                                     }
                                 }

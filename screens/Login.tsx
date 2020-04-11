@@ -143,7 +143,10 @@ function Login(props: Props) {
                             setPassword('');
                             setLoading(false);
                         } catch (e) {
-                            if(e.message === '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'){
+                            if (
+                                e.message ===
+                                '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'
+                            ) {
                                 Toast.show('Please check your internet connection!');
                                 setLoading(false);
                                 return;

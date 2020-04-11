@@ -273,14 +273,15 @@ function Signup(props: Props) {
                             //setLoading(false);
                             //setLangs(['English', null, null]);
                         } catch (e) {
-                            if(e.message === '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'){
+                            if (
+                                e.message ===
+                                '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'
+                            ) {
                                 Toast.show('Please check your internet connection!');
                                 setLoading(false);
                                 return;
-                            }
-                            else if (
-                                e.message ===
-                                '[auth/email-already-in-use] The email address is already in use by another account.'
+                            } else if (
+                                e.message === '[auth/email-already-in-use] The email address is already in use by another account.'
                             ) {
                                 setErrors([
                                     { error: false, msg: '' },
