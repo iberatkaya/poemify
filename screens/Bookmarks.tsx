@@ -10,6 +10,8 @@ import firestore from '@react-native-firebase/firestore';
 import { setUser } from '../redux/actions/User';
 import { User } from '../interfaces/User';
 import { usersCollectionId, poemsCollectionId } from '../constants/collection';
+import Toast from 'react-native-simple-toast';
+import { Poem } from '../interfaces/Poem';
 
 type BookmarksScreenNavigationProp = StackNavigationProp<BookmarkStackParamList, 'Bookmarks'>;
 
@@ -31,39 +33,50 @@ type Props = PropsFromRedux & {
 };
 
 function Bookmarks(props: Props) {
-    let [loading, setLoading] = useState(true);
 
-    let fetchSelf = async () => {
+    const [scrolling, setScrolling] = useState(false);
+
+    let fetchBookmarks = async (fetchAfter = false) => {
         try {
-            setLoading(true);
-            let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-            let user = { ...res.docs[0].data() } as User;
-            props.setUser(user);
-            setLoading(false);
+            let res;
+            if(fetchAfter && scrolling){
+                let lastpoem = props.user.bookmarks[props.user.bookmarks.length - 1];
+                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get()
+            }
+            else {
+                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get()
+            }
+            let books = res.docs;
+            let bookmarks = books.map((i) => (i.data())) as Poem[];
+            let usr: User = {...props.user};
+            if(fetchAfter){
+                let usrPoems = [...props.user.bookmarks];
+                bookmarks.forEach((i: Poem) => (usrPoems.push(i)));
+                usr.bookmarks = usrPoems;
+                props.setUser(usr);
+            }
+            else{
+                usr.bookmarks = bookmarks;
+                props.setUser(usr);
+            }
+            props.setUser(usr);
         } catch (e) {
-            setLoading(false);
+            Toast.show('Please check your internet connection!');
             console.log(e);
         }
     };
 
+
     useEffect(() => {
-        fetchSelf();
+        let myfetch = async () => {
+            await fetchBookmarks();
+        };
+        myfetch();
     }, []);
 
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={
-                <RefreshControl
-                    refreshing={loading}
-                    onRefresh={async () => {
-                        setLoading(true);
-                        await fetchSelf();
-                        setLoading(false);
-                    }}
-                />
-            }
-        >
+        <View
+            style={styles.container}        >
             {props.user.bookmarks.length === 0 ? (
                 <Text style={{ textAlign: 'center', fontSize: 20, paddingTop: 24, paddingHorizontal: 24 }}>
                     You don't have any bookmarked poems!
@@ -74,9 +87,15 @@ function Bookmarks(props: Props) {
             <FlatList
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.user.bookmarks.sort((a, b) => b.date - a.date)}
-                renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
+                onEndReached={async ({distanceFromEnd}) => {
+                    if(distanceFromEnd != 0 && props.user.bookmarks.length > 4)
+                        await fetchBookmarks(true);
+                }}
+                onMomentumScrollBegin={() => setScrolling(true)}
+                onEndReachedThreshold={0.1}
+                renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
             />
-        </ScrollView>
+        </View>
     );
 }
 

@@ -45,6 +45,7 @@ type Props = PropsFromRedux & {
     item: Poem;
     navigation: PoemCardScreenNavigationProp;
     full: boolean;
+    bookmark: boolean;
 };
 
 function PoemCard(props: Props) {
@@ -78,28 +79,6 @@ function PoemCard(props: Props) {
         return false;
     };
 
-    const fetchPoems = async () => {
-        try {
-            let res = await firestore().collection(poemsCollectionId).where('language', 'in', props.user.preferredLanguages).get();
-            let data = res.docs;
-            let poems: Poem[] = data
-                .map((i) => {
-                    let temp = i.data() as Poem;
-                    return temp;
-                })
-                .filter((j) => {
-                    for (let k in props.user.blockedUsers) {
-                        if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-            props.setPoem(poems);
-        } catch (e) {
-            console.log(e);
-        }
-    };
 
     let _openMenu = () => setMenu(true);
 
@@ -134,7 +113,6 @@ function PoemCard(props: Props) {
                 .update({ blockedUsers: myuser.blockedUsers, followers: myuser.followers, following: myuser.following });
 
             if (props.full) props.navigation.pop();
-            await fetchPoems();
             setLockMenu(false);
         } catch (e) {
             setLockMenu(false);
@@ -166,13 +144,16 @@ function PoemCard(props: Props) {
                                         setLockMenu(true);
                                         let mypoems = [...props.user.poems];
                                         let myindex = mypoems.findIndex(
-                                            (i) => i.poemId === props.item.poemId && i.author.username === props.item.author.username
+                                            (i) => i.date === props.item.date && i.author.username === props.item.author.username
                                         );
                                         if (myindex === -1) throw 'An error occurred!';
                                         mypoems.splice(myindex, 1);
                                         props.deleteUserPoem(props.item);
                                         props.deletePoem(props.item);
-                                        await firestore().collection(usersCollectionId).doc(props.user.docid).update({ poems: mypoems });
+
+                                        let thepoem = await firestore().collection(usersCollectionId).doc(props.item.author.docid).collection("userpoems").where("date", "==", props.item.date).get();
+
+                                        thepoem.docs[0].ref.delete();
 
                                         let req = await firestore()
                                             .collection(poemsCollectionId)
@@ -277,120 +258,116 @@ function PoemCard(props: Props) {
 
                 <Text style={styles.time}>{timeAgo.format(props.item.date)}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {userLiked() ? (
-                        <IconButton
-                            color="red"
-                            icon="heart"
-                            style={styles.icon}
-                            size={20}
-                            //@ts-ignore
-                            onPress={async () => {
-                                try {
-                                    if (lock) return;
-                                    setLock(true);
-                                    let poem = { ...props.item };
-                                    let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
-                                    poem.likes.splice(myindex, 1);
-                                    if (myindex === -1) throw 'An error occurred!';
+                    {
+                        props.bookmark ?
+                        <View/>
+                        :
+                        <View>
+                            {userLiked() ? (
+                                <IconButton
+                                    color="red"
+                                    icon="heart"
+                                    style={styles.icon}
+                                    size={20}
+                                    //@ts-ignore
+                                    onPress={async () => {
+                                        try {
+                                            if (lock) return;
+                                            setLock(true);
+                                            let poem = { ...props.item };
+                                            let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
+                                            poem.likes.splice(myindex, 1);
+                                            if (myindex === -1) throw 'An error occurred!';
 
-                                    /**
-                                     * Redux Operations
-                                     */
+                                            /**
+                                             * Redux Operations
+                                             */
 
-                                    props.updatePoem(poem);
-                                    if (poem.author.username === props.user.username) {
-                                        props.updateUserPoem(poem);
-                                    }
+                                            props.updatePoem(poem);
+                                            if (poem.author.username === props.user.username) {
+                                                props.updateUserPoem(poem);
+                                            }
 
-                                    /**
-                                     * Firebase Operations
-                                     */
+                                            /**
+                                             * Firebase Operations
+                                             */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
-                                    let userData = req.data() as User;
+                                            
+                                            let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).collection("userpoems").where("date", "==", props.item.date).get();
+                                            req.docs[0].ref.update({ likes: poem.likes });
 
-                                    let index = userData.poems.findIndex(
-                                        (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
-                                    );
-                                    if (index === -1) throw 'FIREBASE: An error occurred!';
-                                    userData.poems[index].likes = poem.likes;
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.item.author.docid)
-                                        .update({ poems: userData.poems });
 
-                                    let req2 = await firestore()
-                                        .collection(poemsCollectionId)
-                                        .where('date', '==', props.item.date)
-                                        .where('title', '==', props.item.title)
-                                        .where('poemId', '==', props.item.poemId)
-                                        .get();
-                                    await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
-                                    setLock(false);
-                                } catch (e) {
-                                    setLock(false);
-                                    Toast.show("We're sorry but an error occurred :(");
-                                    console.log(e);
-                                }
-                            }}
-                        />
-                    ) : (
-                        <IconButton
-                            icon="heart-outline"
-                            style={styles.icon}
-                            size={20}
-                            //@ts-ignore
-                            onPress={async () => {
-                                try {
-                                    if (lock) return;
-                                    setLock(true);
-                                    let poem = { ...props.item };
-                                    poem.likes.push({ docid: props.user.docid, username: props.user.username, uid: props.user.uid });
 
-                                    /**
-                                     * Redux Operations
-                                     */
+                                            let req2 = await firestore()
+                                                .collection(poemsCollectionId)
+                                                .where('date', '==', props.item.date)
+                                                .where('title', '==', props.item.title)
+                                                .where('poemId', '==', props.item.poemId)
+                                                .get();
+                                            await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
+                                            setLock(false);
+                                        } catch (e) {
+                                            setLock(false);
+                                            Toast.show("We're sorry but an error occurred :(");
+                                            console.log(e);
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <IconButton
+                                    icon="heart-outline"
+                                    style={styles.icon}
+                                    size={20}
+                                    //@ts-ignore
+                                    onPress={async () => {
+                                        try {
+                                            if (lock) return;
+                                            setLock(true);
+                                            let poem = { ...props.item };
+                                            poem.likes.push({ docid: props.user.docid, username: props.user.username, uid: props.user.uid });
 
-                                    props.updatePoem(poem);
-                                    if (poem.author.username === props.user.username) {
-                                        props.updateUserPoem(poem);
-                                    }
+                                            /**
+                                             * Redux Operations
+                                             */
 
-                                    /**
-                                     * Firebase Operations
-                                     */
+                                            props.updatePoem(poem);
+                                            if (poem.author.username === props.user.username) {
+                                                props.updateUserPoem(poem);
+                                            }
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
-                                    let userData = req.data() as User;
+                                            /**
+                                             * Firebase Operations
+                                             */
 
-                                    let index = userData.poems.findIndex(
-                                        (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
-                                    );
-                                    if (index === -1) throw 'FIREBASE: An error occurred!';
-                                    userData.poems[index].likes = poem.likes;
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.item.author.docid)
-                                        .update({ poems: userData.poems });
+                                            let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).collection("userpoems").where("date", "==", props.item.date).get();
+                                            req.docs[0].ref.update({ likes: poem.likes });
 
-                                    let req2 = await firestore()
-                                        .collection(poemsCollectionId)
-                                        .where('date', '==', props.item.date)
-                                        .where('title', '==', props.item.title)
-                                        .where('poemId', '==', props.item.poemId)
-                                        .get();
-                                    await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
+                                            
+                                            let req2 = await firestore()
+                                                .collection(poemsCollectionId)
+                                                .where('date', '==', props.item.date)
+                                                .where('title', '==', props.item.title)
+                                                .where('poemId', '==', props.item.poemId)
+                                                .get();
+                                            await firestore().collection(poemsCollectionId).doc(req2.docs[0].id).update({ likes: poem.likes });
 
-                                    setLock(false);
-                                } catch (e) {
-                                    setLock(false);
-                                    Toast.show("We're sorry but an error occurred :(");
-                                    console.log(e);
-                                }
-                            }}
-                        />
-                    )}
-                    <Text style={styles.likeText}>{millify(props.item.likes.length, { lowerCase: true })}</Text>
+                                            setLock(false);
+                                        } catch (e) {
+                                            setLock(false);
+                                            Toast.show("We're sorry but an error occurred :(");
+                                            console.log(e);
+                                        }
+                                    }}
+                                />
+                            )}
+                        </View>                    
+                    }
+                    {
+                        props.bookmark ? 
+                        <View/>
+                        : 
+                        <Text style={styles.likeText}>{millify(props.item.likes.length, { lowerCase: true })}</Text>
+                    }
                     {userBookmarked() ? (
                         <IconButton
                             style={styles.icon}
@@ -404,7 +381,7 @@ function PoemCard(props: Props) {
 
                                     let user = { ...props.user };
                                     let myindex = user.bookmarks.findIndex(
-                                        (i) => i.poemId === props.item.poemId && i.date === props.item.date
+                                        (i) => i.username === props.item.username && i.date === props.item.date
                                     );
                                     if (myindex === -1) throw 'An error occurred';
                                     /**
@@ -422,7 +399,10 @@ function PoemCard(props: Props) {
                                     let req = await firestore()
                                         .collection(usersCollectionId)
                                         .doc(props.user.docid)
-                                        .update({ bookmarks: user.bookmarks });
+                                        .collection("userbookmarks")
+                                        .where("date", "==", props.item.date)
+                                        .get();
+                                    req.docs[0].ref.delete()
 
                                     setLockBookmark(false);
                                 } catch (e) {
@@ -455,10 +435,12 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
+                                    
                                     let req = await firestore()
                                         .collection(usersCollectionId)
                                         .doc(props.user.docid)
-                                        .update({ bookmarks: user.bookmarks });
+                                        .collection("userbookmarks")
+                                        .add( props.item );
 
                                     setLockBookmark(false);
                                 } catch (e) {
@@ -512,17 +494,9 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
-                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).get();
-                                    let userData = req.data() as User;
-                                    let index = userData.poems.findIndex(
-                                        (val) => val.poemId === props.item.poemId && val.author.username === props.item.author.username
-                                    );
-                                    if (index === -1) throw 'FIREBASE: An error occurred!';
-                                    userData.poems[index].comments = poem.comments;
-                                    await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.item.author.docid)
-                                        .update({ poems: userData.poems });
+                                    let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).collection("userpoems").where("date", "==", props.item.date).get();
+                                    req.docs[0].ref.update({comments: poem.comments});
+                                    
 
                                     let req2 = await firestore()
                                         .collection(poemsCollectionId)
@@ -602,23 +576,8 @@ function PoemCard(props: Props) {
                                                          * Firebase Operations
                                                          */
 
-                                                        let req = await firestore()
-                                                            .collection(usersCollectionId)
-                                                            .doc(props.item.author.docid)
-                                                            .get();
-                                                        let userData = req.data() as User;
-
-                                                        let index = userData.poems.findIndex(
-                                                            (val) =>
-                                                                val.poemId === props.item.poemId &&
-                                                                val.author.username === props.item.author.username
-                                                        );
-                                                        if (index === -1) throw 'FIREBASE: An error occurred!';
-                                                        userData.poems[index].comments = poem.comments;
-                                                        await firestore()
-                                                            .collection(usersCollectionId)
-                                                            .doc(props.item.author.docid)
-                                                            .update({ poems: userData.poems });
+                                                        let req = await firestore().collection(usersCollectionId).doc(props.item.author.docid).collection("userpoems").where("date", "==", props.item.date).get();
+                                                        req.docs[0].ref.update({comments: poem.comments});
 
                                                         let req2 = await firestore()
                                                             .collection(poemsCollectionId)
@@ -655,6 +614,12 @@ function PoemCard(props: Props) {
 }
 
 export default connector(PoemCard);
+
+
+PoemCard.defaultProps = {
+    full: false,
+    bookmark: false
+};
 
 const styles = StyleSheet.create({
     cardContainer: {

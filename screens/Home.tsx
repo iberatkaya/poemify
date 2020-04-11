@@ -57,16 +57,31 @@ function Home(props: Props) {
     });
 
     const [refresh, setRefresh] = useState(false);
+    const [scrolling, setScrolling] = useState(false);
 
-    const fetchPoems = async () => {
+    const fetchPoems = async (fetchAfter = false) => {
         try {
-            let res = await firestore()
+            let res;
+            if(fetchAfter && scrolling){
+                let lastpoem = props.poems[props.poems.length - 1];
+                res = await firestore()
+                    .collection(poemsCollectionId)
+                    .where('language', 'array-contains-any', props.user.preferredLanguages)
+                    .orderBy('date', 'desc')
+                    .orderBy('username', 'asc')
+                    .startAfter(lastpoem.date, lastpoem.username)
+                    .limit(2)
+                    .get();        
+            }
+            else {
+                res = await firestore()
                 .collection(poemsCollectionId)
                 .where('language', 'array-contains-any', props.user.preferredLanguages)
                 .orderBy('date', 'desc')
                 .orderBy('username', 'asc')
                 .limit(10)
                 .get();
+            }
             let data = res.docs;
             let poems: Poem[] = data
                 .map((i) => {
@@ -81,7 +96,10 @@ function Home(props: Props) {
                     }
                     return true;
                 });
-            props.setPoem(poems);
+            if(fetchAfter)
+                poems.forEach((i) => props.addPoem(i));
+            else
+                props.setPoem(poems);
         } catch (e) {
             setRefresh(false);
             Toast.show('Please check your internet connection!');
@@ -91,8 +109,14 @@ function Home(props: Props) {
 
     let fetchSelf = async () => {
         try {
-            let res = await firestore().collection(usersCollectionId).where('email', '==', props.user.email).get();
-            let user = { ...res.docs[0].data() };
+            let user = {...props.user};
+            let poemsres = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").limit(10).get();
+            let poems = poemsres.docs;
+            let booksres = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").limit(5).get();
+            let books = booksres.docs;
+            user.poems = poems.map((i) => (i.data())) as Poem[];
+            let bookmarks = books.map((i) => (i.data())) as Poem[];
+            user.bookmarks = bookmarks;
             props.setUser(user as User);
         } catch (e) {
             setRefresh(false);
@@ -123,49 +147,17 @@ function Home(props: Props) {
                         refreshing={refresh}
                         onRefresh={async () => {
                             setRefresh(true);
-                            await fetchSelf();
                             await fetchPoems();
                             await AsyncStorage.setItem('user', JSON.stringify(props.user));
                             setRefresh(false);
                         }}
                     />
                 }
-                onEndReached={async () => {
-                    try {
-                        if (props.poems.length < 3) return;
-                        let lastpoem = props.poems[props.poems.length - 1];
-                        let res = await firestore()
-                            .collection(poemsCollectionId)
-                            .where('language', 'array-contains-any', props.user.preferredLanguages)
-                            .orderBy('date', 'desc')
-                            .orderBy('username', 'asc')
-                            .startAfter(lastpoem.date, lastpoem.username)
-                            .limit(10)
-                            .get();
-                        let data = res.docs;
-                        let poems: Poem[] = data
-                            .map((i) => {
-                                let temp = i.data() as Poem;
-                                return temp;
-                            })
-                            .filter((j) => {
-                                for (let k in props.user.blockedUsers) {
-                                    if (
-                                        j.author.username === props.user.blockedUsers[k].username &&
-                                        j.author.uid === props.user.blockedUsers[k].uid
-                                    ) {
-                                        return false;
-                                    }
-                                }
-                                return true;
-                            });
-                        poems.forEach((i) => props.addPoem(i));
-                    } catch (e) {
-                        setRefresh(false);
-                        Toast.show('No new poems was found!');
-                        console.log(e);
-                    }
+                onEndReached={async ({distanceFromEnd}) => {
+                    if(distanceFromEnd != 0 && props.poems.length > 4)
+                        await fetchPoems(true);
                 }}
+                onMomentumScrollBegin={() => setScrolling(true)}
                 onEndReachedThreshold={0.1}
                 keyExtractor={(_i, index) => index.toString()}
                 data={props.poems.sort((a, b) => b.date - a.date)}

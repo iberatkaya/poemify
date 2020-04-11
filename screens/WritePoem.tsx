@@ -152,7 +152,7 @@ function WritePoem(props: Props) {
                              * Firebase Operations
                              */
                             //Main database
-                            await firestore().collection(usersCollectionId).doc(props.user.docid).update({ poems: mypoems });
+                            await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").add( mypoem );
                             //Database for all poems
                             await firestore().collection(poemsCollectionId).add(mypoem);
 
