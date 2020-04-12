@@ -116,7 +116,7 @@ function Bookmarks(props: Props) {
                     }
                     onMomentumScrollBegin={() => setScrolling(true)}
                     onEndReachedThreshold={0.1}
-                    renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
+                    renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={true} />}
                 />
             }
         </View>

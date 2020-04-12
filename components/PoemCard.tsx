@@ -254,7 +254,7 @@ function PoemCard(props: Props) {
                 <Paragraph
                     onPress={() =>
                         props.navigation.push('UserDetail', {
-                            profileUser: { docid: props.item.author.docid, username: props.item.author.username, uid: props.user.uid },
+                            profileUser: { docid: props.item.author.docid, username: props.item.author.username, uid: props.user.uid }, isBookmark: props.bookmark
                         })
                     }
                     style={styles.author}
@@ -470,7 +470,7 @@ function PoemCard(props: Props) {
                 </View>
             </Card.Actions>
             <Divider style={styles.divider} />
-            {props.full ? (
+            {props.full && !props.bookmark ? (
                 <View style={styles.commentContainer}>
                     <View style={styles.commentInput}>
                         <TextInput
@@ -545,7 +545,7 @@ function PoemCard(props: Props) {
                                 <View style={{ flexDirection: 'row', flex: 1 }}>
                                     <TouchableOpacity
                                         style={{ marginRight: 12 }}
-                                        onPress={() => props.navigation.navigate('UserDetail', { profileUser: item.commentor })}
+                                        onPress={() => props.navigation.navigate('UserDetail', { profileUser: item.commentor, isBookmark: props.bookmark })}
                                     >
                                         <Avatar.Text
                                             style={styles.icon}

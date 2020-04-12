@@ -160,7 +160,7 @@ export type BookmarkStackParamList = {
     Bookmarks: undefined;
     FollowList: { type: 'Followers' | 'Following' };
     PoemDetail: { poem: Poem } | undefined;
-    UserDetail: { profileUser: SubUser } | undefined;
+    UserDetail: { profileUser: SubUser, isBookmark: boolean } | undefined;
 };
 
 const StackBookmarks = createStackNavigator<BookmarkStackParamList>();
