@@ -86,7 +86,7 @@ function Bookmarks(props: Props) {
     return (
         <View
             style={styles.container}        >
-            {props.user.bookmarks.length === 0 ? (
+            {props.user.bookmarks.length === 0 && !loading ? (
                 <Text style={{ textAlign: 'center', fontSize: 20, paddingTop: 24, paddingHorizontal: 24 }}>
                     You don't have any bookmarked poems!
                 </Text>
@@ -116,7 +116,7 @@ function Bookmarks(props: Props) {
                     }
                     onMomentumScrollBegin={() => setScrolling(true)}
                     onEndReachedThreshold={0.1}
-                    renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={true} />}
+                    renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
                 />
             }
         </View>

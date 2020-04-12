@@ -24,7 +24,7 @@ export const poemReducer = (state = POEM_INITIAL_STATE, action: setPoemAction | 
         case 'DELETE_POEM':
             let all = [...state];
             let myindex = all.findIndex((i) => i.date === action.payload.date && i.author.username === action.payload.author.username);
-            if (myindex === -1) throw 'POEMS REDUCER: An error occurred!';
+            if (myindex === -1) return all;
             all.splice(myindex, 1);
             return all;
         default:

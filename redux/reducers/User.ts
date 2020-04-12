@@ -26,10 +26,11 @@ export const userReducer = (
             return user;
         case 'UPDATE_USER_POEM':
             let payload = action.payload;
+            console.log(payload);
             let myuser = { ...state };
             let poems = [...myuser.poems];
-            let index = poems.findIndex((i) => i.poemId === payload.poemId && i.author.username === action.payload.author.username);
-            if (index === -1) throw 'An error occurred';
+            let index = poems.findIndex((i) => i.date === payload.date);
+            if (index === -1) return myuser;
             poems[index] = payload;
             myuser.poems = poems;
             return myuser;
@@ -42,7 +43,7 @@ export const userReducer = (
             let myindex = myusr.poems.findIndex(
                 (i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username
             );
-            if (myindex === -1) throw 'USER REDUCER: An error occurred!';
+            if (myindex === -1) return myusr;
             myusr.poems.splice(myindex, 1);
             let myindex2 = myusr.bookmarks.findIndex(
                 (i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username

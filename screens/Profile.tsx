@@ -50,7 +50,7 @@ function Profile(props: Props) {
 
             }
             else{
-                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").orderBy('date', 'desc').limit(8).get();
+                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").orderBy('date', 'desc').limit(1).get();
             }
             let fpoems = res.docs.map((i) => (i.data() as Poem));
             if(fetchAfter){
@@ -102,8 +102,8 @@ function Profile(props: Props) {
                 onMomentumScrollBegin={() => setScrolling(true)}
                 onEndReachedThreshold={0.1}
                 keyExtractor={(_i, index) => index.toString()}
-                data={props.user.poems.sort((a, b) => b.poemId - a.poemId)}
-                renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
+                data={props.user.poems.sort((a, b) => b.date - a.date)}
+                renderItem={({ item }) => <PoemCard profile={true} item={item} navigation={props.navigation} full={false} />}
             />
         </View>
     );

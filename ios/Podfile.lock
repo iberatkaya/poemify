@@ -176,6 +176,11 @@ PODS:
     - React-Core (= 0.62.1)
     - React-jsi (= 0.62.1)
     - ReactCommon/turbomodule/core (= 0.62.1)
+  - Firebase/AdMob (6.13.0):
+    - Firebase/CoreOnly
+    - Google-Mobile-Ads-SDK (~> 7.50)
+  - Firebase/Analytics (6.13.0):
+    - Firebase/Core
   - Firebase/Auth (6.13.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 6.4.0)
@@ -288,6 +293,8 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - Google-Mobile-Ads-SDK (7.57.0):
+    - GoogleAppMeasurement (~> 6.0)
   - GoogleAppMeasurement (6.1.6):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
@@ -342,6 +349,7 @@ PODS:
   - OpenSSL-Universal (1.0.2.19):
     - OpenSSL-Universal/Static (= 1.0.2.19)
   - OpenSSL-Universal/Static (1.0.2.19)
+  - PersonalizedAdConsent (1.0.5)
   - RCTRequired (0.62.1)
   - RCTTypeSafety (0.62.1):
     - FBLazyVector (= 0.62.1)
@@ -575,6 +583,13 @@ PODS:
     - React
   - RNCMaskedView (0.1.7):
     - React
+  - RNFBAdMob (6.4.0):
+    - Firebase/AdMob (~> 6.13.0)
+    - Firebase/Analytics (~> 6.13.0)
+    - Firebase/Core (~> 6.13.0)
+    - PersonalizedAdConsent (~> 1.0.4)
+    - React
+    - RNFBApp
   - RNFBApp (6.4.0):
     - Firebase/Core (~> 6.13.0)
     - React
@@ -639,6 +654,7 @@ DEPENDENCIES:
   - RNBootSplash (from `../node_modules/react-native-bootsplash`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
+  - "RNFBAdMob (from `../node_modules/@react-native-firebase/admob`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
@@ -671,6 +687,7 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - Flipper-RSocket
     - FlipperKit
+    - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleDataTransportCCTSupport
@@ -681,6 +698,7 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - OpenSSL-Universal
+    - PersonalizedAdConsent
     - Toast
     - YogaKit
 
@@ -743,6 +761,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/async-storage"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
+  RNFBAdMob:
+    :path: "../node_modules/@react-native-firebase/admob"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBAuth:
@@ -787,6 +807,7 @@ SPEC CHECKSUMS:
   FlipperKit: 6dc9b8f4ef60d9e5ded7f0264db299c91f18832e
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
+  Google-Mobile-Ads-SDK: ec897018b9ab9b447e7aa4876e7f75aba13ba2de
   GoogleAppMeasurement: dfe55efa543e899d906309eaaac6ca26d249862f
   GoogleDataTransport: 6ffa4dd0b6d547f8d27b91bd92fa9e197a3f5f1f
   GoogleDataTransportCCTSupport: 12f02e5c8f09c055615de90bcd5ba2c375546051
@@ -797,6 +818,7 @@ SPEC CHECKSUMS:
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   OpenSSL-Universal: 8b48cc0d10c1b2923617dfe5c178aa9ed2689355
+  PersonalizedAdConsent: dbecabb3467df967c16d9cebc2ef4a8890e4bbd8
   RCTRequired: e291538a455f5ad1afc2139a4288990be0cadd46
   RCTTypeSafety: 8b6237185765dd9a03a3647807e08864105b1f95
   React: 7b33e15fab929c47ac9c3c94c409258b13cfe452
@@ -821,6 +843,7 @@ SPEC CHECKSUMS:
   RNBootSplash: 52a95aa14b7832efb2fdc236ec38665356cd921a
   RNCAsyncStorage: b16697280b08bab4b5f2f67f752d93d13a52e9ed
   RNCMaskedView: 90dd32f5b786bd562e876e1421ea77c700cbf71e
+  RNFBAdMob: fb4566703243981ef0a381c0cb06e65a9f567061
   RNFBApp: 69781cf10ce41f6f6db789e6264dd80119ef2fb7
   RNFBAuth: 50fcc7826344dc96caad8bc4f5b40a64904297b8
   RNFBFirestore: 69e59e5266927857fa3629715111ee65f4de1cd0
