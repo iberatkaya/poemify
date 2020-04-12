@@ -40,3 +40,29 @@ export const deleteUserPoem = (poem: Poem) => ({
     type: 'DELETE_USER_POEM',
     payload: poem,
 });
+
+export interface addUserBookmarkAction {
+    type: 'ADD_USER_BOOKMARK';
+    payload: Poem;
+}
+
+export const addUserBookmark = (poem: Poem) => ({
+    type: 'ADD_USER_BOOKMARK',
+    payload: poem,
+});
+
+export interface incTotalPoemAction {
+    type: 'INC_TOTAL_POEM'
+}
+
+export const incTotalPoem = () => ({
+    type: 'INC_TOTAL_POEM'
+})
+
+export interface decTotalPoemAction {
+    type: 'DEC_TOTAL_POEM'
+}
+
+export const decTotalPoem = () => ({
+    type: 'DEC_TOTAL_POEM'
+})

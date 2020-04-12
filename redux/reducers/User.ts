@@ -1,5 +1,5 @@
 import { User } from '../../interfaces/User';
-import { setUserAction, updateUserPoemAction, addUserPoemAction, deleteUserPoemAction } from '../actions/User';
+import { setUserAction, updateUserPoemAction, addUserBookmarkAction, addUserPoemAction, deleteUserPoemAction, incTotalPoemAction, decTotalPoemAction } from '../actions/User';
 
 const USER_INITIAL_STATE: User = {
     email: '',
@@ -8,6 +8,7 @@ const USER_INITIAL_STATE: User = {
     uid: '',
     topics: [],
     bookmarks: [],
+    totalPoems: 0,
     username: '',
     preferredLanguages: [],
     poems: [],
@@ -17,7 +18,7 @@ const USER_INITIAL_STATE: User = {
 
 export const userReducer = (
     state = USER_INITIAL_STATE,
-    action: setUserAction | updateUserPoemAction | addUserPoemAction | deleteUserPoemAction
+    action: setUserAction | updateUserPoemAction | addUserPoemAction | deleteUserPoemAction | incTotalPoemAction | decTotalPoemAction | addUserBookmarkAction
 ) => {
     switch (action.type) {
         case 'SET_USER':
@@ -48,6 +49,18 @@ export const userReducer = (
             );
             if (myindex2 !== -1) myusr.bookmarks.splice(myindex2, 1);
             return myusr;
+        case 'INC_TOTAL_POEM': 
+            let tmpusr = {...state};
+            tmpusr.totalPoems += 1;
+            return tmpusr;
+        case 'DEC_TOTAL_POEM': 
+            let tmpusr2 = {...state};
+            tmpusr2.totalPoems -= 1;
+            return tmpusr2;
+        case 'ADD_USER_BOOKMARK': 
+            let tmpusr3 = {...state};
+            tmpusr3.bookmarks.push(action.payload);
+            return tmpusr3;
         default:
             return state;
     }

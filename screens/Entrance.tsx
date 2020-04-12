@@ -30,7 +30,7 @@ function Enterance(props: Props) {
             }
         };
         func();
-    });
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -41,8 +41,9 @@ function Enterance(props: Props) {
                 dark={true}
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
-                onPress={() => {
+                onPress={async () => {
                     props.navigation.navigate('Login');
+                    await AsyncStorage.setItem('logoutUser8', 'a');
                 }}
             >
                 Login
@@ -52,8 +53,10 @@ function Enterance(props: Props) {
                 dark={true}
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
-                onPress={() => props.navigation.navigate('Signup')}
-            >
+                onPress={async () => {
+                    props.navigation.navigate('Signup')
+                    await AsyncStorage.setItem('logoutUser8', 'a');
+                }}>
                 Sign up
             </Button>
         </View>

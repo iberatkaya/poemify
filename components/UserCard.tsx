@@ -72,7 +72,7 @@ function UserCard(props: Props) {
             >
                 <Text style={styles.textContainer}>
                     <Text style={styles.userInfoText}>
-                        {millify(props.theUserProp.poems.length, { lowerCase: true })}
+                        {millify((props.theUserProp.totalPoems !== undefined) ? props.theUserProp.totalPoems : props.theUserProp.poems.length, { lowerCase: true })}
                         {'\n'}
                     </Text>
                     Poems

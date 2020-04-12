@@ -7,7 +7,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { addPoem } from '../redux/actions/Poem';
-import { addUserPoem } from '../redux/actions/User';
+import { addUserPoem, incTotalPoem, decTotalPoem } from '../redux/actions/User';
 import { HomeStackParamList } from '../AppNav';
 import { Poem } from '../interfaces/Poem';
 import firestore from '@react-native-firebase/firestore';
@@ -24,6 +24,8 @@ const mapState = (state: RootState) => ({
 const mapDispatch = {
     addPoem,
     addUserPoem,
+    incTotalPoem, 
+    decTotalPoem
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -39,6 +41,7 @@ function WritePoem(props: Props) {
     const [poem, setPoem] = useState('');
     const [lang, setLang] = useState(props.user.preferredLanguages[0]);
     const [topics, setTopics] = useState([props.user.topics[0], props.user.topics[1]]);
+    const [loading, setLoading] = useState(false);
 
     return (
         <View style={styles.container}>
@@ -120,6 +123,9 @@ function WritePoem(props: Props) {
             </ScrollView>
             <FAB
                 onPress={async () => {
+                    if(loading)
+                        return;
+                    setLoading(true);
                     try {
                         if (title === '') {
                             Toast.show('Title cannot be empty!');
@@ -134,6 +140,7 @@ function WritePoem(props: Props) {
                             let mypoem: Poem = {
                                 author: { docid: props.user.docid, username: props.user.username, uid: props.user.uid },
                                 body: poem,
+                                docid: '-1',
                                 username: props.user.username,
                                 topics: topics,
                                 date: new Date().getTime(),
@@ -141,24 +148,40 @@ function WritePoem(props: Props) {
                                 likes: [],
                                 poemId: poemid,
                                 title: title,
+                                bookmarkedBy: [],
                                 comments: [],
                             };
                             let mypoems = [...props.user.poems];
-                            mypoems.push(mypoem);
-                            props.addPoem(mypoem);
-                            props.addUserPoem(mypoem);
-                            props.navigation.pop();
+                            
                             /**
                              * Firebase Operations
                              */
-                            //Main database
-                            await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").add( mypoem );
-                            //Database for all poems
-                            await firestore().collection(poemsCollectionId).add(mypoem);
 
+                            let res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").add( mypoem );
+                            await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").doc(res.id).update({docid: res.id});
+
+                            
+                            let res2 = await firestore().collection(poemsCollectionId).add(mypoem);
+                            await firestore().collection(poemsCollectionId).doc(res2.id).update({docid: res2.id});
+                            
+                            mypoem.docid = res2.id;
+                            
                             /**
                              * Redux Operations
                              */
+                            
+                            mypoems.push(mypoem);
+                            props.addPoem(mypoem);
+                            props.addUserPoem(mypoem);
+
+                            let ctr = props.user.totalPoems + 1;
+                            props.incTotalPoem();
+
+                            
+                            await firestore().collection(usersCollectionId).doc(props.user.docid).update({ totalPoems: ctr });
+
+                            props.navigation.pop();
+                            
                         }
                     } catch (e) {
                         console.log(e);
@@ -173,7 +196,7 @@ function WritePoem(props: Props) {
                     }
                 }}
                 style={styles.fab}
-                icon="check"
+                icon={loading ? "circle-outline" : "check"}
             />
         </View>
     );

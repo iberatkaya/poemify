@@ -53,6 +53,7 @@ function Drawer(props: Props) {
                 onPress={async () => {
                     let user: User = {
                         bookmarks: [],
+                        totalPoems: 0,
                         topics: [],
                         docid: '-1',
                         uid: '',

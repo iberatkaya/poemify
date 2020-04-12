@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createRef } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
-import { FAB, IconButton } from 'react-native-paper';
+import { FAB, IconButton, ActivityIndicator } from 'react-native-paper';
 import { setPoem, addPoem } from '../redux/actions/Poem';
-import { setUser } from '../redux/actions/User';
+import { setUser, addUserBookmark } from '../redux/actions/User';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
@@ -32,6 +32,7 @@ const mapDispatch = {
     setPoem,
     addPoem,
     setUser,
+    addUserBookmark
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -70,7 +71,7 @@ function Home(props: Props) {
                     .orderBy('date', 'desc')
                     .orderBy('username', 'asc')
                     .startAfter(lastpoem.date, lastpoem.username)
-                    .limit(2)
+                    .limit(8)
                     .get();        
             }
             else {
@@ -79,7 +80,7 @@ function Home(props: Props) {
                 .where('language', 'array-contains-any', props.user.preferredLanguages)
                 .orderBy('date', 'desc')
                 .orderBy('username', 'asc')
-                .limit(10)
+                .limit(8)
                 .get();
             }
             let data = res.docs;
@@ -96,8 +97,9 @@ function Home(props: Props) {
                     }
                     return true;
                 });
-            if(fetchAfter)
+            if(fetchAfter){
                 poems.forEach((i) => props.addPoem(i));
+            }
             else
                 props.setPoem(poems);
         } catch (e) {
@@ -107,23 +109,6 @@ function Home(props: Props) {
         }
     };
 
-    let fetchSelf = async () => {
-        try {
-            let user = {...props.user};
-            let poemsres = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").limit(10).get();
-            let poems = poemsres.docs;
-            let booksres = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").limit(5).get();
-            let books = booksres.docs;
-            user.poems = poems.map((i) => (i.data())) as Poem[];
-            let bookmarks = books.map((i) => (i.data())) as Poem[];
-            user.bookmarks = bookmarks;
-            props.setUser(user as User);
-        } catch (e) {
-            setRefresh(false);
-            Toast.show('Please check your internet connection!');
-            console.log(e);
-        }
-    };
 
     useEffect(() => {
         RNBootSplash.hide({ duration: 500 });
@@ -132,12 +117,12 @@ function Home(props: Props) {
     useEffect(() => {
         setRefresh(true);
         let myfetch = async () => {
-            await fetchSelf();
             await fetchPoems();
             setRefresh(false);
         };
         myfetch();
     }, []);
+
 
     return (
         <View style={styles.container}>
@@ -172,7 +157,7 @@ export default connector(Home);
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
+        height: '100%'
     },
     fab: {
         position: 'absolute',

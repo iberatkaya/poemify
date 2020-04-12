@@ -13,6 +13,7 @@ export interface User {
     email: string;
     topics: Topic[];
     bookmarks: Poem[];
+    totalPoems: number;
     blockedUsers: SubUser[];
 }
 
@@ -26,6 +27,7 @@ export interface FirebaseUser {
     email: string;
     topics: Topic[];
     bookmarks: Poem[];
+    totalPoems: number;
     blockedUsers: SubUser[];
 }
 

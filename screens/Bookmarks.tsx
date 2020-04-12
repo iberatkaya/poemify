@@ -4,12 +4,11 @@ import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Text } from 'react-native-paper';
+import { Text, ActivityIndicator } from 'react-native-paper';
 import { BookmarkStackParamList } from '../AppNav';
 import firestore from '@react-native-firebase/firestore';
-import { setUser } from '../redux/actions/User';
+import { setUser, addUserBookmark } from '../redux/actions/User';
 import { User } from '../interfaces/User';
-import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 import Toast from 'react-native-simple-toast';
 import { Poem } from '../interfaces/Poem';
 
@@ -22,6 +21,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     setUser,
+    addUserBookmark
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -34,32 +34,31 @@ type Props = PropsFromRedux & {
 
 function Bookmarks(props: Props) {
 
+    const [loading,setLoading] = useState(false);
     const [scrolling, setScrolling] = useState(false);
+    const [refresh, setRefresh] = useState(false);
 
     let fetchBookmarks = async (fetchAfter = false) => {
         try {
             let res;
             if(fetchAfter && scrolling){
                 let lastpoem = props.user.bookmarks[props.user.bookmarks.length - 1];
-                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get()
+                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get();
             }
-            else {
-                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get()
+            else{
+                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get();
+
             }
             let books = res.docs;
             let bookmarks = books.map((i) => (i.data())) as Poem[];
             let usr: User = {...props.user};
             if(fetchAfter){
-                let usrPoems = [...props.user.bookmarks];
-                bookmarks.forEach((i: Poem) => (usrPoems.push(i)));
-                usr.bookmarks = usrPoems;
-                props.setUser(usr);
+                bookmarks.forEach((i: Poem) => (props.addUserBookmark(i)));
             }
             else{
                 usr.bookmarks = bookmarks;
                 props.setUser(usr);
             }
-            props.setUser(usr);
         } catch (e) {
             Toast.show('Please check your internet connection!');
             console.log(e);
@@ -69,7 +68,9 @@ function Bookmarks(props: Props) {
 
     useEffect(() => {
         let myfetch = async () => {
+            setLoading(true);
             await fetchBookmarks();
+            setLoading(false);
         };
         myfetch();
     }, []);
@@ -84,17 +85,32 @@ function Bookmarks(props: Props) {
             ) : (
                 <View />
             )}
-            <FlatList
-                keyExtractor={(_i, index) => index.toString()}
-                data={props.user.bookmarks.sort((a, b) => b.date - a.date)}
-                onEndReached={async ({distanceFromEnd}) => {
-                    if(distanceFromEnd != 0 && props.user.bookmarks.length > 4)
-                        await fetchBookmarks(true);
-                }}
-                onMomentumScrollBegin={() => setScrolling(true)}
-                onEndReachedThreshold={0.1}
-                renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
-            />
+            {
+                loading ? 
+                <ActivityIndicator size={50} style={{marginTop: 40}} />
+                :
+                <FlatList
+                    keyExtractor={(_i, index) => index.toString()}
+                    data={props.user.bookmarks.sort((a, b) => b.date - a.date)}
+                    onEndReached={async ({distanceFromEnd}) => {
+                        if(distanceFromEnd != 0 && props.user.bookmarks.length > 4)
+                            await fetchBookmarks(true);
+                        }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refresh}
+                            onRefresh={async () => {
+                                setRefresh(true);
+                                await fetchBookmarks();
+                                setRefresh(false);
+                            }}
+                        />
+                    }
+                    onMomentumScrollBegin={() => setScrolling(true)}
+                    onEndReachedThreshold={0.1}
+                    renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
+                />
+            }
         </View>
     );
 }

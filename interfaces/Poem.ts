@@ -17,4 +17,6 @@ export interface Poem {
     language: Language[];
     topics: Topic[];
     comments: Comment[];
+    docid: string;
+    bookmarkedBy: SubUser[]
 }

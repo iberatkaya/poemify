@@ -41,17 +41,12 @@ const Search = (props: Props) => {
                 value={searchText}
                 autoCapitalize="none"
                 returnKeyType="done"
-                onChangeText={async (val) => {
+                onChangeText={(txt) => setSeachText(txt)}
+                onSubmitEditing={async (val) => {
                     setLoading(true);
-                    //Clicked the clear button
-                    if (searchText !== '' && val === '') {
-                        setPoems([]);
-                        setUsers([]);
-                        setLoading(false);
-                    }
-                    setSeachText(val);
-                    let resPoem = await firestore().collection(poemsCollectionId).where('title', '==', val).get();
-                    let resUser = await firestore().collection(usersCollectionId).where('username', '==', val).get();
+                    let resPoem = await firestore().collection(poemsCollectionId).where('title', '==', searchText).get();
+                    let resUser = await firestore().collection(usersCollectionId).where('username', '==', searchText).get();
+                    setLoading(true);
                     setPoems(resPoem.docs.map((i) => i.data() as Poem));
                     setUsers(
                         resUser.docs
@@ -68,7 +63,7 @@ const Search = (props: Props) => {
                     );
                     setLoading(false);
                 }}
-                placeholder="Search"
+                placeholder="Search for a user or poem"
             />
             {loading ? (
                 <ActivityIndicator style={{ marginTop: 50 }} size={50} />
@@ -85,7 +80,7 @@ const Search = (props: Props) => {
                     )}
                 </View>
             )}
-            {users.length > 0 ? (
+            {users.length > 0 && !loading ? (
                 <Card style={styles.cardContainer}>
                     <Card.Content>
                         <Text style={styles.text}>People</Text>
@@ -115,7 +110,7 @@ const Search = (props: Props) => {
             ) : (
                 <View />
             )}
-            {poems.length > 0 ? (
+            {poems.length > 0 && !loading ? (
                 <View>
                     <Card style={styles.cardContainer}>
                         <Card.Content>

@@ -98,6 +98,8 @@ function Login(props: Props) {
                 loading={loading}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
+                    if(loading)
+                        return;
                     let myerrors = [...errors];
                     let hasError = false;
                     if (email === '') {

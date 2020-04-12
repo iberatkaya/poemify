@@ -13,7 +13,7 @@ export const poemReducer = (state = POEM_INITIAL_STATE, action: setPoemAction | 
         case 'UPDATE_POEM':
             let payload = action.payload;
             let poems = [...state];
-            let index = poems.findIndex((i) => i.poemId === payload.poemId && i.author.username === action.payload.author.username);
+            let index = poems.findIndex((i) => i.date === payload.date && i.author.username === action.payload.author.username);
             if (index === -1) throw 'An error occurred';
             poems[index] = payload;
             return poems;
@@ -23,7 +23,7 @@ export const poemReducer = (state = POEM_INITIAL_STATE, action: setPoemAction | 
             return mypoems;
         case 'DELETE_POEM':
             let all = [...state];
-            let myindex = all.findIndex((i) => i.poemId === action.payload.poemId && i.author.username === action.payload.author.username);
+            let myindex = all.findIndex((i) => i.date === action.payload.date && i.author.username === action.payload.author.username);
             if (myindex === -1) throw 'POEMS REDUCER: An error occurred!';
             all.splice(myindex, 1);
             return all;

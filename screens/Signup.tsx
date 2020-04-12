@@ -191,6 +191,8 @@ function Signup(props: Props) {
                 labelStyle={styles.buttonLabel}
                 style={styles.signupButton}
                 onPress={async () => {
+                    if(loading)
+                        return;
                     setLoading(true);
                     let myerrors = [...errors];
                     if (username === '') {
@@ -248,6 +250,7 @@ function Signup(props: Props) {
                                 uid: res.user.uid,
                                 blockedUsers: [],
                                 bookmarks: [],
+                                totalPoems: 0,
                                 username: username,
                                 preferredLanguages: filtered,
                                 poems: [],
@@ -257,7 +260,6 @@ function Signup(props: Props) {
                             };
                             let res2 = await firestore().collection(usersCollectionId).add(fuser);
 
-                            //Maybe delete later?
                             let res3 = await firestore().collection(usersCollectionId).doc(res2.id).update({ docid: res2.id });
                             unsub();
                             Toast.show('Please authenticate your email.');
