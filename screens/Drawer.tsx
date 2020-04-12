@@ -35,19 +35,15 @@ function Drawer(props: Props) {
                 <Image style={{ height: 100, width: 100 }} source={require('../assets/icon.png')} />
             </View>
             <Divider style={styles.divider} />
-            {Platform.OS === 'android' ? (
-                <TouchableOpacity
-                    onPress={() => {
-                        Linking.openURL('mailto:ibraberatkaya@gmail.com?subject=Poemify Support and Feedback');
-                    }}
-                    style={styles.itemRow}
-                >
-                    <IconButton icon="email" size={20} color="#777" />
-                    <Text style={styles.text}>Feedback</Text>
-                </TouchableOpacity>
-            ) : (
-                <View />
-            )}
+            <TouchableOpacity
+                onPress={() => {
+                    Linking.openURL('mailto:ibraberatkaya@gmail.com?subject=Poemify Support and Feedback');
+                }}
+                style={styles.itemRow}
+            >
+                <IconButton icon="email" size={20} color="#777" />
+                <Text style={styles.text}>Feedback</Text>
+            </TouchableOpacity>
             <TouchableOpacity
                 style={styles.logout}
                 onPress={async () => {
