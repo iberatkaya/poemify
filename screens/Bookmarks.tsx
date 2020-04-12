@@ -50,7 +50,15 @@ function Bookmarks(props: Props) {
 
             }
             let books = res.docs;
-            let bookmarks = books.map((i) => (i.data())) as Poem[];
+            let bookmarks = books.map((i) => (i.data() as Poem))
+                .filter((j) => {
+                    for (let k in props.user.blockedUsers) {
+                        if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }) as Poem[];
             let usr: User = {...props.user};
             if(fetchAfter){
                 bookmarks.forEach((i: Poem) => (props.addUserBookmark(i)));
