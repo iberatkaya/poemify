@@ -6,7 +6,7 @@ import { Poem } from '../interfaces/Poem';
 import { connect, ConnectedProps } from 'react-redux';
 import { User } from '../interfaces/User';
 import { updatePoem, deletePoem, setPoem } from '../redux/actions/Poem';
-import { updateUserPoem, deleteUserPoem, setUser, decTotalPoem } from '../redux/actions/User';
+import {  deleteUserPoem, setUser, decTotalPoem } from '../redux/actions/User';
 import { HomeStackParamList, ProfileStackParamList, BookmarkStackParamList, SearchStackParamList } from '../AppNav';
 import { RootState } from '../redux/store';
 import Toast from 'react-native-simple-toast';
@@ -30,7 +30,6 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     updatePoem,
-    updateUserPoem,
     deletePoem,
     deleteUserPoem,
     setUser,
@@ -291,9 +290,6 @@ function PoemCard(props: Props) {
                                                  */
 
                                                 props.updatePoem(poem);
-                                                if (poem.author.username === props.user.username) {
-                                                    props.updateUserPoem(poem);
-                                                }
 
                                                 /**
                                                  * Firebase Operations
@@ -506,9 +502,7 @@ function PoemCard(props: Props) {
                                      */
 
                                     props.updatePoem(poem);
-                                    if (poem.author.username === props.user.username) {
-                                        props.updateUserPoem(poem);
-                                    }
+                                    
 
                                     /**
                                      * Firebase Operations
@@ -588,9 +582,6 @@ function PoemCard(props: Props) {
                                                          */
 
                                                         props.updatePoem(poem);
-                                                        if (poem.author.username === props.user.username) {
-                                                            props.updateUserPoem(poem);
-                                                        }
 
                                                         /**
                                                          * Firebase Operations

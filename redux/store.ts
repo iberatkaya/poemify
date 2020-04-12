@@ -16,4 +16,3 @@ export interface RootState {
     poems: Poem[];
 }
 
-export const collectionName = 'demo';

@@ -111,25 +111,6 @@ function Home(props: Props) {
         } catch (e) {
             setRefresh(false);
             Toast.show('Please check your internet connection!');
-            if(e.message === "[firestore/permission-denied] The caller does not have permission to execute the specified operation."){
-                console.log(true);
-                let user: User = {
-                    bookmarks: [],
-                    totalPoems: 0,
-                    topics: [],
-                    docid: '-1',
-                    uid: '',
-                    email: '',
-                    blockedUsers: [],
-                    username: '',
-                    poems: [],
-                    preferredLanguages: [],
-                    followers: [],
-                    following: [],
-                };
-                props.setUser(user);
-                await AsyncStorage.setItem('user', JSON.stringify(user));
-            }
             console.log(e.message);
         }
     };

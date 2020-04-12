@@ -11,6 +11,7 @@ import { setUser, addUserBookmark } from '../redux/actions/User';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
 import { Poem } from '../interfaces/Poem';
+import { usersCollectionId } from '../constants/collection';
 
 type BookmarksScreenNavigationProp = StackNavigationProp<BookmarkStackParamList, 'Bookmarks'>;
 
@@ -43,11 +44,10 @@ function Bookmarks(props: Props) {
             let res;
             if(fetchAfter && scrolling){
                 let lastpoem = props.user.bookmarks[props.user.bookmarks.length - 1];
-                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get();
+                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get();
             }
             else{
-                res = await firestore().collection("usersdemo").doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get();
-
+                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get();
             }
             let books = res.docs;
             let bookmarks = books.map((i) => (i.data() as Poem))
