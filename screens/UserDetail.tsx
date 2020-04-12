@@ -39,6 +39,7 @@ function UserDetail(props: Props) {
         email: '',
         topics: [],
         blockedUsers: [],
+        totalPoems: 0,
         uid: props.route.params!.profileUser.uid,
         bookmarks: [],
         docid: props.route.params!.profileUser.docid,
