@@ -41,9 +41,8 @@ function Enterance(props: Props) {
                 dark={true}
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
-                onPress={async () => {
+                onPress={() => {
                     props.navigation.navigate('Login');
-                    await AsyncStorage.setItem('logoutUser8', 'a');
                 }}
             >
                 Login
@@ -53,9 +52,8 @@ function Enterance(props: Props) {
                 dark={true}
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
-                onPress={async () => {
+                onPress={() => {
                     props.navigation.navigate('Signup')
-                    await AsyncStorage.setItem('logoutUser8', 'a');
                 }}>
                 Sign up
             </Button>

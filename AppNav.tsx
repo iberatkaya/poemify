@@ -300,10 +300,6 @@ let ConnectedDrawer = connector(function MyDrawer(props: Props) {
     useEffect(() => {
         let func = async () => {
             let getuser = await AsyncStorage.getItem('user');
-            let logoutUser = await AsyncStorage.getItem('logoutUser8');
-            if(logoutUser === null){
-                await AsyncStorage.setItem('user', '');
-            }
             let usr = (getuser !== null && getuser !== '') ? JSON.parse(getuser) : null;
             if (usr !== null && usr.username !== '') {
                 props.setUser(usr);
