@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createRef } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl, Platform } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { FAB, IconButton, ActivityIndicator } from 'react-native-paper';
@@ -14,9 +14,11 @@ import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firest
 import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
-import { usersCollectionId, poemsCollectionId } from '../constants/collection';
+import { usersCollectionId, poemsCollectionId, production } from '../constants/collection';
 import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
+import { InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from '@react-native-firebase/admob';
+import { myinterstitial, myinterstitialios } from '../constants/ads';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
     DrawerNavigationProp<DrawerParamList, 'Tabs'>,
@@ -57,8 +59,12 @@ function Home(props: Props) {
         },
     });
 
+    const interstitial = InterstitialAd.createForAdRequest(production ? (Platform.OS === 'ios' ? myinterstitialios : myinterstitial) : TestIds.INTERSTITIAL);
+    interstitial.load()
+
     const [refresh, setRefresh] = useState(false);
     const [scrolling, setScrolling] = useState(false);
+    const [ctr, setCtr] = useState(0);
 
     const fetchPoems = async (fetchAfter = false) => {
         try {
@@ -167,7 +173,13 @@ function Home(props: Props) {
                 data={props.poems.sort((a, b) => b.date - a.date)}
                 renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
             />
-            <FAB onPress={() => props.navigation.push('WritePoem')} style={styles.fab} icon="plus" />
+            <FAB onPress={async () => {
+                if(ctr === 1 || ctr === 4 || ctr === 7){
+                    await interstitial.show()
+                }
+                setCtr(ctr + 1);
+                props.navigation.push('WritePoem');
+                }} style={styles.fab} icon="plus" />
         </View>
     );
 }

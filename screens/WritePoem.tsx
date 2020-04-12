@@ -125,7 +125,6 @@ function WritePoem(props: Props) {
                 onPress={async () => {
                     if(loading)
                         return;
-                    setLoading(true);
                     try {
                         if (title === '') {
                             Toast.show('Title cannot be empty!');
@@ -136,6 +135,7 @@ function WritePoem(props: Props) {
                         } else if (poem.length < 3) {
                             Toast.show('The poem must be longer than 3 characters!');
                         } else {
+                            setLoading(true);
                             let poemid = props.user.poems.length !== 0 ? props.user.poems[props.user.poems.length - 1].poemId + 1 : 0;
                             let mypoem: Poem = {
                                 author: { docid: props.user.docid, username: props.user.username, uid: props.user.uid },
