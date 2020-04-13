@@ -19,6 +19,7 @@ import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from '@react-native-firebase/admob';
 import { myinterstitial, myinterstitialios } from '../constants/ads';
+import RNPickerSelect from 'react-native-picker-select';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
     DrawerNavigationProp<DrawerParamList, 'Tabs'>,
@@ -65,6 +66,7 @@ function Home(props: Props) {
     const [refresh, setRefresh] = useState(false);
     const [scrolling, setScrolling] = useState(false);
     const [ctr, setCtr] = useState(0);
+    const [topic, setTopic] = useState("all");
 
     const fetchPoems = async (fetchAfter = false) => {
         try {
@@ -123,7 +125,7 @@ function Home(props: Props) {
     useEffect(() => {
         setRefresh(true);
         let myfetch = async () => {
-            await fetchPoems();
+        //    await fetchPoems();
             setRefresh(false);
         };
         myfetch();
@@ -131,7 +133,7 @@ function Home(props: Props) {
 
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container}>                
             <FlatList
                 refreshControl={
                     <RefreshControl
@@ -160,12 +162,13 @@ function Home(props: Props) {
                 }
                 setCtr(ctr + 1);
                 props.navigation.push('WritePoem');
-                }} style={styles.fab} icon="plus" />
+                }} style={styles.fab} icon="circle-edit-outline" />
         </View>
     );
 }
 
 export default connector(Home);
+
 
 const styles = StyleSheet.create({
     container: {
@@ -178,4 +181,13 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
     },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+    },
+    inputAndroid: {},
 });

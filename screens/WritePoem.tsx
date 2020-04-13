@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View, Platform, InputAccessoryView } from 'react-native';
-import { TextInput, HelperText, FAB, Button, Divider } from 'react-native-paper';
+import { TextInput, HelperText, FAB, Button, Divider, IconButton } from 'react-native-paper';
 import Toast from 'react-native-simple-toast';
 import RNPickerSelect from 'react-native-picker-select';
 import { connect, ConnectedProps } from 'react-redux';
@@ -197,7 +197,7 @@ function WritePoem(props: Props) {
                     }
                 }}
                 style={styles.fab}
-                icon={loading ? "circle-outline" : "check"}
+                icon={loading ? "check" : "send"}
             />
         </View>
     );
