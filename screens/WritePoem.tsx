@@ -61,7 +61,7 @@ function WritePoem(props: Props) {
                     value={poem}
                     inputAccessoryViewID={Platform.OS === 'ios' ? 'done' : undefined}
                     label="Poem"
-                    maxLength={750}
+                    maxLength={2000}
                     onChangeText={(text) => setPoem(text)}
                     multiline={true}
                     numberOfLines={Platform.OS === 'ios' ? undefined : 18}
