@@ -156,7 +156,7 @@ function Home(props: Props) {
     const _onViewableItemsChanged = useRef((param: any) => {
         if(param === undefined)
             return;
-        if (param.viewableItems[0].index === 0) {
+        if (param.viewableItems.length > 0 && param.viewableItems[0].index === 0) {
             setAtTop(true);
         } else {
             setAtTop(false);
@@ -283,8 +283,7 @@ const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
         textAlign: 'center',
         fontSize: 16,
-        paddingVertical: 16,
-        paddingHorizontal: 10,
+        paddingVertical: 4,
     },
     inputAndroid: {
         fontSize: 17,
