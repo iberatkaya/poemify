@@ -14,32 +14,32 @@ type Props = {
 
 const slides = [
     {
-        key: 1,
+        key: '1',
         title: 'Welcome to\nPoemify!',
         image: require('../assets/icon.png'),
     },
     {
-        key: 2,
+        key: '2',
         title: 'Sign Up',
         image: require('../assets/screenshots/1.jpg'),
     },
     {
-        key: 3,
+        key: '3',
         title: 'Write Your Poem',
         image: require('../assets/screenshots/2.jpg'),
     },
     {
-        key: 4,
+        key: '4',
         title: "Like and View\nOther User's Poems",
         image: require('../assets/screenshots/3.jpg'),
     },
     {
-        key: 4,
+        key: '5',
         title: 'Follow Other Users',
         image: require('../assets/screenshots/4.jpg'),
     },
     {
-        key: 4,
+        key: '6',
         title: 'Bookmark Their\nPoems',
         image: require('../assets/screenshots/5.jpg'),
     },
@@ -65,6 +65,7 @@ function Intro(props: Props) {
                     bookmarks: [],
                     blockedUsers: [],
                     topics: [],
+                    totalPoems: 0,
                     uid: '',
                     docid: '-1',
                     email: '',

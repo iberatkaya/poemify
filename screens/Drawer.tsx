@@ -37,7 +37,7 @@ function Drawer(props: Props) {
             <Divider style={styles.divider} />
             <TouchableOpacity
                 onPress={() => {
-                    Linking.openURL('mailto:ibraberatkaya@gmail.com?subject=Poemify Support and Feedback');
+                    Linking.openURL('mailto:ibraberatkaya@gmail.com?subject=Poemify%20Support%20and%20Feedback');
                 }}
                 style={styles.itemRow}
             >

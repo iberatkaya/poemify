@@ -34,7 +34,7 @@ type Props = PropsFromRedux & {
 };
 
 function Bookmarks(props: Props) {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [scrolling, setScrolling] = useState(false);
     const [refresh, setRefresh] = useState(false);
 

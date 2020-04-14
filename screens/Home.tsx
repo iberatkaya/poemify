@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, useCallback } from 'react';
+import React, { useEffect, useState, createRef, useRef } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Platform } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
@@ -153,15 +153,17 @@ function Home(props: Props) {
 
     const flistRef = createRef<FlatList>();
 
-    const _onViewableItemsChanged = useCallback(({ viewableItems }) => {
-        if (viewableItems[0].index === 0) {
+    const _onViewableItemsChanged = useRef((param: any) => {
+        if(param === undefined)
+            return;
+        if (param.viewableItems[0].index === 0) {
             setAtTop(true);
         } else {
             setAtTop(false);
         }
-    }, []);
+    });
 
-    const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
+    const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
     return (
         <View style={styles.container}>
@@ -171,25 +173,32 @@ function Home(props: Props) {
                         onValueChange={(value) => {
                             setTopic(value);
                         }}
+                        textInputProps={Platform.OS === "android" ? {textAlignVertical: 'center'} : undefined}
+                        Icon={() => (<View/>)}
+                        useNativeAndroidPickerStyle={false}
                         placeholder={{}}
+                        touchableWrapperProps={{style: {paddingVertical: 12, paddingHorizontal: 18}}}
                         style={pickerSelectStyles}
                         items={['all topics', ...props.user.topics].map((i) => ({ value: i, label: i }))}
                         value={topic}
                     />
                 </View>
-                <View style={{ width: 1, height: '100%', backgroundColor: '#999' }} />
+                <View style={{ width: 1, height: '100%', backgroundColor: '#ccc' }} />
                 <View style={styles.pickerContainer}>
                     <RNPickerSelect
                         onValueChange={(value) => {
                             setLang(value);
                         }}
                         placeholder={{}}
+                        touchableWrapperProps={{style: {paddingVertical: 12, paddingHorizontal: 18}}}
+                        Icon={() => (<View/>)}
+                        useNativeAndroidPickerStyle={false}
                         style={pickerSelectStyles}
                         items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
                         value={lang}
                     />
                 </View>
-                <View style={{ width: 1, height: '100%', backgroundColor: '#999' }} />
+                <View style={{ width: 1, height: '100%', backgroundColor: '#ccc' }} />
                 <View style={styles.pickerContainer}>
                     <IconButton
                         icon={atTop ? 'home' : 'arrow-up'}
@@ -201,11 +210,12 @@ function Home(props: Props) {
                     />
                 </View>
             </View>
+            <Divider style={{backgroundColor: '#ccc', height: 1}} />
             <FlatList
                 ref={flistRef}
-                /*                viewabilityConfig={viewConfigRef.current}
-                onViewableItemsChanged={_onViewableItemsChanged}
-*/ refreshControl={
+                viewabilityConfig={viewConfigRef.current}
+                onViewableItemsChanged={_onViewableItemsChanged.current}
+                refreshControl={
                     <RefreshControl
                         refreshing={refresh}
                         onRefresh={async () => {
@@ -276,5 +286,11 @@ const pickerSelectStyles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 10,
     },
-    inputAndroid: {},
+    inputAndroid: {
+        fontSize: 17,
+        textAlign: 'center',
+        color: '#222'
+    },
+    inputAndroidContainer: {
+    }
 });
