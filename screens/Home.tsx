@@ -177,7 +177,6 @@ function Home(props: Props) {
                         Icon={() => (<View/>)}
                         useNativeAndroidPickerStyle={false}
                         placeholder={{}}
-                        touchableWrapperProps={{style: {paddingVertical: 12, paddingHorizontal: 18}}}
                         style={pickerSelectStyles}
                         items={['all topics', ...props.user.topics].map((i) => ({ value: i, label: i }))}
                         value={topic}
@@ -190,7 +189,6 @@ function Home(props: Props) {
                             setLang(value);
                         }}
                         placeholder={{}}
-                        touchableWrapperProps={{style: {paddingVertical: 12, paddingHorizontal: 18}}}
                         Icon={() => (<View/>)}
                         useNativeAndroidPickerStyle={false}
                         style={pickerSelectStyles}
