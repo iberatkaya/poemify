@@ -58,12 +58,24 @@ function UserDetail(props: Props) {
         try {
             let res;
             let tempUser = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.docid).get();
-            if(fetchAfter && scrolling){
+            if (fetchAfter && scrolling) {
                 let lastpoem = theUser.poems[theUser.poems.length - 1];
-                res = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.docid).collection("userpoems").orderBy("date", "desc").startAfter(lastpoem.date).limit(6).get()
-            }
-            else {
-                res = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.docid).collection("userpoems").orderBy("date", "desc").limit(6).get()
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.route.params!.profileUser.docid)
+                    .collection('userpoems')
+                    .orderBy('date', 'desc')
+                    .startAfter(lastpoem.date)
+                    .limit(6)
+                    .get();
+            } else {
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.route.params!.profileUser.docid)
+                    .collection('userpoems')
+                    .orderBy('date', 'desc')
+                    .limit(6)
+                    .get();
             }
             let data = res.docs;
             let poems: Poem[] = data
@@ -79,15 +91,14 @@ function UserDetail(props: Props) {
                     }
                     return true;
                 });
-            if(fetchAfter){
+            if (fetchAfter) {
                 let usrPoems = [...theUser.poems];
-                poems.forEach((i) => (usrPoems.push(i)));
-                let tempusr = {...tempUser.data()};
+                poems.forEach((i) => usrPoems.push(i));
+                let tempusr = { ...tempUser.data() };
                 tempusr.poems = usrPoems;
                 setTheUser(tempusr as User);
-            }
-            else{
-                let tempusr = {...tempUser.data()};
+            } else {
+                let tempusr = { ...tempUser.data() };
                 tempusr.poems = poems;
                 setTheUser(tempusr as User);
             }
@@ -100,7 +111,7 @@ function UserDetail(props: Props) {
 
     useEffect(() => {
         let func = async () => {
-            await fetchPoems()
+            await fetchPoems();
         };
         func();
     }, [props.user]);
@@ -112,9 +123,8 @@ function UserDetail(props: Props) {
                 <FlatList
                     keyExtractor={(_i, index) => index.toString()}
                     data={theUser.poems.sort((a, b) => b.date - a.date)}
-                    onEndReached={async ({distanceFromEnd}) => {
-                        if(distanceFromEnd != 0 && theUser.poems.length > 4)
-                            await fetchPoems(true);
+                    onEndReached={async ({ distanceFromEnd }) => {
+                        if (distanceFromEnd != 0 && theUser.poems.length > 4) await fetchPoems(true);
                     }}
                     onMomentumScrollBegin={() => setScrolling(true)}
                     onEndReachedThreshold={0.1}

@@ -191,8 +191,7 @@ function Signup(props: Props) {
                 labelStyle={styles.buttonLabel}
                 style={styles.signupButton}
                 onPress={async () => {
-                    if(loading)
-                        return;
+                    if (loading) return;
                     setLoading(true);
                     let myerrors = [...errors];
                     if (username === '') {

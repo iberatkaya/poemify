@@ -53,8 +53,9 @@ function Enterance(props: Props) {
                 style={styles.button}
                 labelStyle={styles.buttonLabel}
                 onPress={() => {
-                    props.navigation.navigate('Signup')
-                }}>
+                    props.navigation.navigate('Signup');
+                }}
+            >
                 Sign up
             </Button>
         </View>

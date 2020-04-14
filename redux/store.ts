@@ -15,4 +15,3 @@ export interface RootState {
     user: User;
     poems: Poem[];
 }
-

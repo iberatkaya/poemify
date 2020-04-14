@@ -160,7 +160,7 @@ export type BookmarkStackParamList = {
     Bookmarks: undefined;
     FollowList: { type: 'Followers' | 'Following' };
     PoemDetail: { poem: Poem } | undefined;
-    UserDetail: { profileUser: SubUser, isBookmark: boolean } | undefined;
+    UserDetail: { profileUser: SubUser; isBookmark: boolean } | undefined;
 };
 
 const StackBookmarks = createStackNavigator<BookmarkStackParamList>();
@@ -300,7 +300,7 @@ let ConnectedDrawer = connector(function MyDrawer(props: Props) {
     useEffect(() => {
         let func = async () => {
             let getuser = await AsyncStorage.getItem('user');
-            let usr = (getuser !== null && getuser !== '') ? JSON.parse(getuser) : null;
+            let usr = getuser !== null && getuser !== '' ? JSON.parse(getuser) : null;
             if (usr !== null && usr.username !== '') {
                 props.setUser(usr);
                 setUser(usr);

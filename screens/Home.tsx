@@ -1,8 +1,8 @@
-import React, { useEffect, useState, createRef } from 'react';
+import React, { useEffect, useState, createRef, useCallback } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl, Platform } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
-import { FAB, IconButton, ActivityIndicator } from 'react-native-paper';
+import { FAB, IconButton, Divider } from 'react-native-paper';
 import { setPoem, addPoem } from '../redux/actions/Poem';
 import { setUser, addUserBookmark } from '../redux/actions/User';
 import { RootState } from '../redux/store';
@@ -10,11 +10,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { HomeStackParamList, DrawerParamList } from '../AppNav';
-import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
-import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
-import { usersCollectionId, poemsCollectionId, production } from '../constants/collection';
+import { poemsCollectionId, production } from '../constants/collection';
 import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from '@react-native-firebase/admob';
@@ -35,7 +34,7 @@ const mapDispatch = {
     setPoem,
     addPoem,
     setUser,
-    addUserBookmark
+    addUserBookmark,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -47,49 +46,73 @@ type Props = PropsFromRedux & {
 };
 
 function Home(props: Props) {
-    props.navigation.setOptions({
-        headerLeft: () => {
-            return (
-                <IconButton
-                    icon="menu"
-                    onPress={() => {
-                        props.navigation.openDrawer();
-                    }}
-                />
-            );
-        },
-    });
+    useEffect(() => {
+        props.navigation.setOptions({
+            headerLeft: () => {
+                return (
+                    <IconButton
+                        icon="menu"
+                        onPress={() => {
+                            props.navigation.openDrawer();
+                        }}
+                    />
+                );
+            },
+        });
+    }, []);
 
-    const interstitial = InterstitialAd.createForAdRequest(production ? (Platform.OS === 'ios' ? myinterstitialios : myinterstitial) : TestIds.INTERSTITIAL);
-    interstitial.load()
+    const interstitial = InterstitialAd.createForAdRequest(
+        production ? (Platform.OS === 'ios' ? myinterstitialios : myinterstitial) : TestIds.INTERSTITIAL
+    );
+    interstitial.load();
 
     const [refresh, setRefresh] = useState(false);
     const [scrolling, setScrolling] = useState(false);
     const [ctr, setCtr] = useState(0);
-    const [topic, setTopic] = useState("all");
+    const [topic, setTopic] = useState('all topics');
+    const [lang, setLang] = useState(props.user.preferredLanguages[0]);
+    const [atTop, setAtTop] = useState(true);
 
     const fetchPoems = async (fetchAfter = false) => {
         try {
             let res;
-            if(fetchAfter && scrolling){
+            if (fetchAfter && scrolling) {
                 let lastpoem = props.poems[props.poems.length - 1];
-                res = await firestore()
-                    .collection(poemsCollectionId)
-                    .where('language', 'array-contains-any', props.user.preferredLanguages)
-                    .orderBy('date', 'desc')
-                    .orderBy('username', 'asc')
-                    .startAfter(lastpoem.date, lastpoem.username)
-                    .limit(8)
-                    .get();        
-            }
-            else {
-                res = await firestore()
-                .collection(poemsCollectionId)
-                .where('language', 'array-contains-any', props.user.preferredLanguages)
-                .orderBy('date', 'desc')
-                .orderBy('username', 'asc')
-                .limit(8)
-                .get();
+                if (topic === 'all topics') {
+                    res = await firestore()
+                        .collection(poemsCollectionId)
+                        .where('language', '==', lang)
+                        .orderBy('date', 'desc')
+                        .startAfter(lastpoem.date)
+                        .limit(8)
+                        .get();
+                } else {
+                    res = await firestore()
+                        .collection(poemsCollectionId)
+                        .where('language', '==', lang)
+                        .where('topics', 'array-contains', topic)
+                        .orderBy('date', 'desc')
+                        .startAfter(lastpoem.date)
+                        .limit(8)
+                        .get();
+                }
+            } else {
+                if (topic === 'all topics') {
+                    res = await firestore()
+                        .collection(poemsCollectionId)
+                        .where('language', '==', lang)
+                        .orderBy('date', 'desc')
+                        .limit(8)
+                        .get();
+                } else {
+                    res = await firestore()
+                        .collection(poemsCollectionId)
+                        .where('language', '==', lang)
+                        .where('topics', 'array-contains', topic)
+                        .orderBy('date', 'desc')
+                        .limit(8)
+                        .get();
+                }
             }
             let data = res.docs;
             let poems: Poem[] = data
@@ -105,18 +128,15 @@ function Home(props: Props) {
                     }
                     return true;
                 });
-            if(fetchAfter){
+            if (fetchAfter) {
                 poems.forEach((i) => props.addPoem(i));
-            }
-            else
-                props.setPoem(poems);
+            } else props.setPoem(poems);
         } catch (e) {
             setRefresh(false);
             Toast.show('Please check your internet connection!');
             console.log(e.message);
         }
     };
-
 
     useEffect(() => {
         RNBootSplash.hide({ duration: 500 });
@@ -125,17 +145,67 @@ function Home(props: Props) {
     useEffect(() => {
         setRefresh(true);
         let myfetch = async () => {
-        //    await fetchPoems();
+            await fetchPoems();
             setRefresh(false);
         };
         myfetch();
+    }, [topic, lang]);
+
+    const flistRef = createRef<FlatList>();
+
+    const _onViewableItemsChanged = useCallback(({ viewableItems }) => {
+        if (viewableItems[0].index === 0) {
+            setAtTop(true);
+        } else {
+            setAtTop(false);
+        }
     }, []);
 
+    const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
     return (
-        <View style={styles.container}>                
+        <View style={styles.container}>
+            <View style={styles.pickerRow}>
+                <View style={styles.pickerContainer}>
+                    <RNPickerSelect
+                        onValueChange={(value) => {
+                            setTopic(value);
+                        }}
+                        placeholder={{}}
+                        style={pickerSelectStyles}
+                        items={['all topics', ...props.user.topics].map((i) => ({ value: i, label: i }))}
+                        value={topic}
+                    />
+                </View>
+                <View style={{ width: 1, height: '100%', backgroundColor: '#999' }} />
+                <View style={styles.pickerContainer}>
+                    <RNPickerSelect
+                        onValueChange={(value) => {
+                            setLang(value);
+                        }}
+                        placeholder={{}}
+                        style={pickerSelectStyles}
+                        items={props.user.preferredLanguages.map((i) => ({ value: i, label: i }))}
+                        value={lang}
+                    />
+                </View>
+                <View style={{ width: 1, height: '100%', backgroundColor: '#999' }} />
+                <View style={styles.pickerContainer}>
+                    <IconButton
+                        icon={atTop ? 'home' : 'arrow-up'}
+                        size={24}
+                        onPress={() => {
+                            if (props.poems.length < 1) return;
+                            flistRef.current?.scrollToIndex({ index: 0, animated: true });
+                        }}
+                    />
+                </View>
+            </View>
             <FlatList
-                refreshControl={
+                ref={flistRef}
+                /*                viewabilityConfig={viewConfigRef.current}
+                onViewableItemsChanged={_onViewableItemsChanged}
+*/ refreshControl={
                     <RefreshControl
                         refreshing={refresh}
                         onRefresh={async () => {
@@ -146,9 +216,8 @@ function Home(props: Props) {
                         }}
                     />
                 }
-                onEndReached={async ({distanceFromEnd}) => {
-                    if(distanceFromEnd != 0 && props.poems.length > 4)
-                        await fetchPoems(true);
+                onEndReached={async ({ distanceFromEnd }) => {
+                    if (distanceFromEnd != 0 && props.poems.length > 4) await fetchPoems(true);
                 }}
                 onMomentumScrollBegin={() => setScrolling(true)}
                 onEndReachedThreshold={0.1}
@@ -156,23 +225,30 @@ function Home(props: Props) {
                 data={props.poems.sort((a, b) => b.date - a.date)}
                 renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
             />
-            <FAB onPress={async () => {
-                if(ctr === 1 || ctr === 4 || ctr === 7){
-                    await interstitial.show()
-                }
-                setCtr(ctr + 1);
-                props.navigation.push('WritePoem');
-                }} style={styles.fab} icon="circle-edit-outline" />
+            <FAB
+                onPress={async () => {
+                    if (ctr === 1 || ctr === 4 || ctr === 7) {
+                        try {
+                            await interstitial.show();
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    }
+                    setCtr(ctr + 1);
+                    props.navigation.push('WritePoem');
+                }}
+                style={styles.fab}
+                icon="circle-edit-outline"
+            />
         </View>
     );
 }
 
 export default connector(Home);
 
-
 const styles = StyleSheet.create({
     container: {
-        height: '100%'
+        height: '100%',
     },
     fab: {
         position: 'absolute',
@@ -181,12 +257,23 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
     },
+    pickerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    pickerContainer: {
+        flex: 1,
+        alignItems: 'center',
+        textAlign: 'center',
+    },
 });
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
+        textAlign: 'center',
         fontSize: 16,
-        paddingVertical: 12,
+        paddingVertical: 16,
         paddingHorizontal: 10,
     },
     inputAndroid: {},

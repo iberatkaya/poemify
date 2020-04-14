@@ -55,8 +55,7 @@ function ResetPassword(props: Props) {
                 loading={loading}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
-                    if(loading)
-                        return;
+                    if (loading) return;
                     let myerrors = { ...errorObj };
                     let hasError = false;
                     if (email === '') {

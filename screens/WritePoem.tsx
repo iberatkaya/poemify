@@ -24,8 +24,8 @@ const mapState = (state: RootState) => ({
 const mapDispatch = {
     addPoem,
     addUserPoem,
-    incTotalPoem, 
-    decTotalPoem
+    incTotalPoem,
+    decTotalPoem,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -124,8 +124,7 @@ function WritePoem(props: Props) {
             </ScrollView>
             <FAB
                 onPress={async () => {
-                    if(loading)
-                        return;
+                    if (loading) return;
                     try {
                         if (title === '') {
                             Toast.show('Title cannot be empty!');
@@ -145,7 +144,7 @@ function WritePoem(props: Props) {
                                 username: props.user.username,
                                 topics: topics,
                                 date: new Date().getTime(),
-                                language: [lang],
+                                language: lang,
                                 likes: [],
                                 poemId: poemid,
                                 title: title,
@@ -153,24 +152,32 @@ function WritePoem(props: Props) {
                                 comments: [],
                             };
                             let mypoems = [...props.user.poems];
-                            
+
                             /**
                              * Firebase Operations
                              */
 
-                            let res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").add( mypoem );
-                            await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").doc(res.id).update({docid: res.id});
+                            let res = await firestore()
+                                .collection(usersCollectionId)
+                                .doc(props.user.docid)
+                                .collection('userpoems')
+                                .add(mypoem);
+                            await firestore()
+                                .collection(usersCollectionId)
+                                .doc(props.user.docid)
+                                .collection('userpoems')
+                                .doc(res.id)
+                                .update({ docid: res.id });
 
-                            
                             let res2 = await firestore().collection(poemsCollectionId).add(mypoem);
-                            await firestore().collection(poemsCollectionId).doc(res2.id).update({docid: res2.id});
-                            
+                            await firestore().collection(poemsCollectionId).doc(res2.id).update({ docid: res2.id });
+
                             mypoem.docid = res2.id;
-                            
+
                             /**
                              * Redux Operations
                              */
-                            
+
                             mypoems.push(mypoem);
                             props.addPoem(mypoem);
                             props.addUserPoem(mypoem);
@@ -178,11 +185,9 @@ function WritePoem(props: Props) {
                             let ctr = props.user.totalPoems + 1;
                             props.incTotalPoem();
 
-                            
                             await firestore().collection(usersCollectionId).doc(props.user.docid).update({ totalPoems: ctr });
 
                             props.navigation.pop();
-                            
                         }
                     } catch (e) {
                         console.log(e);
@@ -197,7 +202,7 @@ function WritePoem(props: Props) {
                     }
                 }}
                 style={styles.fab}
-                icon={loading ? "check" : "send"}
+                icon={loading ? 'check' : 'send'}
             />
         </View>
     );

@@ -1,5 +1,13 @@
 import { User } from '../../interfaces/User';
-import { setUserAction, updateUserPoemAction, addUserBookmarkAction, addUserPoemAction, deleteUserPoemAction, incTotalPoemAction, decTotalPoemAction } from '../actions/User';
+import {
+    setUserAction,
+    updateUserPoemAction,
+    addUserBookmarkAction,
+    addUserPoemAction,
+    deleteUserPoemAction,
+    incTotalPoemAction,
+    decTotalPoemAction,
+} from '../actions/User';
 
 const USER_INITIAL_STATE: User = {
     email: '',
@@ -18,7 +26,14 @@ const USER_INITIAL_STATE: User = {
 
 export const userReducer = (
     state = USER_INITIAL_STATE,
-    action: setUserAction | updateUserPoemAction | addUserPoemAction | deleteUserPoemAction | incTotalPoemAction | decTotalPoemAction | addUserBookmarkAction
+    action:
+        | setUserAction
+        | updateUserPoemAction
+        | addUserPoemAction
+        | deleteUserPoemAction
+        | incTotalPoemAction
+        | decTotalPoemAction
+        | addUserBookmarkAction
 ) => {
     switch (action.type) {
         case 'SET_USER':
@@ -26,7 +41,6 @@ export const userReducer = (
             return user;
         case 'UPDATE_USER_POEM':
             let payload = action.payload;
-            console.log(payload);
             let myuser = { ...state };
             let poems = [...myuser.poems];
             let index = poems.findIndex((i) => i.date === payload.date);
@@ -50,16 +64,16 @@ export const userReducer = (
             );
             if (myindex2 !== -1) myusr.bookmarks.splice(myindex2, 1);
             return myusr;
-        case 'INC_TOTAL_POEM': 
-            let tmpusr = {...state};
+        case 'INC_TOTAL_POEM':
+            let tmpusr = { ...state };
             tmpusr.totalPoems += 1;
             return tmpusr;
-        case 'DEC_TOTAL_POEM': 
-            let tmpusr2 = {...state};
+        case 'DEC_TOTAL_POEM':
+            let tmpusr2 = { ...state };
             tmpusr2.totalPoems -= 1;
             return tmpusr2;
-        case 'ADD_USER_BOOKMARK': 
-            let tmpusr3 = {...state};
+        case 'ADD_USER_BOOKMARK':
+            let tmpusr3 = { ...state };
             tmpusr3.bookmarks.push(action.payload);
             return tmpusr3;
         default:

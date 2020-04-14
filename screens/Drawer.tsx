@@ -41,7 +41,7 @@ function Drawer(props: Props) {
                 }}
                 style={styles.itemRow}
             >
-                <IconButton icon="email" size={20} color="#777" />
+                <IconButton icon="email-outline" size={22} color="#777" />
                 <Text style={styles.text}>Feedback</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -65,7 +65,7 @@ function Drawer(props: Props) {
                     await AsyncStorage.setItem('user', JSON.stringify(user));
                 }}
             >
-                <IconButton icon="logout" size={20} color="#777" />
+                <IconButton icon="logout" size={22} color="#777" />
                 <Text style={styles.text}>Logout</Text>
             </TouchableOpacity>
         </View>

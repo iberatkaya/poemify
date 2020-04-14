@@ -14,9 +14,9 @@ export interface Poem {
     body: string;
     date: number;
     likes: SubUser[];
-    language: Language[];
+    language: Language;
     topics: Topic[];
     comments: Comment[];
     docid: string;
-    bookmarkedBy: SubUser[]
+    bookmarkedBy: SubUser[];
 }

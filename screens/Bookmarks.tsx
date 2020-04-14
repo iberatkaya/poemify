@@ -22,7 +22,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
     setUser,
-    addUserBookmark
+    addUserBookmark,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -34,23 +34,35 @@ type Props = PropsFromRedux & {
 };
 
 function Bookmarks(props: Props) {
-
-    const [loading,setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [scrolling, setScrolling] = useState(false);
     const [refresh, setRefresh] = useState(false);
 
     let fetchBookmarks = async (fetchAfter = false) => {
         try {
             let res;
-            if(fetchAfter && scrolling){
+            if (fetchAfter && scrolling) {
                 let lastpoem = props.user.bookmarks[props.user.bookmarks.length - 1];
-                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").startAfter(lastpoem.date).limit(5).get();
-            }
-            else{
-                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userbookmarks").orderBy("date", "desc").limit(5).get();
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.user.docid)
+                    .collection('userbookmarks')
+                    .orderBy('date', 'desc')
+                    .startAfter(lastpoem.date)
+                    .limit(5)
+                    .get();
+            } else {
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.user.docid)
+                    .collection('userbookmarks')
+                    .orderBy('date', 'desc')
+                    .limit(5)
+                    .get();
             }
             let books = res.docs;
-            let bookmarks = books.map((i) => (i.data() as Poem))
+            let bookmarks = books
+                .map((i) => i.data() as Poem)
                 .filter((j) => {
                     for (let k in props.user.blockedUsers) {
                         if (j.author.username === props.user.blockedUsers[k].username && j.author.uid === props.user.blockedUsers[k].uid) {
@@ -59,11 +71,10 @@ function Bookmarks(props: Props) {
                     }
                     return true;
                 }) as Poem[];
-            let usr: User = {...props.user};
-            if(fetchAfter){
-                bookmarks.forEach((i: Poem) => (props.addUserBookmark(i)));
-            }
-            else{
+            let usr: User = { ...props.user };
+            if (fetchAfter) {
+                bookmarks.forEach((i: Poem) => props.addUserBookmark(i));
+            } else {
                 usr.bookmarks = bookmarks;
                 props.setUser(usr);
             }
@@ -72,7 +83,6 @@ function Bookmarks(props: Props) {
             console.log(e);
         }
     };
-
 
     useEffect(() => {
         let myfetch = async () => {
@@ -84,8 +94,7 @@ function Bookmarks(props: Props) {
     }, []);
 
     return (
-        <View
-            style={styles.container}        >
+        <View style={styles.container}>
             {props.user.bookmarks.length === 0 && !loading ? (
                 <Text style={{ textAlign: 'center', fontSize: 20, paddingTop: 24, paddingHorizontal: 24 }}>
                     You don't have any bookmarked poems!
@@ -93,17 +102,15 @@ function Bookmarks(props: Props) {
             ) : (
                 <View />
             )}
-            {
-                loading ? 
-                <ActivityIndicator size={50} style={{marginTop: 40}} />
-                :
+            {loading ? (
+                <ActivityIndicator size={50} style={{ marginTop: 40 }} />
+            ) : (
                 <FlatList
                     keyExtractor={(_i, index) => index.toString()}
                     data={props.user.bookmarks.sort((a, b) => b.date - a.date)}
-                    onEndReached={async ({distanceFromEnd}) => {
-                        if(distanceFromEnd != 0 && props.user.bookmarks.length > 4)
-                            await fetchBookmarks(true);
-                        }}
+                    onEndReached={async ({ distanceFromEnd }) => {
+                        if (distanceFromEnd != 0 && props.user.bookmarks.length > 4) await fetchBookmarks(true);
+                    }}
                     refreshControl={
                         <RefreshControl
                             refreshing={refresh}
@@ -118,7 +125,7 @@ function Bookmarks(props: Props) {
                     onEndReachedThreshold={0.1}
                     renderItem={({ item }) => <PoemCard bookmark={true} item={item} navigation={props.navigation} full={false} />}
                 />
-            }
+            )}
         </View>
     );
 }

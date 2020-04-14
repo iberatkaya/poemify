@@ -14,7 +14,7 @@ export const poemReducer = (state = POEM_INITIAL_STATE, action: setPoemAction | 
             let payload = action.payload;
             let poems = [...state];
             let index = poems.findIndex((i) => i.date === payload.date && i.author.username === action.payload.author.username);
-            if (index === -1) throw 'An error occurred';
+            if (index === -1) poems;
             poems[index] = payload;
             return poems;
         case 'ADD_POEM':

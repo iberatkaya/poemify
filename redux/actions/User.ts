@@ -52,17 +52,17 @@ export const addUserBookmark = (poem: Poem) => ({
 });
 
 export interface incTotalPoemAction {
-    type: 'INC_TOTAL_POEM'
+    type: 'INC_TOTAL_POEM';
 }
 
 export const incTotalPoem = () => ({
-    type: 'INC_TOTAL_POEM'
-})
+    type: 'INC_TOTAL_POEM',
+});
 
 export interface decTotalPoemAction {
-    type: 'DEC_TOTAL_POEM'
+    type: 'DEC_TOTAL_POEM';
 }
 
 export const decTotalPoem = () => ({
-    type: 'DEC_TOTAL_POEM'
-})
+    type: 'DEC_TOTAL_POEM',
+});

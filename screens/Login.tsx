@@ -98,8 +98,7 @@ function Login(props: Props) {
                 loading={loading}
                 labelStyle={styles.buttonLabel}
                 onPress={async () => {
-                    if(loading)
-                        return;
+                    if (loading) return;
                     let myerrors = [...errors];
                     let hasError = false;
                     if (email === '') {
@@ -145,6 +144,7 @@ function Login(props: Props) {
                             setPassword('');
                             setLoading(false);
                         } catch (e) {
+                            console.log(e);
                             if (
                                 e.message ===
                                 '[auth/unknown] A network error (such as timeout, interrupted connection or unreachable host) has occurred.'

@@ -15,7 +15,6 @@ import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
 
-
 type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 const mapState = (state: RootState) => ({
@@ -24,7 +23,7 @@ const mapState = (state: RootState) => ({
 });
 
 const mapDispatch = {
-    setUser
+    setUser,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -36,30 +35,39 @@ type Props = PropsFromRedux & {
 };
 
 function Profile(props: Props) {
-    
     const [refresh, setRefresh] = useState(false);
     const [scrolling, setScrolling] = useState(false);
 
     let fetchSelf = async (fetchAfter = false) => {
         try {
             let res;
-            let user = {...props.user};
-            if(fetchAfter){
+            let user = { ...props.user };
+            if (fetchAfter) {
                 let lastpoem = props.user.poems[props.user.poems.length - 1];
-                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").orderBy('date', 'desc').startAfter(lastpoem.date).limit(8).get();
-
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.user.docid)
+                    .collection('userpoems')
+                    .orderBy('date', 'desc')
+                    .startAfter(lastpoem.date)
+                    .limit(8)
+                    .get();
+            } else {
+                res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.user.docid)
+                    .collection('userpoems')
+                    .orderBy('date', 'desc')
+                    .limit(8)
+                    .get();
             }
-            else{
-                res = await firestore().collection(usersCollectionId).doc(props.user.docid).collection("userpoems").orderBy('date', 'desc').limit(1).get();
-            }
-            let fpoems = res.docs.map((i) => (i.data() as Poem));
-            if(fetchAfter){
+            let fpoems = res.docs.map((i) => i.data() as Poem);
+            if (fetchAfter) {
                 let poems = [...props.user.poems];
                 fpoems.forEach((i) => poems.push(i));
                 user.poems = poems;
                 props.setUser(user as User);
-            }
-            else{
+            } else {
                 user.poems = fpoems;
                 props.setUser(user);
             }
@@ -69,7 +77,6 @@ function Profile(props: Props) {
             console.log(e);
         }
     };
-
 
     useEffect(() => {
         setRefresh(true);
@@ -95,9 +102,8 @@ function Profile(props: Props) {
                         }}
                     />
                 }
-                onEndReached={async ({distanceFromEnd}) => {
-                    if(distanceFromEnd != 0 && props.poems.length > 4)
-                        await fetchSelf(true);
+                onEndReached={async ({ distanceFromEnd }) => {
+                    if (distanceFromEnd != 0 && props.poems.length > 4) await fetchSelf(true);
                 }}
                 onMomentumScrollBegin={() => setScrolling(true)}
                 onEndReachedThreshold={0.1}

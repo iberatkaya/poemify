@@ -38,15 +38,18 @@ type Props = PropsFromRedux & {
 };
 
 function PoemDetail(props: Props) {
-
     const [mypoem, setMyPoem] = useState<Poem>(props.route.params!.poem);
-    const [refresh, setRefresh] = useState(false)
+    const [refresh, setRefresh] = useState(false);
 
     let fetchThePoem = async () => {
         try {
-            let res = await firestore().collection(poemsCollectionId).where('date', "==", props.route.params!.poem.date).where('username', "==", props.route.params!.poem.username).get()
+            let res = await firestore()
+                .collection(poemsCollectionId)
+                .where('date', '==', props.route.params!.poem.date)
+                .where('username', '==', props.route.params!.poem.username)
+                .get();
             let data = [...props.poems];
-            let index = data.findIndex((i) => (i.username === props.route.params!.poem.username && i.date === props.route.params!.poem.date));
+            let index = data.findIndex((i) => i.username === props.route.params!.poem.username && i.date === props.route.params!.poem.date);
             data[index] = res.docs[0].data() as Poem;
             setMyPoem(res.docs[0].data() as Poem);
             props.setPoem(data);
@@ -55,8 +58,7 @@ function PoemDetail(props: Props) {
             Toast.show('Please check your internet connection!');
             console.log(e);
         }
-    }
-
+    };
 
     return (
         <ScrollView
@@ -70,7 +72,6 @@ function PoemDetail(props: Props) {
                     }}
                 />
             }
-            
         >
             <PoemCard item={mypoem} navigation={props.navigation} full={true} />
         </ScrollView>

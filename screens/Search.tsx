@@ -38,11 +38,12 @@ const Search = (props: Props) => {
         <View style={styles.main}>
             <Searchbar
                 style={{ marginHorizontal: 6, marginVertical: 8 }}
+                inputStyle={{ fontSize: 16 }}
                 value={searchText}
                 autoCapitalize="none"
                 returnKeyType="done"
                 onChangeText={(txt) => setSeachText(txt)}
-                onSubmitEditing={async (val) => {
+                onSubmitEditing={async () => {
                     setLoading(true);
                     let resPoem = await firestore().collection(poemsCollectionId).where('title', '==', searchText).get();
                     let resUser = await firestore().collection(usersCollectionId).where('username', '==', searchText).get();
