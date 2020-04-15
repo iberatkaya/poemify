@@ -157,18 +157,6 @@ function WritePoem(props: Props) {
                              * Firebase Operations
                              */
 
-                            let res = await firestore()
-                                .collection(usersCollectionId)
-                                .doc(props.user.docid)
-                                .collection('userpoems')
-                                .add(mypoem);
-                            await firestore()
-                                .collection(usersCollectionId)
-                                .doc(props.user.docid)
-                                .collection('userpoems')
-                                .doc(res.id)
-                                .update({ docid: res.id });
-
                             let res2 = await firestore().collection(poemsCollectionId).add(mypoem);
                             await firestore().collection(poemsCollectionId).doc(res2.id).update({ docid: res2.id });
 

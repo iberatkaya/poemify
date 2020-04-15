@@ -47,6 +47,7 @@ type Props = PropsFromRedux & {
     navigation: PoemCardScreenNavigationProp;
     full: boolean;
     bookmark: boolean;
+    profile: boolean;
 };
 
 function PoemCard(props: Props) {
@@ -59,8 +60,11 @@ function PoemCard(props: Props) {
     const [deleting, setDeleting] = useState(false);
 
     let userLiked = () => {
-        for (let i in props.item.likes) {
-            if (props.item.likes[i].username === props.user.username) {
+        let myitem = props.poems.find((i) => (i.docid === props.item.docid));
+        if(myitem === undefined)
+            return true;
+        for (let i in myitem.likes) {
+            if (myitem.likes[i].username === props.user.username) {
                 return true;
             }
         }
@@ -120,6 +124,8 @@ function PoemCard(props: Props) {
         }
     };
 
+    console.warn = () => {};
+
     return (
         <Card
             style={styles.cardContainer}
@@ -127,7 +133,8 @@ function PoemCard(props: Props) {
                 if (!props.full && !props.bookmark) props.navigation.push('PoemDetail', { poem: props.item });
                 else {
                     try {
-                        let poem = await firestore().collection(poemsCollectionId).doc(props.item.docid).get();
+                        let poem;
+                        poem = await firestore().collection(poemsCollectionId).doc(props.item.docid).get();
                         if (poem.data() === undefined) {
                             Toast.show('The user has deleted thıs poem');
 
@@ -154,7 +161,8 @@ function PoemCard(props: Props) {
                             res.docs[0].ref.delete();
                             return;
                         }
-                        props.navigation.push('PoemDetail', { poem: poem.data() as Poem });
+                        if(!props.full)
+                            props.navigation.push('PoemDetail', { poem: poem.data() as Poem });
                     } catch (e) {
                         console.log(e);
                     }
@@ -177,15 +185,6 @@ function PoemCard(props: Props) {
                                         setLockMenu(true);
                                         props.deleteUserPoem(props.item);
                                         props.deletePoem(props.item);
-
-                                        let thepoem = await firestore()
-                                            .collection(usersCollectionId)
-                                            .doc(props.item.author.docid)
-                                            .collection('userpoems')
-                                            .where('date', '==', props.item.date)
-                                            .get();
-
-                                        thepoem.docs[0].ref.delete();
 
                                         let ctr = props.user.totalPoems - 1;
                                         props.decTotalPoem();
@@ -314,13 +313,17 @@ function PoemCard(props: Props) {
                                         try {
                                             if (lock) return;
                                             setLock(true);
-                                            let poem = { ...props.item };
+                                            let res = await firestore().collection(poemsCollectionId).doc(props.item.docid).get()
+                                            let poem = res.data() as Poem;
+                                            console.log(poem);
+                                            if(poem === undefined) 
+                                                throw "Poem was deleted";
                                             let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
-                                            poem.likes.splice(myindex, 1);
                                             if (myindex === -1) {
                                                 console.log('Not found 2');
                                                 return;
                                             }
+                                            poem.likes.splice(myindex, 1);
 
                                             /**
                                              * Redux Operations
@@ -334,19 +337,10 @@ function PoemCard(props: Props) {
                                              * Firebase Operations
                                              */
 
-                                            let req = await firestore()
-                                                .collection(usersCollectionId)
-                                                .doc(props.item.author.docid)
-                                                .collection('userpoems')
-                                                .where('date', '==', props.item.date)
-                                                .get();
-                                            await req.docs[0].ref.update({ likes: poem.likes });
-
                                             let req2 = await firestore()
                                                 .collection(poemsCollectionId)
                                                 .doc(props.item.docid)
                                                 .update({ likes: poem.likes });
-
                                             setLock(false);
                                         } catch (e) {
                                             setLock(false);
@@ -363,9 +357,15 @@ function PoemCard(props: Props) {
                                     //@ts-ignore
                                     onPress={async () => {
                                         try {
+                                            console.log(lock);
                                             if (lock) return;
                                             setLock(true);
-                                            let poem = { ...props.item };
+                                            console.log(lock);
+                                            let res = await firestore().collection(poemsCollectionId).doc(props.item.docid).get()
+                                            let poem = res.data() as Poem;
+                                            console.log(poem);
+                                            if(poem === undefined) 
+                                                throw "Poem was deleted";
                                             poem.likes.push({
                                                 docid: props.user.docid,
                                                 username: props.user.username,
@@ -384,19 +384,11 @@ function PoemCard(props: Props) {
                                              * Firebase Operations
                                              */
 
-                                            let req = await firestore()
-                                                .collection(usersCollectionId)
-                                                .doc(props.item.author.docid)
-                                                .collection('userpoems')
-                                                .where('date', '==', props.item.date)
-                                                .get();
-                                            req.docs[0].ref.update({ likes: poem.likes });
-
+                                            //If author is user
                                             let req2 = await firestore()
                                                 .collection(poemsCollectionId)
                                                 .doc(props.item.docid)
                                                 .update({ likes: poem.likes });
-
                                             setLock(false);
                                         } catch (e) {
                                             setLock(false);
@@ -411,7 +403,7 @@ function PoemCard(props: Props) {
                     {props.bookmark ? (
                         <View />
                     ) : (
-                        <Text style={styles.likeText}>{millify(props.item.likes.length, { lowerCase: true })}</Text>
+                        <Text style={styles.likeText}>{millify(props.poems.find((i) => (i.docid === props.item.docid)) !== undefined ? props.poems.find((i) => (i.docid === props.item.docid))!.likes.length : 0, { lowerCase: true })}</Text>
                     )}
                     {props.item.username === props.user.username ? (
                         <View />
@@ -589,23 +581,9 @@ function PoemCard(props: Props) {
                                      * Firebase Operations
                                      */
 
-                                    let req = await firestore()
-                                        .collection(usersCollectionId)
-                                        .doc(props.item.author.docid)
-                                        .collection('userpoems')
-                                        .where('date', '==', props.item.date)
-                                        .get();
-                                    req.docs[0].ref.update({ comments: poem.comments });
-
-                                    let req2 = await firestore()
-                                        .collection(poemsCollectionId)
-                                        .where('date', '==', props.item.date)
-                                        .where('title', '==', props.item.title)
-                                        .where('poemId', '==', props.item.poemId)
-                                        .get();
                                     await firestore()
                                         .collection(poemsCollectionId)
-                                        .doc(req2.docs[0].id)
+                                        .doc(props.item.docid)
                                         .update({ comments: poem.comments });
 
                                     setLockComment(false);
@@ -683,14 +661,6 @@ function PoemCard(props: Props) {
                                                          * Firebase Operations
                                                          */
 
-                                                        let req = await firestore()
-                                                            .collection(usersCollectionId)
-                                                            .doc(props.item.author.docid)
-                                                            .collection('userpoems')
-                                                            .where('date', '==', props.item.date)
-                                                            .get();
-                                                        req.docs[0].ref.update({ comments: poem.comments });
-
                                                         let req2 = await firestore()
                                                             .collection(poemsCollectionId)
                                                             .where('date', '==', props.item.date)
@@ -730,6 +700,7 @@ export default connector(PoemCard);
 PoemCard.defaultProps = {
     full: false,
     bookmark: false,
+    profile: false
 };
 
 const styles = StyleSheet.create({

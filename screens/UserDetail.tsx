@@ -11,7 +11,7 @@ import firestore from '@react-native-firebase/firestore';
 import PoemCard from '../components/PoemCard';
 import { ActivityIndicator } from 'react-native-paper';
 import Toast from 'react-native-simple-toast';
-import { usersCollectionId } from '../constants/collection';
+import { usersCollectionId, poemsCollectionId } from '../constants/collection';
 import { Poem } from '../interfaces/Poem';
 
 type PoemDetailNavigationProp = StackNavigationProp<HomeStackParamList, 'UserDetail'>;
@@ -61,18 +61,16 @@ function UserDetail(props: Props) {
             if (fetchAfter && scrolling) {
                 let lastpoem = theUser.poems[theUser.poems.length - 1];
                 res = await firestore()
-                    .collection(usersCollectionId)
-                    .doc(props.route.params!.profileUser.docid)
-                    .collection('userpoems')
+                    .collection(poemsCollectionId)
+                    .where("username", "==", props.user.username)
                     .orderBy('date', 'desc')
                     .startAfter(lastpoem.date)
                     .limit(6)
                     .get();
             } else {
                 res = await firestore()
-                    .collection(usersCollectionId)
-                    .doc(props.route.params!.profileUser.docid)
-                    .collection('userpoems')
+                    .collection(poemsCollectionId)
+                    .where("username", "==", props.user.username)
                     .orderBy('date', 'desc')
                     .limit(6)
                     .get();

@@ -13,12 +13,13 @@ import { HomeStackParamList, DrawerParamList } from '../AppNav';
 import firestore from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
 import Toast from 'react-native-simple-toast';
-import { poemsCollectionId, production } from '../constants/collection';
+import { poemsCollectionId, production, usersCollectionId } from '../constants/collection';
 import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from '@react-native-firebase/admob';
 import { myinterstitial, myinterstitialios } from '../constants/ads';
 import RNPickerSelect from 'react-native-picker-select';
+import { User } from '../interfaces/User';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
     DrawerNavigationProp<DrawerParamList, 'Tabs'>,
@@ -138,9 +139,23 @@ function Home(props: Props) {
         }
     };
 
+    let fetchUser = async () => {
+        let res = await firestore()
+                    .collection(usersCollectionId)
+                    .doc(props.user.docid)
+                    .get();
+        let user = res.data() as User;
+        console.log(user);
+        props.setUser(user);
+    }
+
     useEffect(() => {
         RNBootSplash.hide({ duration: 500 });
     }, []);
+
+    useEffect(() => {
+        fetchUser();
+    }, [])
 
     useEffect(() => {
         setRefresh(true);

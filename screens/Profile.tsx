@@ -45,18 +45,16 @@ function Profile(props: Props) {
             if (fetchAfter) {
                 let lastpoem = props.user.poems[props.user.poems.length - 1];
                 res = await firestore()
-                    .collection(usersCollectionId)
-                    .doc(props.user.docid)
-                    .collection('userpoems')
+                    .collection(poemsCollectionId)
+                    .where("username", "==", props.user.username)
                     .orderBy('date', 'desc')
                     .startAfter(lastpoem.date)
                     .limit(8)
                     .get();
             } else {
                 res = await firestore()
-                    .collection(usersCollectionId)
-                    .doc(props.user.docid)
-                    .collection('userpoems')
+                    .collection(poemsCollectionId)
+                    .where("username", "==", props.user.username)
                     .orderBy('date', 'desc')
                     .limit(8)
                     .get();

@@ -73,7 +73,7 @@ function UserCard(props: Props) {
                 <Text style={styles.textContainer}>
                     <Text style={styles.userInfoText}>
                         {millify(
-                            props.theUserProp.totalPoems !== undefined ? props.theUserProp.totalPoems : props.theUserProp.poems.length,
+                            props.theUserProp.username !== props.user.username ? props.theUserProp.totalPoems : props.user.totalPoems,
                             { lowerCase: true }
                         )}
                         {'\n'}
