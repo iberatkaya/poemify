@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, HelperText, TextInput, Avatar } from 'react-native-paper';
@@ -48,6 +48,7 @@ type Props = PropsFromRedux & {
     full: boolean;
     bookmark: boolean;
     profile: boolean;
+    onPressForProfile?: (poem: Poem) => void;
 };
 
 function PoemCard(props: Props) {
@@ -58,11 +59,14 @@ function PoemCard(props: Props) {
     const [menu, setMenu] = useState(false);
     const [myComment, setMyComment] = useState('');
     const [deleting, setDeleting] = useState(false);
+    const [liked, setLiked] = useState(false);
 
     let userLiked = () => {
         let myitem = props.poems.find((i) => (i.docid === props.item.docid));
-        if(myitem === undefined)
-            return true;
+        //If poem isn't in the redux state
+        if(myitem === undefined){
+            return null;
+        }
         for (let i in myitem.likes) {
             if (myitem.likes[i].username === props.user.username) {
                 return true;
@@ -70,6 +74,17 @@ function PoemCard(props: Props) {
         }
         return false;
     };
+
+    useEffect(() => {
+        if(userLiked() === null){
+            for (let i in props.item.likes) {
+                if (props.item.likes[i].username === props.user.username) {
+                    setLiked(true);
+                    break;
+                }
+            }
+        }
+    }, [])
 
     let userBookmarked = () => {
         for (let i in props.item.bookmarkedBy) {
@@ -302,7 +317,7 @@ function PoemCard(props: Props) {
                         <View />
                     ) : (
                         <View>
-                            {userLiked() ? (
+                            {(userLiked() !== null && userLiked()) || (userLiked() === null && liked) ? (
                                 <IconButton
                                     color="red"
                                     icon="heart"
@@ -315,9 +330,9 @@ function PoemCard(props: Props) {
                                             setLock(true);
                                             let res = await firestore().collection(poemsCollectionId).doc(props.item.docid).get()
                                             let poem = res.data() as Poem;
-                                            console.log(poem);
                                             if(poem === undefined) 
                                                 throw "Poem was deleted";
+
                                             let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
                                             if (myindex === -1) {
                                                 console.log('Not found 2');
@@ -333,6 +348,16 @@ function PoemCard(props: Props) {
                                             if (poem.author.username === props.user.username) {
                                                 props.updateUserPoem(poem);
                                             }
+                                            
+                                            //Used for the User Detail State
+                                            if(props.onPressForProfile !== undefined){
+                                                props.onPressForProfile(poem)
+                                            }
+
+                                            if(userLiked() === null){
+                                                setLiked(false);
+                                            }
+
                                             /**
                                              * Firebase Operations
                                              */
@@ -357,15 +382,16 @@ function PoemCard(props: Props) {
                                     //@ts-ignore
                                     onPress={async () => {
                                         try {
-                                            console.log(lock);
                                             if (lock) return;
                                             setLock(true);
-                                            console.log(lock);
                                             let res = await firestore().collection(poemsCollectionId).doc(props.item.docid).get()
                                             let poem = res.data() as Poem;
-                                            console.log(poem);
                                             if(poem === undefined) 
-                                                throw "Poem was deleted";
+                                                throw "Poem was deleted!";
+                                            if(poem.likes.findIndex((i) => (i.username === props.user.username)) !== -1){
+                                                throw "User already liked!"
+                                            }
+
                                             poem.likes.push({
                                                 docid: props.user.docid,
                                                 username: props.user.username,
@@ -380,6 +406,17 @@ function PoemCard(props: Props) {
                                             if (poem.author.username === props.user.username) {
                                                 props.updateUserPoem(poem);
                                             }
+
+                                            //Used for the User Detail State
+                                            if(props.onPressForProfile !== undefined){
+                                                props.onPressForProfile(poem)
+                                            }
+
+                                            if(userLiked() === null){
+                                                setLiked(true);
+                                            }
+
+                                            
                                             /**
                                              * Firebase Operations
                                              */
@@ -403,9 +440,9 @@ function PoemCard(props: Props) {
                     {props.bookmark ? (
                         <View />
                     ) : (
-                        <Text style={styles.likeText}>{millify(props.poems.find((i) => (i.docid === props.item.docid)) !== undefined ? props.poems.find((i) => (i.docid === props.item.docid))!.likes.length : 0, { lowerCase: true })}</Text>
+                        <Text style={styles.likeText}>{millify(props.poems.find((i) => (i.docid === props.item.docid)) !== undefined ? props.poems.find((i) => (i.docid === props.item.docid))!.likes.length : props.item.likes.length, { lowerCase: true })}</Text>
                     )}
-                    {props.item.username === props.user.username ? (
+                    {props.item.username === props.user.username || (props.profile && !props.full) ? (
                         <View />
                     ) : (
                         <View>
@@ -421,7 +458,6 @@ function PoemCard(props: Props) {
                                             setLockBookmark(true);
 
                                             let user = { ...props.user };
-                                            console.log(user);
                                             let myindex = user.bookmarks.findIndex(
                                                 (i) => i.username === props.item.username && i.date === props.item.date
                                             );

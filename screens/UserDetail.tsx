@@ -62,7 +62,7 @@ function UserDetail(props: Props) {
                 let lastpoem = theUser.poems[theUser.poems.length - 1];
                 res = await firestore()
                     .collection(poemsCollectionId)
-                    .where("username", "==", props.user.username)
+                    .where("username", "==", theUser.username)
                     .orderBy('date', 'desc')
                     .startAfter(lastpoem.date)
                     .limit(6)
@@ -70,7 +70,7 @@ function UserDetail(props: Props) {
             } else {
                 res = await firestore()
                     .collection(poemsCollectionId)
-                    .where("username", "==", props.user.username)
+                    .where("username", "==", theUser.username)
                     .orderBy('date', 'desc')
                     .limit(6)
                     .get();
@@ -126,7 +126,12 @@ function UserDetail(props: Props) {
                     }}
                     onMomentumScrollBegin={() => setScrolling(true)}
                     onEndReachedThreshold={0.1}
-                    renderItem={({ item }) => <PoemCard item={item} navigation={props.navigation} full={false} />}
+                    renderItem={({ item }) => <PoemCard onPressForProfile={(poem: Poem) => {
+                        let user = {...theUser};
+                        let index = theUser.poems.findIndex((i) => (i.docid === poem.docid));
+                        theUser.poems[index] = poem;
+                        setTheUser(user);
+                    }} item={item} navigation={props.navigation} profile={true} full={false} />}
                 />
             ) : (
                 <ActivityIndicator style={styles.loading} size={50} />

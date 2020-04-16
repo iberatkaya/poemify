@@ -145,7 +145,6 @@ function Home(props: Props) {
                     .doc(props.user.docid)
                     .get();
         let user = res.data() as User;
-        console.log(user);
         props.setUser(user);
     }
 
