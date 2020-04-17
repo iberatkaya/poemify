@@ -3,9 +3,9 @@
 > Poemify is a React Native App that lets users share poems they have written in 30+ languages. Available at the [App Store](https://apps.apple.com/us/app/poemify-social-poetry/id1507168355?ls=1).
 
 <p align="center">
-    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/3.jpg" width="240" height="480">
-    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/2.jpg" width="240" height="480">
-    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/4.jpg" width="240" height="480">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/3ios.png" width="240" height="480">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/2ios.png" width="240" height="480">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/poemify/master/assets/screenshots/4ios.png" width="240" height="480">
 </p>
 
 
