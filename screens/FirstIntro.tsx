@@ -21,27 +21,27 @@ const slides = [
     {
         key: '2',
         title: 'Sign Up',
-        image: require('../assets/screenshots/1.jpg'),
+        image: require('../assets/screenshots/1ios.png'),
     },
     {
         key: '3',
         title: 'Write Your Poem',
-        image: require('../assets/screenshots/2.jpg'),
+        image: require('../assets/screenshots/2ios.png'),
     },
     {
         key: '4',
         title: "Like and View\nOther User's Poems",
-        image: require('../assets/screenshots/3.jpg'),
+        image: require('../assets/screenshots/3ios.png'),
     },
     {
         key: '5',
         title: 'Follow Other Users',
-        image: require('../assets/screenshots/4.jpg'),
+        image: require('../assets/screenshots/4ios.png'),
     },
     {
         key: '6',
-        title: 'Bookmark Their\nPoems',
-        image: require('../assets/screenshots/5.jpg'),
+        title: 'Bookmark Poems',
+        image: require('../assets/screenshots/5ios.png'),
     },
 ];
 

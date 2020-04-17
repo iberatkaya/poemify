@@ -29,6 +29,8 @@ import ChangeTopicPage from './screens/settings/ChangeTopics';
 import BookmarksPage from './screens/Bookmarks';
 import IntroScreen from './screens/FirstIntro';
 import BlockListPage from './screens/settings/BlockList';
+import TOSPage from "./screens/TOS";
+import TOSSetPage from "./screens/settings/TOS";
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -77,6 +79,7 @@ export type ProfileStackParamList = {
     ChangeLang: undefined;
     ChangeTopics: undefined;
     BlockList: undefined;
+    TOS: undefined;
     FollowList: { type: 'Followers' | 'Following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
@@ -115,10 +118,15 @@ function ProfileStack() {
                 component={FollowListPage}
                 options={({ route }) => ({ title: route.params.type, headerStyle: { elevation: 1 } })}
             />
-            <StackHome.Screen
+            <StackProfile.Screen
                 name="UserDetail"
                 component={UserDetailPage}
                 options={{ headerTitle: 'Profile', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="TOS"
+                component={TOSSetPage}
+                options={{ headerTitle: 'TOS', headerStyle: { elevation: 1 } }}
             />
         </StackProfile.Navigator>
     );
@@ -258,6 +266,7 @@ export type EnteranceStackParamList = {
     Signup: undefined;
     ResetPassword: undefined;
     SelectTopics: undefined;
+    TOS: undefined;
 };
 
 function EnteranceStack() {
@@ -269,6 +278,7 @@ function EnteranceStack() {
             <StackEnterance.Screen name="Signup" component={SignupPage} />
             <StackEnterance.Screen name="ResetPassword" component={ResetPasswordPage} />
             <StackEnterance.Screen name="SelectTopics" component={SelectTopicsPage} />
+            <StackEnterance.Screen name="TOS" component={TOSPage} />
         </StackEnterance.Navigator>
     );
 }

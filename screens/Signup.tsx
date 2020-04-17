@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View, Platform } from 'react-native';
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, Platform, TouchableOpacity } from 'react-native';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, Checkbox } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -16,8 +16,9 @@ import { allLangs } from '../constants/language';
 import { EnteranceStackParamList } from 'AppNav';
 import Toast from 'react-native-simple-toast';
 import { production } from '../constants/collection';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<EnteranceStackParamList, 'Signup'>;
+type EnteranceScreenNavigationProp = StackNavigationProp<EnteranceStackParamList, 'Signup'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,
@@ -45,10 +46,12 @@ function Signup(props: Props) {
         { error: false, msg: '' },
         { error: false, msg: '' },
         { error: false, msg: '' },
+        { error: false, msg: '' },
     ]);
     const [langs, setLangs] = useState<Array<Language | null>>(['English', null, null]);
     const [loading, setLoading] = useState(false);
     const [lock, setLock] = useState(false);
+    const [checked, setChecked] = useState(false);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -183,6 +186,16 @@ function Signup(props: Props) {
 
             {errors[3].error ? <HelperText style={styles.errorText}>{errors[3].msg}</HelperText> : <View />}
 
+            <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 6}}>
+                <Text style={{color: "#333"}}>Agree to the <Text onPress={() => props.navigation.navigate("TOS")} style={{textDecorationLine: "underline"}}>Terms of Service</Text>: </Text>
+                <IconButton
+                    style={{borderWidth: 1}}
+                    size={24}
+                    icon={ checked ? "check" : "close"}
+                    onPress={() => { setChecked(!checked); }}
+                />
+            </View>
+            {errors[4].error ? <HelperText style={styles.errorText}>{errors[4].msg}</HelperText> : <View />}
             <Button
                 mode="contained"
                 loading={loading}
@@ -220,8 +233,13 @@ function Signup(props: Props) {
                     } else {
                         myerrors[3] = { error: false, msg: '' };
                     }
+                    if (!checked) {
+                        myerrors[4] = { error: true, msg: 'Please accept the Terms of Service!' };
+                    } else {
+                        myerrors[4] = { error: false, msg: '' };
+                    }
                     setErrors(myerrors);
-                    if (!myerrors[0].error && !myerrors[1].error && !myerrors[2].error && !myerrors[3].error) {
+                    if (!myerrors[0].error && !myerrors[1].error && !myerrors[2].error && !myerrors[3].error && !myerrors[4].error) {
                         try {
                             let filtered = langs.filter((i) => i !== null) as Array<Language>;
                             let res = await auth().createUserWithEmailAndPassword(email, password);
