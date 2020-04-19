@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, RefreshControl, ScrollView } from 'react-native';
+import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import PoemCard from '../components/PoemCard';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../redux/store';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Linking, Platform, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, View, Linking, Image } from 'react-native';
 import { IconButton, Divider } from 'react-native-paper';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { connect, ConnectedProps } from 'react-redux';

@@ -1,6 +1,5 @@
 import React from 'react'
 import { StyleSheet, Text, ScrollView, Platform, View } from 'react-native'
-import { Title, IconButton } from "react-native-paper";
 import { ProfileStackParamList } from '../../AppNav';
 import { StackNavigationProp } from '@react-navigation/stack';
 

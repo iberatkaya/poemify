@@ -24,11 +24,12 @@ type Props = PropsFromRedux & {
 };
 
 function Settings(props: Props) {
-    let settings: Array<{ label: string; route: 'ChangeLang' | 'ChangeTopics' | 'BlockList' | 'TOS' }> = [
+    let settings: Array<{ label: string; route: 'ChangeLang' | 'ChangeTopics' | 'BlockList' | 'TOS' | 'DeleteAccount' }> = [
         { label: 'Change Languages', route: 'ChangeLang' },
         { label: 'Change Topics', route: 'ChangeTopics' },
         { label: 'View Block List', route: 'BlockList' },
         { label: 'Terms Of Service', route: 'TOS' },
+        { label: 'Delete Account', route: 'DeleteAccount' },
     ];
     return (
         <View>

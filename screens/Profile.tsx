@@ -6,13 +6,12 @@ import { RootState } from '../redux/store';
 import PoemCard from '../components/PoemCard';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '../AppNav';
-import { setUser, addUserBookmark } from '../redux/actions/User';
-import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { setUser } from '../redux/actions/User';
+import firestore from '@react-native-firebase/firestore';
 import { Poem } from '../interfaces/Poem';
 import { User } from '../interfaces/User';
 import Toast from 'react-native-simple-toast';
-import { usersCollectionId, poemsCollectionId } from '../constants/collection';
-import RNBootSplash from 'react-native-bootsplash';
+import { poemsCollectionId } from '../constants/collection';
 import AsyncStorage from '@react-native-community/async-storage';
 
 type PoemDetailNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;

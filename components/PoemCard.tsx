@@ -4,7 +4,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, HelperText, TextInput, Avatar } from 'react-native-paper';
 import { Poem } from '../interfaces/Poem';
 import { connect, ConnectedProps } from 'react-redux';
-import { User } from '../interfaces/User';
 import { updatePoem, deletePoem, setPoem } from '../redux/actions/Poem';
 import { deleteUserPoem, setUser, decTotalPoem, updateUserPoem } from '../redux/actions/User';
 import { HomeStackParamList, ProfileStackParamList, BookmarkStackParamList, SearchStackParamList } from '../AppNav';

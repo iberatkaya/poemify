@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View, Platform, TouchableOpacity } from 'react-native';
-import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text, Checkbox } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, Platform } from 'react-native';
+import { Title, TextInput, Subheading, Button, HelperText, IconButton, Text } from 'react-native-paper';
 import EmailValidator from 'email-validator';
 import RNPickerSelect from 'react-native-picker-select';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../redux/actions/User';
 import { RootState } from '../redux/store';

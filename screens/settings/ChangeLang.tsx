@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View, Platform } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import RNPickerSelect from 'react-native-picker-select';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { User } from '../../interfaces/User';
 import { Language } from 'interfaces/Language';
 import { connect, ConnectedProps } from 'react-redux';
@@ -13,8 +12,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { usersCollectionId } from '../../constants/collection';
 import { allLangs } from '../../constants/language';
 import { ProfileStackParamList } from '../../AppNav';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<ProfileStackParamList, 'ChangeLang'>;
+type EnteranceScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'ChangeLang'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,

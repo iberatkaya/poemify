@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { User } from '../../interfaces/User';
 import { connect, ConnectedProps } from 'react-redux';
 import { setUser } from '../../redux/actions/User';
@@ -11,8 +10,9 @@ import { usersCollectionId } from '../../constants/collection';
 import { ProfileStackParamList } from '../../AppNav';
 import { FlatList } from 'react-native-gesture-handler';
 import UserCard from '../../components/UserCard';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type EnteranceScreenNavigationProp = DrawerNavigationProp<ProfileStackParamList, 'BlockList'>;
+type EnteranceScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'BlockList'>;
 
 const mapState = (state: RootState) => ({
     user: state.user,

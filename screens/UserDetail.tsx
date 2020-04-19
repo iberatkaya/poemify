@@ -51,13 +51,17 @@ function UserDetail(props: Props) {
     };
     const [theUser, setTheUser] = useState<User>(temp);
 
-    const [refresh, setRefresh] = useState(false);
     const [scrolling, setScrolling] = useState(false);
 
     const fetchPoems = async (fetchAfter = false) => {
         try {
             let res;
             let tempUser = await firestore().collection(usersCollectionId).doc(props.route.params!.profileUser.docid).get();
+            if(!tempUser.exists || tempUser === undefined){
+                Toast.show("The user has deleted their account!");
+                props.navigation.pop();
+                return;
+            }
             if (fetchAfter && scrolling) {
                 let lastpoem = theUser.poems[theUser.poems.length - 1];
                 res = await firestore()
@@ -101,7 +105,6 @@ function UserDetail(props: Props) {
                 setTheUser(tempusr as User);
             }
         } catch (e) {
-            setRefresh(false);
             Toast.show('Please check your internet connection!');
             console.log(e);
         }

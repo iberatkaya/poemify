@@ -16,7 +16,7 @@ import Toast from 'react-native-simple-toast';
 import { poemsCollectionId, production, usersCollectionId } from '../constants/collection';
 import RNBootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-community/async-storage';
-import { InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from '@react-native-firebase/admob';
+import { InterstitialAd, TestIds } from '@react-native-firebase/admob';
 import { myinterstitial, myinterstitialios } from '../constants/ads';
 import RNPickerSelect from 'react-native-picker-select';
 import { User } from '../interfaces/User';

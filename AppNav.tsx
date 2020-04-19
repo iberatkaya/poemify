@@ -31,6 +31,7 @@ import IntroScreen from './screens/FirstIntro';
 import BlockListPage from './screens/settings/BlockList';
 import TOSPage from "./screens/TOS";
 import TOSSetPage from "./screens/settings/TOS";
+import DeleteAccountPage from "./screens/settings/DeleteAccount";
 
 const StackHome = createStackNavigator<HomeStackParamList>();
 
@@ -80,6 +81,7 @@ export type ProfileStackParamList = {
     ChangeTopics: undefined;
     BlockList: undefined;
     TOS: undefined;
+    DeleteAccount: undefined;
     FollowList: { type: 'Followers' | 'Following' };
     UserDetail: { profileUser: SubUser } | undefined;
 };
@@ -127,6 +129,11 @@ function ProfileStack() {
                 name="TOS"
                 component={TOSSetPage}
                 options={{ headerTitle: 'TOS', headerStyle: { elevation: 1 } }}
+            />
+            <StackProfile.Screen
+                name="DeleteAccount"
+                component={DeleteAccountPage}
+                options={{ headerTitle: 'Delete Account', headerStyle: { elevation: 1 } }}
             />
         </StackProfile.Navigator>
     );
