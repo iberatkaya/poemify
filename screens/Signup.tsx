@@ -249,6 +249,7 @@ function Signup(props: Props) {
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
+                                    { error: false, msg: '' }
                                 ]);
                                 setLoading(false);
                                 return;
@@ -306,6 +307,7 @@ function Signup(props: Props) {
                                     { error: false, msg: '' },
                                     { error: false, msg: '' },
                                     { error: true, msg: 'The email address is already used!' },
+                                    { error: false, msg: '' },
                                     { error: false, msg: '' },
                                 ]);
                                 setLoading(false);
