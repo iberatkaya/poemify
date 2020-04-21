@@ -330,7 +330,7 @@ function PoemCard(props: Props) {
                                             let res = await firestore().collection(poemsCollectionId).doc(props.item.docid).get()
                                             let poem = res.data() as Poem;
                                             if(poem === undefined) 
-                                                throw "Poem was deleted";
+                                                throw "Poem was deleted!";
 
                                             let myindex = poem.likes.findIndex((val) => val.username === props.user.username);
                                             if (myindex === -1) {
