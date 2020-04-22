@@ -58,5 +58,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>lsapplicationqueriesschemes</key>
+	<array>
+		<string>facebook</string>
+		<string>whatsapp</string>
+		<string>twitter</string>
+		<string>instagram</string>
+		<string>instagram-stories</string>
+		<string>linkedin</string>
+	</array>
 </dict>
 </plist>

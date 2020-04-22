@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity, Share } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Card, Paragraph, Text, IconButton, Divider, Menu, Button, HelperText, TextInput, Avatar } from 'react-native-paper';
 import { Poem } from '../interfaces/Poem';
@@ -16,6 +16,7 @@ import { usersCollectionId, poemsCollectionId, reportCollectionId } from '../con
 import { Comment } from '../interfaces/Comment';
 import millify from 'millify';
 import { Report } from '../interfaces/Report';
+
 
 type PoemCardScreenNavigationProp = StackNavigationProp<
     HomeStackParamList & ProfileStackParamList & BookmarkStackParamList & SearchStackParamList,
@@ -298,18 +299,21 @@ function PoemCard(props: Props) {
             </Card.Content>
             <Divider style={styles.divider} />
             <Card.Actions style={styles.actions}>
-                <Paragraph
+                <TouchableOpacity 
                     onPress={() =>
                         props.navigation.push('UserDetail', {
                             profileUser: { docid: props.item.author.docid, username: props.item.author.username, uid: props.user.uid },
                             isBookmark: props.bookmark,
                         })
                     }
-                    style={styles.author}
-                >
-                    {props.item.author.username.length > 12 ? props.item.author.username.slice(0, 13) : props.item.author.username}
-                </Paragraph>
-
+                    style={{flexDirection: "row"}}>
+                    <Avatar.Text style={styles.icon} size={24} label={props.item.author.username.slice(0, 2).toUpperCase()} />
+                    <Paragraph
+                        style={styles.author}
+                    >
+                        {props.item.author.username.length > 12 ? props.item.author.username.slice(0, 13) : props.item.author.username}
+                    </Paragraph>
+                </TouchableOpacity>
                 <Text style={styles.time}>{timeAgo.format(props.item.date)}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {props.bookmark ? (
@@ -573,6 +577,21 @@ function PoemCard(props: Props) {
                             )}
                         </View>
                     )}
+                    <View>
+                        <IconButton icon="share" size={22} style={{margin: 0}} 
+                            //@ts-ignore
+                            onPress={async () => {
+                                try {
+                                    await Share.share({
+                                        message: props.item.title + "\n\n" + props.item.body + "\n\n" + props.item.author.username,
+                                        title: props.item.title
+                                    });    
+                                } catch(e){
+                                    console.log(e);
+                                }
+                            }}
+                        />
+                    </View>
                 </View>
             </Card.Actions>
             <Divider style={styles.divider} />
