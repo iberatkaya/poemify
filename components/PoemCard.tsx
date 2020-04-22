@@ -311,7 +311,7 @@ function PoemCard(props: Props) {
                     <Paragraph
                         style={styles.author}
                     >
-                        {props.item.author.username.length > 12 ? props.item.author.username.slice(0, 13) : props.item.author.username}
+                        {props.item.author.username.length > 9 ? props.item.author.username.slice(0, 10) + "..." : props.item.author.username}
                     </Paragraph>
                 </TouchableOpacity>
                 <Text style={styles.time}>{timeAgo.format(props.item.date)}</Text>
@@ -325,7 +325,7 @@ function PoemCard(props: Props) {
                                     color="red"
                                     icon="heart"
                                     style={styles.icon}
-                                    size={20}
+                                    size={18}
                                     //@ts-ignore
                                     onPress={async () => {
                                         try {
@@ -381,7 +381,7 @@ function PoemCard(props: Props) {
                                 <IconButton
                                     icon="heart-outline"
                                     style={styles.icon}
-                                    size={20}
+                                    size={18}
                                     //@ts-ignore
                                     onPress={async () => {
                                         try {
@@ -453,6 +453,7 @@ function PoemCard(props: Props) {
                                 <IconButton
                                     style={styles.icon}
                                     icon="bookmark"
+                                    size={22}
                                     color="black"
                                     //@ts-ignore
                                     onPress={async () => {
@@ -517,6 +518,7 @@ function PoemCard(props: Props) {
                             ) : (
                                 <IconButton
                                     style={styles.icon}
+                                    size={22}
                                     icon="bookmark-outline"
                                     //@ts-ignore
                                     onPress={async () => {
@@ -578,7 +580,8 @@ function PoemCard(props: Props) {
                         </View>
                     )}
                     <View>
-                        <IconButton icon="share" size={22} style={{margin: 0}} 
+                        <IconButton icon="share" size={18} 
+                            style={styles.icon}
                             //@ts-ignore
                             onPress={async () => {
                                 try {
@@ -774,7 +777,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },
     icon: {
-        marginRight: 0,
+        marginHorizontal: 0,
     },
     menu: {
         position: 'absolute',
@@ -831,6 +834,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     likeText: {
-        fontSize: 18,
+        fontSize: 16,
+        marginRight: 3
     },
 });
