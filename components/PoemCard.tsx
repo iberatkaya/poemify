@@ -583,7 +583,7 @@ function PoemCard(props: Props) {
                             onPress={async () => {
                                 try {
                                     await Share.share({
-                                        message: props.item.title + "\n\n" + props.item.body + "\n\n" + props.item.author.username,
+                                        message: props.item.title + "\n\n" + props.item.body + "\n\nAuthor: " + props.item.author.username + "\n\n\nCheckout Poemify:\nAndroid: https://play.google.com/store/apps/details?id=com.kaya.poemify\nApp Store: https://apps.apple.com/us/developer/selim-ustel/id1498230191",
                                         title: props.item.title
                                     });    
                                 } catch(e){
