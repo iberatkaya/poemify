@@ -311,7 +311,7 @@ function PoemCard(props: Props) {
                     <Paragraph
                         style={styles.author}
                     >
-                        {props.item.author.username.length > 9 ? props.item.author.username.slice(0, 10) + "..." : props.item.author.username}
+                        {props.item.author.username.length > 9 ? props.item.author.username.slice(0, 9) + "..." : props.item.author.username}
                     </Paragraph>
                 </TouchableOpacity>
                 <Text style={styles.time}>{timeAgo.format(props.item.date)}</Text>
